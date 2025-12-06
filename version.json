@@ -1,0 +1,48 @@
+{
+  "version": "43.0",
+  "build": "2024-12-06",
+  "codename": "Multiplayer Edition",
+  "features": [
+    "🌐 MULTIPLAYER: Real-time 4-player co-op via Firebase",
+    "🎮 Room creation and matchmaking system",
+    "⛪ Church Directory with 20+ real churches",
+    "📅 Events system with auto-population",
+    "📰 Bulletins from partner churches",
+    "🔍 Search churches by denomination, location, tags",
+    "📍 Location-based church finder",
+    "⭐ Featured church highlights",
+    "➕ Submit your own church for review",
+    "🔐 Google Sign-In authentication",
+    "☁️ Cloud save sync for logged-in users",
+    "🎨 Custom bird turd emoji (grey/white)",
+    "👤 Portrait system for character sprites",
+    "🚜 New tractor sprites (good/bad)",
+    "⚡ Auto-start game on play.html"
+  ],
+  "multiplayer": {
+    "maxPlayers": 4,
+    "features": ["rooms", "matchmaking", "chat", "shared-enemies", "leaderboards"]
+  },
+  "churchDirectory": {
+    "categories": [
+      "Calvary Chapel",
+      "Baptist",
+      "Non-denominational",
+      "Pentecostal",
+      "Presbyterian",
+      "Lutheran",
+      "Methodist",
+      "Catholic",
+      "Orthodox",
+      "Other"
+    ],
+    "autoPopulate": true,
+    "realTimeUpdates": true
+  },
+  "changelog": {
+    "43.0": "Multiplayer + Church Directory - Full feature release",
+    "42.0": "Claude + ChatGPT collaboration - turd emoji, Google auth, cloud save",
+    "41.4": "ChatGPT fixes - portrait system, auto-start, tractor sprites",
+    "40.5": "Hunter UI redesign"
+  }
+}

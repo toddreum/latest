@@ -40,13 +40,8 @@ const GAME_HEIGHT = 640;
 const WORLD_WIDTH = 20000;
 const TURD_SCALE = 0.04; // Smaller turds - fixed scaling
 const BIRD_SCALE = 0.12; // Bird scaling - reasonable size
-const ANIMAL_SCALE = 0.20; // Ground animal scaling - increased for visibility
-const HUNTER_SCALE = 0.24; // Character scale for sprite sheets - slightly larger for readability
-const TRUMP_SCALE = 0.24; // Trump and VIPs
-const BODYGUARD_SCALE = 0.22; // Secret service
-const FARMER_SCALE = 0.22; // NPCs
-const CHILD_SCALE = 0.18; // Smaller NPCs
-const TRACTOR_SCALE = 0.18; // Vehicles
+const ANIMAL_SCALE = 0.08; // Ground animal scaling
+const HUNTER_SCALE = 0.18; // Character scale for sprite sheets - visible size
 
 // ========== DIFFICULTY MODES ==========
 const DIFFICULTY_MODES = {
@@ -1484,7 +1479,7 @@ const shootableBirdKillMessages = [
   "BOOM! Feathers everywhere! 💥", "That's what you get for turding! 💩",
   "No more turds from that one! 🚫💩", "Turd machine DESTROYED! 🔥",
   "Another turder bites the dust! 🎵", "Fowl play? More like FAIR play! 🎯",
-  "That bird won't turd again! 🎯", "SPLAT goes the turder! 💩",
+  "That bird won't turd again! 💀", "SPLAT goes the turder! 💩",
   "One less turd in the sky! ☁️", "That's for all the car washes! 🚗",
   "Revenge is sweet! 🍬", "Target eliminated! 🎯",
   "That bird was full of... well, you know! 💩", "Feather duster! 🧹",
@@ -1630,8 +1625,8 @@ const npcTypes = {
 // Birds are FINITE per level - kill them all to progress!
 
 const LEVEL_CONFIG = {
-  0:  { birdsToKill: 10,  spawnRate: 3.0, birdSpeed: 0.85, turdChance: 0.04, bossChance: 0.02, name: 'Christmas Celebration 🎄' },
-  1:  { birdsToKill: 15,  spawnRate: 2.6, birdSpeed: 0.95, turdChance: 0.08, bossChance: 0.03, name: 'Country Farm' },
+  0:  { birdsToKill: 10,  spawnRate: 2.5, birdSpeed: 0.9, turdChance: 0.08, bossChance: 0.02, name: 'Christmas Celebration 🎄' },
+  1:  { birdsToKill: 15,  spawnRate: 2.2, birdSpeed: 1.0, turdChance: 0.12, bossChance: 0.03, name: 'Country Farm' },
   2:  { birdsToKill: 20,  spawnRate: 2.0, birdSpeed: 1.05, turdChance: 0.15, bossChance: 0.05, name: 'Deep Forest' },
   3:  { birdsToKill: 25,  spawnRate: 1.8, birdSpeed: 1.1, turdChance: 0.18, bossChance: 0.07, name: 'Fishing Lake' },
   4:  { birdsToKill: 0,   spawnRate: 2.5, birdSpeed: 0.8, turdChance: 0.10, bossChance: 0.00, name: 'STATE PARK (NO HUNTING!)' },
@@ -1845,158 +1840,10 @@ class BirdTurdsScene extends Phaser.Scene {
   }
 
   preload() {
-    // ========== LOADING SCREEN WITH PROGRESS BAR ==========
-    const loadingBg = this.add.rectangle(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, 0x1a1a2e);
-    const loadingTitle = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 - 60, '🎮 BIRDTURDS 🎮', {
-      fontSize: '32px', fontStyle: 'bold', color: '#ffd700'
-    }).setOrigin(0.5);
-    const loadingText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 - 20, 'Loading...', {
-      fontSize: '18px', color: '#ffffff'
-    }).setOrigin(0.5);
-    
-    // Progress bar background
-    const barBg = this.add.rectangle(GAME_WIDTH/2, GAME_HEIGHT/2 + 30, 300, 20, 0x333333);
-    const barFill = this.add.rectangle(GAME_WIDTH/2 - 148, GAME_HEIGHT/2 + 30, 4, 16, 0x22c55e).setOrigin(0, 0.5);
-    
-    const percentText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 + 60, '0%', {
-      fontSize: '14px', color: '#88ccff'
-    }).setOrigin(0.5);
-    
-    // ========== SCARED CHICKEN TRYING TO HOLD BACK THE BAR! ==========
-    const barLeftX = GAME_WIDTH/2 - 148;
-    const barY = GAME_HEIGHT/2 + 30;
-    
-    // Create chicken emoji-style using graphics
-    const chicken = this.add.container(barLeftX + 10, barY - 15);
-    
-    // Body (white oval)
-    const body = this.add.ellipse(0, 0, 18, 22, 0xffffff);
-    // Wing
-    const wing = this.add.ellipse(2, 2, 10, 8, 0xeeeeee);
-    // Head
-    const head = this.add.ellipse(-2, -14, 12, 10, 0xffffff);
-    // Eye (scared - wide open!)
-    const eye = this.add.circle(-4, -15, 3, 0x000000);
-    const eyeWhite = this.add.circle(-5, -16, 1.5, 0xffffff);
-    // Beak
-    const beak = this.add.triangle(6, -13, 0, 0, 8, 3, 0, 6, 0xfabc50);
-    // Comb (red)
-    const comb1 = this.add.ellipse(-4, -22, 5, 5, 0xdc2828);
-    const comb2 = this.add.ellipse(0, -24, 5, 5, 0xdc2828);
-    // Legs (orange, spread out like braking!)
-    const leg1 = this.add.rectangle(-5, 14, 3, 10, 0xf0a028).setAngle(-20);
-    const leg2 = this.add.rectangle(3, 14, 3, 10, 0xf0a028).setAngle(20);
-    // Skid dust puffs behind!
-    const dust1 = this.add.ellipse(-18, 8, 8, 6, 0xcccccc, 0.6);
-    const dust2 = this.add.ellipse(-25, 5, 6, 5, 0xcccccc, 0.4);
-    const dust3 = this.add.ellipse(-30, 10, 5, 4, 0xcccccc, 0.3);
-    
-    chicken.add([dust3, dust2, dust1, body, wing, head, eye, eyeWhite, beak, comb1, comb2, leg1, leg2]);
-    chicken.setScale(0.9);
-    chicken.setDepth(100);
-    
-    // Flip to face left (trying to hold back!)
-    chicken.scaleX = -0.9;
-    
-    // Scared text bubble
-    const scaredText = this.add.text(barLeftX + 50, barY - 45, '😱', {
-      fontSize: '16px'
-    }).setOrigin(0.5).setAlpha(0);
-    
-    let chickenPhase = 0;
-    let lastProgress = 0;
-    
-    // Update progress bar as assets load
-    this.load.on('progress', (value) => {
-      barFill.width = 296 * value;
-      percentText.setText(Math.round(value * 100) + '%');
-      
-      // Move chicken with the bar (being pushed!)
-      const chickenX = barLeftX + (296 * value) + 15;
-      chicken.x = chickenX;
-      scaredText.x = chickenX + 40;
-      
-      // Skidding animation - bobbing and shaking!
-      chickenPhase += 0.4;
-      chicken.y = barY - 15 + Math.sin(chickenPhase) * 3;
-      chicken.rotation = Math.sin(chickenPhase * 1.5) * 0.15; // Wobble!
-      
-      // Dust puffs animate
-      dust1.setAlpha(0.3 + Math.sin(chickenPhase * 2) * 0.3);
-      dust2.setAlpha(0.2 + Math.sin(chickenPhase * 2.5) * 0.2);
-      dust3.setAlpha(0.1 + Math.sin(chickenPhase * 3) * 0.2);
-      
-      // Show scared text occasionally
-      if (value > 0.3 && value < 0.9) {
-        scaredText.setAlpha(Math.sin(chickenPhase) > 0.7 ? 1 : 0);
-      }
-      
-      // At 80%+ chicken gets MORE panicked!
-      if (value > 0.8) {
-        chicken.rotation = Math.sin(chickenPhase * 3) * 0.25;
-        scaredText.setText('🆘');
-        scaredText.setAlpha(1);
-      }
-      
-      lastProgress = value;
-    });
-    
-    this.load.on('complete', () => {
-      // CHICKEN FREAKOUT AT 100%!
-      scaredText.setText('💀');
-      scaredText.setAlpha(1);
-      
-      // Freakout animation
-      this.tweens.add({
-        targets: chicken,
-        duration: 150,
-        angle: { from: -15, to: 15 },
-        yoyo: true,
-        repeat: 4,
-        ease: 'Sine.inOut',
-        onComplete: () => {
-          // Chicken flies away!
-          this.tweens.add({
-            targets: [chicken, scaredText],
-            duration: 400,
-            y: chicken.y - 80,
-            alpha: 0,
-            angle: 720,
-            ease: 'Back.in',
-            onComplete: () => {
-              chicken.destroy();
-              scaredText.destroy();
-            }
-          });
-        }
-      });
-      
-      // Clean up loading elements after chicken animation
-      this.time.delayedCall(600, () => {
-        loadingBg.destroy();
-        loadingTitle.destroy();
-        loadingText.destroy();
-        barBg.destroy();
-        barFill.destroy();
-        percentText.destroy();
-      });
-    });
-    
-    // Helper function for loading images with error handling
+    // Helper function for loading images
     const img = (key, file) => {
-      try { 
-        this.load.image(key, file);
-      } catch(e) { 
-        console.warn('Failed to load:', key, e); 
-      }
+      try { this.load.image(key, file); } catch(e) { console.warn('Failed to load:', key); }
     };
-    
-    // Track failed assets
-    this.failedAssets = [];
-    this.load.on('loaderror', (file) => {
-      console.warn('⚠️ Asset failed to load:', file.key, file.src);
-      this.failedAssets.push(file.key);
-    });
     
     // ========== 8 ANIMATED CHARACTER SPRITE SHEETS ==========
     // Buck animations (male character)
@@ -2147,27 +1994,6 @@ class BirdTurdsScene extends Phaser.Scene {
     img('clouds', '/sprites/landscapes/clouds.png');
     img('snow', '/sprites/landscapes/christmas.png'); // Snow ground for Christmas
     
-    // ========== GUN SOUND EFFECTS - Real Audio Files ==========
-    this.load.audio('buck_shoot', '/sounds/buck_shoot.mp3');      // Lever-Action Rifle
-    this.load.audio('bubba_shoot', '/sounds/bubba_shoot.mp3');    // Pump-Action Shotgun
-    this.load.audio('daisy_shoot', '/sounds/daisy_shoot.mp3');    // Double-Barrel Shotgun
-    this.load.audio('sierra_shoot', '/sounds/sierra_shoot.mp3'); // AR-15 Carbine
-    this.load.audio('clyde_shoot', '/sounds/clyde_shoot.mp3');   // Semi-Auto Hunting Rifle
-    this.load.audio('gunner_shoot', '/sounds/gunner_shoot.mp3'); // AK Assault Rifle
-    this.load.audio('jolene_shoot', '/sounds/jolene_shoot.mp3'); // Bolt-Action Sniper
-    this.load.audio('tammy_shoot', '/sounds/tammy_shoot.mp3');   // Semi-Auto Pistol
-    this.load.audio('machinegun_sound', '/sounds/machinegun.mp3'); // Store Machine Gun
-    
-    // ========== GAMEPLAY SOUND EFFECTS - Real Audio Files ==========
-    this.load.audio('hit_sound', '/sounds/hit.mp3');             // Bullet impact
-    this.load.audio('splat_sound', '/sounds/splat.mp3');         // Bird poop splat
-    this.load.audio('coin_sound', '/sounds/coin.mp3');           // Coin collect
-    this.load.audio('reload_sound', '/sounds/reload.mp3');       // Gun reload
-    this.load.audio('explosion_sound', '/sounds/explosion.mp3'); // Explosions
-    this.load.audio('hurt_sound', '/sounds/hurt.mp3');           // Player hurt
-    this.load.audio('bird_death_sound', '/sounds/bird_death.mp3'); // Bird dying
-    this.load.audio('gameover_sound', '/sounds/gameover.mp3');   // Game over
-    
     // Hunter skin overlays (tint variations applied in code)
     // Armor overlays loaded separately
     // Hunter skin overlays (optional)
@@ -2176,21 +2002,9 @@ class BirdTurdsScene extends Phaser.Scene {
     // img('armor_golden', '/sprites/armor_golden.png'); // Not used
     
     // ========== VEHICLES - Use Ludo PNG assets ==========
-    // Tractors - animated spritesheets (400x80, 5 frames @ 80x80 each)
-    this.load.spritesheet('tractor_good_anim', '/sprites/vehicles/tractor_good_strip.png', { frameWidth: 80, frameHeight: 80 });
-    this.load.spritesheet('tractor_good_left', '/sprites/vehicles/tractor_good_strip_left.png', { frameWidth: 80, frameHeight: 80 });
-    this.load.spritesheet('tractor_bad_anim', '/sprites/vehicles/tractor_bad_strip.png', { frameWidth: 80, frameHeight: 80 });
-    this.load.spritesheet('tractor_bad_left', '/sprites/vehicles/tractor_bad_strip_left.png', { frameWidth: 80, frameHeight: 80 });
-    // Fallback single images
-    img('tractor_good', '/sprites/vehicles/tractor_green.png');
-    img('tractor_bad', '/sprites/vehicles/tractor_red.png');
+    img('tractor_green', '/sprites/vehicles/tractor_green.png');
+    img('tractor_red', '/sprites/vehicles/tractor_red.png');
     img('tractor', '/sprites/vehicles/tractor_green.png'); // Alias for green
-    
-    // Tractor driver audio
-    this.load.audio('tractor_driver_good', '/sounds/tractor_driver_good.mp3');
-    this.load.audio('tractor_driver_bad', '/sounds/tractor_driver_bad_new.mp3');
-    this.load.audio('tractor_engine_good', '/sounds/tractor_good.mp3');
-    this.load.audio('tractor_engine_bad', '/sounds/tractor_bad.mp3');
     img('plane', '/sprites/vehicles/plane.png');
     img('helicopter', '/sprites/vehicles/helicopter.png');
     img('dirtbike', '/sprites/vehicles/dirtbike.png');
@@ -2280,11 +2094,6 @@ class BirdTurdsScene extends Phaser.Scene {
     this.groundY = GAME_HEIGHT - 60;
     console.log('BirdTurds: groundY =', this.groundY);
     
-    // ========== PERFORMANCE SYSTEM INIT ==========
-    try { 
-      if (window.PerformanceSystem) window.PerformanceSystem.init(this);
-    } catch(e) { console.warn('PerformanceSystem init error:', e); }
-    
     // ========== CHRISTMAS MODE CHECK ==========
     this.isChristmasMode = isChristmasSeason();
     if (this.isChristmasMode) {
@@ -2309,7 +2118,6 @@ class BirdTurdsScene extends Phaser.Scene {
     console.log('BirdTurds: hunter created at', this.hunter?.x, this.hunter?.y);
     this.createInput();
     console.log('BirdTurds: input created');
-    this.initDebugOverlay();
     this.initJokeSystem();
     
     // ========== CHRISTMAS FALLING SNOW ==========
@@ -2342,10 +2150,6 @@ class BirdTurdsScene extends Phaser.Scene {
     this.showInstructions();
     this.loadPlayerData();
     
-    // Setup in-game coin display and quick shop
-    this.setupCoinDisplay();
-    this.setupQuickShopKeys();
-    
     // Show first joke after 10 seconds
     this.time.delayedCall(10000, () => this.showRandomJoke());
     
@@ -2353,11 +2157,7 @@ class BirdTurdsScene extends Phaser.Scene {
     this.time.delayedCall(this.breakInterval, () => this.checkWellness());
     
     // Initialize AI bots (2 bots by default for solo play)
-    // Delay slightly to ensure camera and all assets are ready
-    this.time.delayedCall(500, () => {
-      console.log('🤖 Delayed bot initialization starting...');
-      this.initBots(2);
-    });
+    this.initBots(2);
     
     // Initialize demon group
     this.demons = this.physics.add.group();
@@ -2369,28 +2169,6 @@ class BirdTurdsScene extends Phaser.Scene {
     
     // Angel protection visual (player's personal angel)
     this.playerAngel = null;
-    
-    // === COPILOT: Scene shutdown cleanup handler ===
-    this.events.once('shutdown', () => {
-      console.log('🧹 Scene shutdown - cleaning up...');
-      // Kill all tweens
-      if (this.tweens) this.tweens.killAll();
-      // Clear intervals/timeouts stored on scene
-      if (this.vehicleSpawnTimer) this.time.removeEvent(this.vehicleSpawnTimer);
-      if (this.birdSpawnTimer) this.time.removeEvent(this.birdSpawnTimer);
-      // Clear bot references
-      if (this.bots) {
-        this.bots.forEach(bot => {
-          if (bot.sprite) bot.sprite.destroy();
-          if (bot.nameTag) bot.nameTag.destroy();
-        });
-        this.bots = [];
-      }
-      // Clear stored states
-      this.hunterPreGrabState = null;
-      this.hunterPreHitState = null;
-      this.hunterBeingCarried = false;
-    });
   }
   
   // ========== ANGEL PROTECTION PURCHASE MENU ==========
@@ -2744,64 +2522,85 @@ class BirdTurdsScene extends Phaser.Scene {
   
   // ========== GOD BLESS AMERICA ANIMATED SPLASH ==========
   showGodBlessSplash() {
-    // Mark splash as active - prevents shooting
-    this.splashActive = true;
-    
-    // QUICK splash - 1.5 seconds then straight to level intro (skip woke-free zone)
+    // Create dark overlay
     const overlay = this.add.rectangle(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, 0x000022, 0.95)
       .setScrollFactor(0).setDepth(1000);
     
-    // Simple "God Bless America" text instead of slow animation
-    const title = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 - 50, 'GOD BLESS AMERICA!', {
-      fontSize: '36px',
-      fontStyle: 'bold',
-      color: '#ffd700'
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+    // Create animation for the splash
+    if (!this.anims.exists('godbless_anim')) {
+      this.anims.create({
+        key: 'godbless_anim',
+        frames: this.anims.generateFrameNumbers('godbless_splash', { start: 0, end: 3 }),
+        frameRate: 4,
+        repeat: -1
+      });
+    }
     
-    const subtitle = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 + 10, '🎮 LAUGH AND ENJOY! 🎮', {
+    // Add animated sprite
+    const splash = this.add.sprite(GAME_WIDTH/2, GAME_HEIGHT/2 - 40, 'godbless_splash')
+      .setScrollFactor(0).setDepth(1001).setScale(0.8);
+    splash.play('godbless_anim');
+    
+    // Scripture text
+    const scripture = this.add.text(GAME_WIDTH/2, GAME_HEIGHT - 100, 
+      '"A cheerful heart is good medicine"\n— Proverbs 17:22', {
+      fontSize: '18px',
+      fontStyle: 'italic',
+      color: '#ffd700',
+      align: 'center'
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
+    
+    // "Laugh and Enjoy" text
+    const enjoyText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT - 45,
+      '🎮 LAUGH AND ENJOY! 🎮', {
       fontSize: '24px',
       fontStyle: 'bold',
       color: '#ffffff'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
     
-    const scripture = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 + 60, 
-      '"A cheerful heart is good medicine" — Proverbs 17:22', {
-      fontSize: '16px',
-      fontStyle: 'italic',
-      color: '#88ccff'
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
+    // Animate entrance
+    splash.setAlpha(0).setScale(0.5);
+    this.tweens.add({
+      targets: splash,
+      alpha: 1,
+      scale: 0.8,
+      duration: 800,
+      ease: 'Back.easeOut'
+    });
     
-    // Click/tap to skip hint
-    const skipText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT - 30, 
-      'Click or tap anywhere to skip...', {
-      fontSize: '12px',
-      color: '#aaaaaa'
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(1002);
+    scripture.setAlpha(0);
+    this.tweens.add({
+      targets: scripture,
+      alpha: 1,
+      duration: 600,
+      delay: 500
+    });
     
-    // Store elements for cleanup
-    const splashElements = [overlay, title, subtitle, scripture, skipText];
-    let splashDone = false;
-    const self = this;
+    enjoyText.setAlpha(0);
+    this.tweens.add({
+      targets: enjoyText,
+      alpha: 1,
+      duration: 600,
+      delay: 800
+    });
     
-    const closeSplash = () => {
-      if (splashDone) return;
-      splashDone = true;
-      self.splashActive = false; // Re-enable shooting
-      self.input.off('pointerdown', closeSplash);
-      splashElements.forEach(el => { if (el && el.destroy) el.destroy(); });
-      // Skip woke-free zone, go straight to level intro
-      self.showLevelIntro();
-    };
-    
-    // Click to skip immediately - use interactive overlay
-    overlay.setInteractive({ useHandCursor: true });
-    overlay.on('pointerdown', closeSplash);
-    
-    // Also listen globally as backup
-    this.input.once('pointerdown', closeSplash);
-    
-    // Auto-close after 0.8 seconds (FAST start!)
-    this.time.delayedCall(800, closeSplash);
+    // Fade out after 4 seconds, then show Woke-Free Zone
+    this.time.delayedCall(4000, () => {
+      this.tweens.add({
+        targets: [overlay, splash, scripture, enjoyText],
+        alpha: 0,
+        duration: 500,
+        onComplete: () => {
+          overlay.destroy();
+          splash.destroy();
+          scripture.destroy();
+          enjoyText.destroy();
+          
+          // Show WOKE-FREE ZONE splash
+          this.showWokeFreeSplash();
+        }
+      });
+    });
   }
   
   // ========== WOKE-FREE ZONE SPLASH ==========
@@ -2907,21 +2706,18 @@ class BirdTurdsScene extends Phaser.Scene {
     });
   }
   
-  // ========== LEVEL INTRO SPLASH - FAST & SKIPPABLE ==========
+  // ========== LEVEL INTRO SPLASH ==========
   showLevelIntro() {
-    // Mark intro as active - prevents shooting
-    this.splashActive = true;
-    
     const level = btState.currentLevel;
     const config = LEVEL_CONFIG[level];
-    const scene = sceneSequence[level - 1] || sceneSequence[0];
+    const scene = sceneSequence[level - 1];
     
     // Create overlay
     const overlay = this.add.rectangle(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.85)
       .setScrollFactor(0).setDepth(1000);
     
-    // Level number - BIG and clear
-    const levelText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 - 60,
+    // Level number
+    const levelText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 - 80,
       `LEVEL ${level}`, {
       fontSize: '64px',
       fontStyle: 'bold',
@@ -2931,49 +2727,72 @@ class BirdTurdsScene extends Phaser.Scene {
     }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
     
     // Scene name
-    const sceneName = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2,
-      scene ? scene.name : 'Unknown', {
-      fontSize: '28px',
+    const sceneName = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 - 20,
+      scene.name, {
+      fontSize: '32px',
       fontStyle: 'bold',
       color: level === 7 ? '#ff4444' : '#88ccff'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
     
-    // Birds to kill - most important info
-    const objective = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 + 50,
-      `🎯 Kill ${config.birdsToKill} birds to advance! 🎯`, {
-      fontSize: '20px',
+    // Description
+    const desc = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 + 30,
+      scene.description, {
+      fontSize: '18px',
+      color: '#cccccc',
+      fontStyle: 'italic'
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
+    
+    // Birds to kill
+    const objective = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 + 80,
+      `🎯 KILL ${config.birdsToKill} BIRDS TO ADVANCE! 🎯`, {
+      fontSize: '22px',
       fontStyle: 'bold',
       color: '#ffff00'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
     
-    // Skip hint
-    const skipText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT - 30, 
-      'Click/tap to start!', {
-      fontSize: '14px',
-      color: '#aaaaaa'
+    // Difficulty indicator
+    const diffText = this.add.text(GAME_WIDTH/2, GAME_HEIGHT/2 + 120,
+      `Difficulty: ${config.name}`, {
+      fontSize: '16px',
+      color: level >= 5 ? '#ff6666' : level >= 3 ? '#ffaa00' : '#88ff88'
     }).setOrigin(0.5).setScrollFactor(0).setDepth(1001);
     
-    const elements = [overlay, levelText, sceneName, objective, skipText];
-    let introDone = false;
-    const self = this;
+    // Animate
+    [levelText, sceneName, desc, objective, diffText].forEach((txt, i) => {
+      txt.setAlpha(0);
+      this.tweens.add({
+        targets: txt,
+        alpha: 1,
+        duration: 300,
+        delay: i * 100
+      });
+    });
     
-    const closeIntro = () => {
-      if (introDone) return;
-      introDone = true;
-      self.splashActive = false; // Re-enable shooting
-      self.input.off('pointerdown', closeIntro);
-      elements.forEach(el => { if (el && el.destroy) el.destroy(); });
-    };
+    // Scale pulse on level number
+    this.tweens.add({
+      targets: levelText,
+      scale: 1.1,
+      duration: 500,
+      yoyo: true,
+      repeat: 2
+    });
     
-    // Make overlay interactive for click-to-skip
-    overlay.setInteractive({ useHandCursor: true });
-    overlay.on('pointerdown', closeIntro);
-    
-    // Also listen globally as backup
-    this.input.once('pointerdown', closeIntro);
-    
-    // Auto-close after 0.8 seconds (FAST start!)
-    this.time.delayedCall(800, closeIntro);
+    // Fade out after 3 seconds
+    this.time.delayedCall(3000, () => {
+      this.tweens.add({
+        targets: [overlay, levelText, sceneName, desc, objective, diffText],
+        alpha: 0,
+        duration: 400,
+        onComplete: () => {
+          overlay.destroy();
+          levelText.destroy();
+          sceneName.destroy();
+          desc.destroy();
+          objective.destroy();
+          diffText.destroy();
+        }
+      });
+    });
   }
   
   initJokeSystem() {
@@ -3017,7 +2836,7 @@ class BirdTurdsScene extends Phaser.Scene {
       { setup: "What do you call a fish without eyes?", punchline: "A fsh! 🐟" },
       { setup: "Why did the coffee file a police report?", punchline: "It got mugged! ☕" },
       { setup: "What did the janitor say when he jumped out of the closet?", punchline: "Supplies! 🧹" },
-      { setup: "Why don't skeletons fight each other?", punchline: "They don't have the guts! 🎯" },
+      { setup: "Why don't skeletons fight each other?", punchline: "They don't have the guts! 💀" },
       { setup: "What do you call a dog that does magic?", punchline: "A Labracadabrador! 🐕" },
       { setup: "Why did the cookie go to the doctor?", punchline: "It was feeling crummy! 🍪" },
       { setup: "What's brown and sticky?", punchline: "A stick! 🪵" },
@@ -3120,42 +2939,7 @@ class BirdTurdsScene extends Phaser.Scene {
     this.animals = this.physics.add.group();
     this.npcs = this.physics.add.group();
     this.parachuters = this.physics.add.group();  // Friendly parachuting allies!
-    this.ammoPickups = this.physics.add.group(); // Ammo box pickups
-    
-    // ========== TRACTOR ANIMATIONS ==========
-    // Animated tractors with spinning wheels, driver raising hands, smoke
-    if (this.textures.exists('tractor_good_anim')) {
-      this.anims.create({
-        key: 'tractor_good_right',
-        frames: this.anims.generateFrameNumbers('tractor_good_anim', { start: 0, end: 4 }),
-        frameRate: 12,
-        repeat: -1
-      });
-    }
-    if (this.textures.exists('tractor_good_left')) {
-      this.anims.create({
-        key: 'tractor_good_left',
-        frames: this.anims.generateFrameNumbers('tractor_good_left', { start: 0, end: 4 }),
-        frameRate: 12,
-        repeat: -1
-      });
-    }
-    if (this.textures.exists('tractor_bad_anim')) {
-      this.anims.create({
-        key: 'tractor_bad_right',
-        frames: this.anims.generateFrameNumbers('tractor_bad_anim', { start: 0, end: 4 }),
-        frameRate: 12,
-        repeat: -1
-      });
-    }
-    if (this.textures.exists('tractor_bad_left')) {
-      this.anims.create({
-        key: 'tractor_bad_left',
-        frames: this.anims.generateFrameNumbers('tractor_bad_left', { start: 0, end: 4 }),
-        frameRate: 12,
-        repeat: -1
-      });
-    }
+    this.weaponPickups = this.physics.add.group(); // Bow & Crossbow pickups
     
     // Initialize sound system
     this.initSoundSystem();
@@ -3164,55 +2948,7 @@ class BirdTurdsScene extends Phaser.Scene {
     this.initVoiceSystem();
   }
   
-  
-
-  // ========== LIGHTWEIGHT DEBUG OVERLAY ==========
-  // Toggle with F3 (desktop only). Shows FPS and basic entity counts for profiling.
-  initDebugOverlay() {
-    this.debugEnabled = false;
-    try {
-      this.debugText = this.add.text(10, 70, '', {
-        fontSize: '11px',
-        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
-        color: '#ffffff',
-        backgroundColor: 'rgba(0,0,0,0.6)'
-      }).setScrollFactor(0).setDepth(3000).setVisible(false);
-    } catch (e) {
-      console.warn('Debug overlay text failed to init:', e);
-      this.debugText = null;
-    }
-
-    if (this.input && this.input.keyboard) {
-      this.input.keyboard.on('keydown-F3', () => {
-        this.debugEnabled = !this.debugEnabled;
-        if (this.debugText) {
-          this.debugText.setVisible(this.debugEnabled);
-        }
-      });
-    }
-  }
-
-  updateDebugOverlay(dt) {
-    if (!this.debugEnabled || !this.debugText) return;
-
-    const loop = this.game && this.game.loop;
-    const fps = loop && loop.actualFps ? Math.round(loop.actualFps) : Math.round(1 / (dt || 0.016));
-
-    const birds = this.birds ? this.birds.countActive(true) : 0;
-    const vehicles = this.vehicles ? this.vehicles.countActive(true) : 0;
-    const bullets = this.bullets ? this.bullets.countActive(true) : 0;
-    const coins = this.coins ? this.coins.countActive(true) : 0;
-    const animals = this.animals ? this.animals.countActive(true) : 0;
-
-    this.debugText.setText(
-      `FPS: ${fps}\n` +
-      `Birds: ${birds}  Vehicles: ${vehicles}\n` +
-      `Bullets: ${bullets}  Coins: ${coins}\n` +
-      `Animals: ${animals}  Level: ${btState.currentLevel}`
-    );
-  }
-
-// ========== ELEVENLABS VOICE SYSTEM ==========
+  // ========== ELEVENLABS VOICE SYSTEM ==========
   initVoiceSystem() {
     // Voice settings - SEPARATE from game SFX
     this.voiceEnabled = localStorage.getItem('birdturds_voice') !== 'false';
@@ -4053,52 +3789,6 @@ class BirdTurdsScene extends Phaser.Scene {
     console.log('🔊 Sound system ready (waiting for user interaction)');
   }
   
-  // REAL AUDIO FILE PLAYBACK - Uses loaded MP3 files via Phaser
-  playRealAudio(key, volume = 1) {
-    if (!this.soundEnabled) return;
-    
-    // Prevent rapid sound stacking - track last play time per key
-    if (!this.soundLastPlayed) this.soundLastPlayed = {};
-    const now = Date.now();
-    const minInterval = key.includes('shoot') ? 50 : 100; // 50ms for shots, 100ms for others
-    if (this.soundLastPlayed[key] && (now - this.soundLastPlayed[key]) < minInterval) {
-      return; // Skip if played too recently
-    }
-    this.soundLastPlayed[key] = now;
-    
-    try {
-      // Check if sound exists in Phaser's cache
-      if (this.sound.get(key)) {
-        // Sound already exists, play it
-        this.sound.play(key, { volume: volume * this.sfxVolume });
-      } else if (this.cache.audio.exists(key)) {
-        // Sound is cached but not added yet, add and play
-        const sound = this.sound.add(key);
-        sound.play({ volume: volume * this.sfxVolume });
-      } else {
-        // Fallback to synthesized sound if audio file not loaded
-        console.warn('Audio file not found:', key, '- using fallback');
-        if (this.audioCtx && this.audioCtxReady) {
-          this.playFallbackShot(volume);
-        }
-      }
-    } catch (e) {
-      console.warn('Error playing audio:', key, e);
-    }
-  }
-  
-  // Fallback shot sound if real audio fails
-  playFallbackShot(vol) {
-    if (!this.audioCtx || !this.audioCtxReady) return;
-    const now = this.audioCtx.currentTime;
-    const noise = this.createNoise(0.05);
-    const noiseGain = this.audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(vol * 0.5, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-    noise.connect(noiseGain);
-    noiseGain.connect(this.masterVolume);
-  }
-  
   // PROCEDURAL SOUND EFFECTS using Web Audio API
   playSound(type, options = {}) {
     if (!this.soundEnabled || !this.audioCtx || !this.audioCtxReady) return;
@@ -4114,55 +3804,34 @@ class BirdTurdsScene extends Phaser.Scene {
       
       switch(type) {
         case 'shoot':
-          // Play weapon-specific REAL sound based on selected character
-          const charWeapon = btState.currentCharacter || 'buck';
-          const shootSoundKey = charWeapon + '_shoot';
-          this.playRealAudio(shootSoundKey, vol);
-          break;
-        case 'machinegun':
-          this.playRealAudio('machinegun_sound', vol);
-          break;
-        case 'minigun':
-          this.playRealAudio('machinegun_sound', vol * 0.8); // Use machinegun sound
-          break;
-        case 'sniper_shop':
-          this.playRealAudio('jolene_shoot', vol); // Use sniper sound
-          break;
-        case 'barrett':
-          this.playRealAudio('jolene_shoot', vol * 1.2); // Use sniper sound louder
-          break;
-        case 'deagle':
-          this.playRealAudio('tammy_shoot', vol * 1.1); // Use pistol sound
-          break;
-        case 'revolver':
-          this.playRealAudio('buck_shoot', vol); // Use rifle sound for revolver
+          this.playShotgunSound(now, vol);
           break;
         case 'hit':
-          this.playRealAudio('hit_sound', vol);
+          this.playHitSound(now, vol);
           break;
         case 'coin':
-          this.playRealAudio('coin_sound', vol);
+          this.playCoinSound(now, vol);
           break;
         case 'splat':
-          this.playRealAudio('splat_sound', vol);
+          this.playSplatSound(now, vol);
           break;
         case 'jump':
-          this.playJumpSound(now, vol); // Keep synthesized for now
+          this.playJumpSound(now, vol);
           break;
         case 'reload':
-          this.playRealAudio('reload_sound', vol);
+          this.playReloadSound(now, vol);
           break;
         case 'knife':
           this.playKnifeSound(now, vol);
           break;
         case 'explosion':
-          this.playRealAudio('explosion_sound', vol);
+          this.playExplosionSound(now, vol);
           break;
         case 'powerup':
           this.playPowerupSound(now, vol);
           break;
         case 'hurt':
-          this.playRealAudio('hurt_sound', vol);
+          this.playHurtSound(now, vol);
           break;
         case 'bird':
           this.playBirdSound(now, vol);
@@ -4171,7 +3840,7 @@ class BirdTurdsScene extends Phaser.Scene {
           this.playTractorSound(now, vol);
           break;
         case 'gameover':
-          this.playRealAudio('gameover_sound', vol);
+          this.playGameOverSound(now, vol);
           break;
         case 'transition':
           this.playTransitionSound(now, vol);
@@ -4258,7 +3927,7 @@ class BirdTurdsScene extends Phaser.Scene {
           this.playBulletHitSound(now, vol);
           break;
         case 'bird_death':
-          this.playRealAudio('bird_death_sound', vol);
+          this.playBirdDeathSound(now, vol);
           break;
         case 'boss_hit':
           this.playBossHitSound(now, vol);
@@ -4418,24 +4087,24 @@ class BirdTurdsScene extends Phaser.Scene {
         case 'pterodactyl':
           this.playPterodactylSound(now, vol);
           break;
-        // WEAPON SOUNDS - Use real audio files
+        // WEAPON SOUNDS
         case 'rifle':
-          this.playRealAudio('buck_shoot', vol);
+          this.playRifleSound(now, vol);
           break;
         case 'pistol':
-          this.playRealAudio('tammy_shoot', vol);
+          this.playPistolSound(now, vol);
           break;
         case 'machinegun':
-          this.playRealAudio('machinegun_sound', vol);
+          this.playMachinegunSound(now, vol);
           break;
         case 'sniper':
-          this.playRealAudio('jolene_shoot', vol);
+          this.playSniperSound(now, vol);
           break;
         case 'crossbow':
           this.playCrossbowSound(now, vol);
           break;
         case 'revolver':
-          this.playRealAudio('buck_shoot', vol); // Use rifle sound for revolver
+          this.playRevolverSound(now, vol);
           break;
         case 'grenade':
           this.playGrenadeSound(now, vol);
@@ -4484,10 +4153,10 @@ class BirdTurdsScene extends Phaser.Scene {
           break;
         // HUNTER CHARACTER SOUNDS
         case 'hunter_hurt':
-          this.playRealAudio('hurt_sound', vol);
+          this.playHunterHurtSound(now, vol);
           break;
         case 'hunter_death':
-          this.playRealAudio('gameover_sound', vol);
+          this.playHunterDeathSound(now, vol);
           break;
         case 'hunter_jump':
           this.playJumpSound(now, vol);
@@ -4496,7 +4165,7 @@ class BirdTurdsScene extends Phaser.Scene {
           this.playHunterLandSound(now, vol);
           break;
         case 'hunter_reload':
-          this.playRealAudio('reload_sound', vol);
+          this.playReloadSound(now, vol);
           break;
         case 'footstep':
           this.playFootstepSound(now, vol);
@@ -4508,390 +4177,29 @@ class BirdTurdsScene extends Phaser.Scene {
   }
   
   playShotgunSound(now, vol) {
-    // PROPER GUNSHOT - 3-layer sound: crack + boom + punch
-    
-    // Layer 1: Sharp white noise CRACK (the gunshot snap)
-    const noise = this.createNoise(0.05);
+    // Shotgun blast - low frequency burst + noise
+    const osc = this.audioCtx.createOscillator();
+    const gain = this.audioCtx.createGain();
+    const noise = this.createNoise(0.1);
     const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'highpass';
-    noiseFilter.frequency.value = 1000;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 1.2, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-    noiseGain.connect(this.masterVolume);
     
-    // Layer 2: Low frequency BOOM (the bass punch)
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(80, now);
-    boom.frequency.exponentialRampToValueAtTime(30, now + 0.12);
-    boomGain.gain.setValueAtTime(vol * 0.9, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.15);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(150, now);
+    osc.frequency.exponentialRampToValueAtTime(50, now + 0.1);
     
-    // Layer 3: Mid-frequency PUNCH (body/impact)
-    const punch = this.audioCtx.createOscillator();
-    const punchGain = this.audioCtx.createGain();
-    punch.type = 'triangle';
-    punch.frequency.setValueAtTime(200, now);
-    punch.frequency.exponentialRampToValueAtTime(60, now + 0.1);
-    punchGain.gain.setValueAtTime(vol * 0.6, now);
-    punchGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-    punch.connect(punchGain);
-    punchGain.connect(this.masterVolume);
-    punch.start(now);
-    punch.stop(now + 0.12);
-  }
-  
-  // BUCK - Lever-Action Rifle: Sharp crack with metallic lever ring
-  playRifleSound(now, vol) {
-    // Sharp crack
-    const noise = this.createNoise(0.04);
-    const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 2000;
-    noiseFilter.Q.value = 1;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 1.0, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-    noiseGain.connect(this.masterVolume);
+    gain.gain.setValueAtTime(vol * 0.8, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
     
-    // Medium boom
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(120, now);
-    boom.frequency.exponentialRampToValueAtTime(40, now + 0.1);
-    boomGain.gain.setValueAtTime(vol * 0.7, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.12);
-    
-    // Metallic lever ring
-    const ring = this.audioCtx.createOscillator();
-    const ringGain = this.audioCtx.createGain();
-    ring.type = 'sine';
-    ring.frequency.setValueAtTime(800, now + 0.05);
-    ring.frequency.exponentialRampToValueAtTime(400, now + 0.15);
-    ringGain.gain.setValueAtTime(vol * 0.15, now + 0.05);
-    ringGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-    ring.connect(ringGain);
-    ringGain.connect(this.masterVolume);
-    ring.start(now + 0.05);
-    ring.stop(now + 0.18);
-  }
-  
-  // BUBBA - Pump-Action Shotgun: Heavy boom with pump rack
-  playPumpShotgunSound(now, vol) {
-    // Heavy noise burst
-    const noise = this.createNoise(0.08);
-    const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'lowpass';
-    noiseFilter.frequency.value = 3000;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 1.3, now);
+    noiseGain.gain.setValueAtTime(vol * 0.5, now);
     noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    
+    osc.connect(gain);
+    noise.connect(noiseGain);
+    gain.connect(this.masterVolume);
     noiseGain.connect(this.masterVolume);
     
-    // Deep boom
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(60, now);
-    boom.frequency.exponentialRampToValueAtTime(25, now + 0.15);
-    boomGain.gain.setValueAtTime(vol * 1.0, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.18);
-    
-    // Pump rack sound (after shot)
-    const rack = this.audioCtx.createOscillator();
-    const rackGain = this.audioCtx.createGain();
-    rack.type = 'sawtooth';
-    rack.frequency.setValueAtTime(150, now + 0.15);
-    rack.frequency.setValueAtTime(200, now + 0.2);
-    rackGain.gain.setValueAtTime(0, now);
-    rackGain.gain.setValueAtTime(vol * 0.2, now + 0.15);
-    rackGain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-    rack.connect(rackGain);
-    rackGain.connect(this.masterVolume);
-    rack.start(now + 0.15);
-    rack.stop(now + 0.28);
-  }
-  
-  // DAISY - Double-Barrel Shotgun: Two quick booms
-  playDoubleBarrelSound(now, vol) {
-    // First barrel - heavy boom
-    const noise1 = this.createNoise(0.06);
-    const noise1Gain = this.audioCtx.createGain();
-    noise1Gain.gain.setValueAtTime(vol * 1.2, now);
-    noise1Gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
-    noise1.connect(noise1Gain);
-    noise1Gain.connect(this.masterVolume);
-    
-    const boom1 = this.audioCtx.createOscillator();
-    const boom1Gain = this.audioCtx.createGain();
-    boom1.type = 'sine';
-    boom1.frequency.setValueAtTime(70, now);
-    boom1.frequency.exponentialRampToValueAtTime(30, now + 0.12);
-    boom1Gain.gain.setValueAtTime(vol * 0.9, now);
-    boom1Gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-    boom1.connect(boom1Gain);
-    boom1Gain.connect(this.masterVolume);
-    boom1.start(now);
-    boom1.stop(now + 0.15);
-    
-    // Second barrel (slightly delayed)
-    const noise2 = this.createNoise(0.06);
-    const noise2Gain = this.audioCtx.createGain();
-    noise2Gain.gain.setValueAtTime(vol * 1.1, now + 0.08);
-    noise2Gain.gain.exponentialRampToValueAtTime(0.01, now + 0.14);
-    noise2.connect(noise2Gain);
-    noise2Gain.connect(this.masterVolume);
-    
-    const boom2 = this.audioCtx.createOscillator();
-    const boom2Gain = this.audioCtx.createGain();
-    boom2.type = 'sine';
-    boom2.frequency.setValueAtTime(65, now + 0.08);
-    boom2.frequency.exponentialRampToValueAtTime(28, now + 0.2);
-    boom2Gain.gain.setValueAtTime(vol * 0.85, now + 0.08);
-    boom2Gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-    boom2.connect(boom2Gain);
-    boom2Gain.connect(this.masterVolume);
-    boom2.start(now + 0.08);
-    boom2.stop(now + 0.22);
-  }
-  
-  // SIERRA - AR-15 Carbine: Quick sharp crack, rapid fire capable
-  playARSound(now, vol) {
-    // Sharp high crack
-    const noise = this.createNoise(0.025);
-    const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'highpass';
-    noiseFilter.frequency.value = 2500;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 1.1, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.025);
-    noiseGain.connect(this.masterVolume);
-    
-    // Punchy mid
-    const punch = this.audioCtx.createOscillator();
-    const punchGain = this.audioCtx.createGain();
-    punch.type = 'triangle';
-    punch.frequency.setValueAtTime(300, now);
-    punch.frequency.exponentialRampToValueAtTime(100, now + 0.05);
-    punchGain.gain.setValueAtTime(vol * 0.6, now);
-    punchGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-    punch.connect(punchGain);
-    punchGain.connect(this.masterVolume);
-    punch.start(now);
-    punch.stop(now + 0.06);
-    
-    // Quick low thump
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(150, now);
-    boom.frequency.exponentialRampToValueAtTime(50, now + 0.04);
-    boomGain.gain.setValueAtTime(vol * 0.5, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.05);
-  }
-  
-  // CLYDE - Semi-Auto Hunting Rifle: Medium crack
-  playSemiAutoRifleSound(now, vol) {
-    // Medium crack
-    const noise = this.createNoise(0.035);
-    const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'bandpass';
-    noiseFilter.frequency.value = 1800;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 0.9, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.035);
-    noiseGain.connect(this.masterVolume);
-    
-    // Solid boom
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(100, now);
-    boom.frequency.exponentialRampToValueAtTime(35, now + 0.1);
-    boomGain.gain.setValueAtTime(vol * 0.75, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.12);
-    
-    // Bolt click
-    const click = this.audioCtx.createOscillator();
-    const clickGain = this.audioCtx.createGain();
-    click.type = 'square';
-    click.frequency.setValueAtTime(2000, now + 0.06);
-    clickGain.gain.setValueAtTime(vol * 0.1, now + 0.06);
-    clickGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-    click.connect(clickGain);
-    clickGain.connect(this.masterVolume);
-    click.start(now + 0.06);
-    click.stop(now + 0.09);
-  }
-  
-  // GUNNER - AK Assault Rifle: Heavy distinctive thump
-  playAKSound(now, vol) {
-    // Heavy noise burst
-    const noise = this.createNoise(0.04);
-    const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'lowpass';
-    noiseFilter.frequency.value = 4000;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 1.2, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-    noiseGain.connect(this.masterVolume);
-    
-    // Distinctive heavy thump (AK sound)
-    const thump = this.audioCtx.createOscillator();
-    const thumpGain = this.audioCtx.createGain();
-    thump.type = 'sine';
-    thump.frequency.setValueAtTime(90, now);
-    thump.frequency.exponentialRampToValueAtTime(40, now + 0.08);
-    thumpGain.gain.setValueAtTime(vol * 0.9, now);
-    thumpGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-    thump.connect(thumpGain);
-    thumpGain.connect(this.masterVolume);
-    thump.start(now);
-    thump.stop(now + 0.1);
-    
-    // Mid punch
-    const punch = this.audioCtx.createOscillator();
-    const punchGain = this.audioCtx.createGain();
-    punch.type = 'triangle';
-    punch.frequency.setValueAtTime(250, now);
-    punch.frequency.exponentialRampToValueAtTime(80, now + 0.06);
-    punchGain.gain.setValueAtTime(vol * 0.5, now);
-    punchGain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
-    punch.connect(punchGain);
-    punchGain.connect(this.masterVolume);
-    punch.start(now);
-    punch.stop(now + 0.07);
-  }
-  
-  // JOLENE - Bolt-Action Sniper: Heavy deep crack with echo
-  playSniperSound(now, vol) {
-    // Sharp crack
-    const noise = this.createNoise(0.03);
-    const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'highpass';
-    noiseFilter.frequency.value = 1500;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 1.3, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
-    noiseGain.connect(this.masterVolume);
-    
-    // Deep heavy boom (big caliber)
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(50, now);
-    boom.frequency.exponentialRampToValueAtTime(20, now + 0.2);
-    boomGain.gain.setValueAtTime(vol * 1.0, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.25);
-    
-    // Echo/reverb tail
-    const echo = this.createNoise(0.3);
-    const echoGain = this.audioCtx.createGain();
-    const echoFilter = this.audioCtx.createBiquadFilter();
-    echoFilter.type = 'lowpass';
-    echoFilter.frequency.value = 800;
-    echo.connect(echoFilter);
-    echoFilter.connect(echoGain);
-    echoGain.gain.setValueAtTime(0, now);
-    echoGain.gain.setValueAtTime(vol * 0.15, now + 0.1);
-    echoGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-    echoGain.connect(this.masterVolume);
-    
-    // Bolt action sound
-    const bolt = this.audioCtx.createOscillator();
-    const boltGain = this.audioCtx.createGain();
-    bolt.type = 'sawtooth';
-    bolt.frequency.setValueAtTime(300, now + 0.3);
-    bolt.frequency.setValueAtTime(150, now + 0.4);
-    boltGain.gain.setValueAtTime(0, now);
-    boltGain.gain.setValueAtTime(vol * 0.15, now + 0.3);
-    boltGain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
-    bolt.connect(boltGain);
-    boltGain.connect(this.masterVolume);
-    bolt.start(now + 0.3);
-    bolt.stop(now + 0.5);
-  }
-  
-  // TAMMY - Semi-Auto Pistol: Quick pop, higher pitch
-  playPistolSound(now, vol) {
-    // Quick sharp pop
-    const noise = this.createNoise(0.02);
-    const noiseGain = this.audioCtx.createGain();
-    const noiseFilter = this.audioCtx.createBiquadFilter();
-    noiseFilter.type = 'highpass';
-    noiseFilter.frequency.value = 3000;
-    noise.connect(noiseFilter);
-    noiseFilter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 0.9, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.02);
-    noiseGain.connect(this.masterVolume);
-    
-    // Higher pitch punch
-    const punch = this.audioCtx.createOscillator();
-    const punchGain = this.audioCtx.createGain();
-    punch.type = 'triangle';
-    punch.frequency.setValueAtTime(400, now);
-    punch.frequency.exponentialRampToValueAtTime(150, now + 0.04);
-    punchGain.gain.setValueAtTime(vol * 0.5, now);
-    punchGain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-    punch.connect(punchGain);
-    punchGain.connect(this.masterVolume);
-    punch.start(now);
-    punch.stop(now + 0.05);
-    
-    // Light bass thump
-    const bass = this.audioCtx.createOscillator();
-    const bassGain = this.audioCtx.createGain();
-    bass.type = 'sine';
-    bass.frequency.setValueAtTime(180, now);
-    bass.frequency.exponentialRampToValueAtTime(80, now + 0.03);
-    bassGain.gain.setValueAtTime(vol * 0.4, now);
-    bassGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
-    bass.connect(bassGain);
-    bassGain.connect(this.masterVolume);
-    bass.start(now);
-    bass.stop(now + 0.04);
+    osc.start(now);
+    osc.stop(now + 0.15);
   }
   
   playHitSound(now, vol) {
@@ -6578,184 +5886,84 @@ class BirdTurdsScene extends Phaser.Scene {
     osc.stop(now + 0.5);
   }
   
-  // ========== SHOP WEAPON SOUNDS (Purchased) ==========
-  playMachinegunBurstSound(now, vol) {
-    // Machinegun - rapid fire burst with heavy punch
-    const noise = this.createNoise(0.04);
-    const noiseGain = this.audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(vol * 0.9, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-    noise.connect(noiseGain);
-    noiseGain.connect(this.masterVolume);
-    
-    const punch = this.audioCtx.createOscillator();
-    const punchGain = this.audioCtx.createGain();
-    punch.type = 'triangle';
-    punch.frequency.setValueAtTime(200, now);
-    punch.frequency.exponentialRampToValueAtTime(60, now + 0.05);
-    punchGain.gain.setValueAtTime(vol * 0.5, now);
-    punchGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-    punch.connect(punchGain);
-    punchGain.connect(this.masterVolume);
-    punch.start(now);
-    punch.stop(now + 0.06);
-  }
-  
-  playMinigunSound(now, vol) {
-    // Minigun - very rapid high-pitched burst
-    const noise = this.createNoise(0.02);
-    const noiseGain = this.audioCtx.createGain();
-    const filter = this.audioCtx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 2000;
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 0.7, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.02);
-    noiseGain.connect(this.masterVolume);
-    
-    const whine = this.audioCtx.createOscillator();
-    const whineGain = this.audioCtx.createGain();
-    whine.type = 'sawtooth';
-    whine.frequency.setValueAtTime(400, now);
-    whine.frequency.exponentialRampToValueAtTime(300, now + 0.03);
-    whineGain.gain.setValueAtTime(vol * 0.2, now);
-    whineGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
-    whine.connect(whineGain);
-    whineGain.connect(this.masterVolume);
-    whine.start(now);
-    whine.stop(now + 0.035);
-  }
-  
-  playSniperShopSound(now, vol) {
-    // Shop Sniper - big boom with long echo
-    const noise = this.createNoise(0.05);
-    const noiseGain = this.audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(vol * 1.2, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-    noise.connect(noiseGain);
-    noiseGain.connect(this.masterVolume);
-    
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(60, now);
-    boom.frequency.exponentialRampToValueAtTime(25, now + 0.25);
-    boomGain.gain.setValueAtTime(vol * 1.0, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.3);
-    
-    // Long echo
-    const echo = this.createNoise(0.4);
-    const echoGain = this.audioCtx.createGain();
-    const echoFilter = this.audioCtx.createBiquadFilter();
-    echoFilter.type = 'lowpass';
-    echoFilter.frequency.value = 600;
-    echo.connect(echoFilter);
-    echoFilter.connect(echoGain);
-    echoGain.gain.setValueAtTime(0, now);
-    echoGain.gain.setValueAtTime(vol * 0.2, now + 0.1);
-    echoGain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-    echoGain.connect(this.masterVolume);
-  }
-  
-  playBarrettSound(now, vol) {
-    // Barrett .50 cal - MASSIVE boom with screen shake
+  // ========== WEAPON SOUNDS ==========
+  playRifleSound(now, vol) {
+    // Rifle - sharp crack
+    const osc = this.audioCtx.createOscillator();
     const noise = this.createNoise(0.08);
+    const gain = this.audioCtx.createGain();
     const noiseGain = this.audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(vol * 1.5, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(200, now);
+    osc.frequency.exponentialRampToValueAtTime(80, now + 0.1);
+    gain.gain.setValueAtTime(vol * 0.7, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+    noiseGain.gain.setValueAtTime(vol * 0.4, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.06);
+    osc.connect(gain);
     noise.connect(noiseGain);
+    gain.connect(this.masterVolume);
     noiseGain.connect(this.masterVolume);
-    
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(40, now);
-    boom.frequency.exponentialRampToValueAtTime(15, now + 0.4);
-    boomGain.gain.setValueAtTime(vol * 1.2, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.45);
-    
-    // Reverb tail
-    const reverb = this.createNoise(0.6);
-    const reverbGain = this.audioCtx.createGain();
-    const reverbFilter = this.audioCtx.createBiquadFilter();
-    reverbFilter.type = 'lowpass';
-    reverbFilter.frequency.value = 400;
-    reverb.connect(reverbFilter);
-    reverbFilter.connect(reverbGain);
-    reverbGain.gain.setValueAtTime(0, now);
-    reverbGain.gain.setValueAtTime(vol * 0.3, now + 0.15);
-    reverbGain.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
-    reverbGain.connect(this.masterVolume);
+    osc.start(now);
+    osc.stop(now + 0.12);
   }
   
-  playDeagleSound(now, vol) {
-    // Desert Eagle - heavy pistol boom
-    const noise = this.createNoise(0.04);
-    const noiseGain = this.audioCtx.createGain();
-    const filter = this.audioCtx.createBiquadFilter();
-    filter.type = 'highpass';
-    filter.frequency.value = 1500;
-    noise.connect(filter);
-    filter.connect(noiseGain);
-    noiseGain.gain.setValueAtTime(vol * 1.0, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
-    noiseGain.connect(this.masterVolume);
-    
-    const boom = this.audioCtx.createOscillator();
-    const boomGain = this.audioCtx.createGain();
-    boom.type = 'sine';
-    boom.frequency.setValueAtTime(150, now);
-    boom.frequency.exponentialRampToValueAtTime(50, now + 0.1);
-    boomGain.gain.setValueAtTime(vol * 0.8, now);
-    boomGain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-    boom.connect(boomGain);
-    boomGain.connect(this.masterVolume);
-    boom.start(now);
-    boom.stop(now + 0.12);
+  playPistolSound(now, vol) {
+    // Pistol - quick pop
+    const osc = this.audioCtx.createOscillator();
+    const gain = this.audioCtx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(300, now);
+    osc.frequency.exponentialRampToValueAtTime(100, now + 0.05);
+    gain.gain.setValueAtTime(vol * 0.5, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    osc.connect(gain);
+    gain.connect(this.masterVolume);
+    osc.start(now);
+    osc.stop(now + 0.08);
   }
   
-  playRevolverSound(now, vol) {
-    // Revolver - classic western crack
-    const noise = this.createNoise(0.03);
-    const noiseGain = this.audioCtx.createGain();
-    noiseGain.gain.setValueAtTime(vol * 0.8, now);
-    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.03);
-    noise.connect(noiseGain);
-    noiseGain.connect(this.masterVolume);
+  playMachinegunSound(now, vol) {
+    // Machine gun - rapid fire burst
+    for (let i = 0; i < 5; i++) {
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.value = 180;
+      gain.gain.setValueAtTime(vol * 0.4, now + i * 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.05 + 0.03);
+      osc.connect(gain);
+      gain.connect(this.masterVolume);
+      osc.start(now + i * 0.05);
+      osc.stop(now + i * 0.05 + 0.04);
+    }
+  }
+  
+  playSniperSound(now, vol) {
+    // Sniper - big boom with echo
+    const osc = this.audioCtx.createOscillator();
+    const gain = this.audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(100, now);
+    osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
+    gain.gain.setValueAtTime(vol * 0.8, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    osc.connect(gain);
+    gain.connect(this.masterVolume);
+    osc.start(now);
+    osc.stop(now + 0.3);
     
-    const crack = this.audioCtx.createOscillator();
-    const crackGain = this.audioCtx.createGain();
-    crack.type = 'triangle';
-    crack.frequency.setValueAtTime(350, now);
-    crack.frequency.exponentialRampToValueAtTime(100, now + 0.08);
-    crackGain.gain.setValueAtTime(vol * 0.6, now);
-    crackGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-    crack.connect(crackGain);
-    crackGain.connect(this.masterVolume);
-    crack.start(now);
-    crack.stop(now + 0.1);
-    
-    // Metallic ring
-    const ring = this.audioCtx.createOscillator();
-    const ringGain = this.audioCtx.createGain();
-    ring.type = 'sine';
-    ring.frequency.setValueAtTime(1200, now + 0.02);
-    ring.frequency.exponentialRampToValueAtTime(600, now + 0.12);
-    ringGain.gain.setValueAtTime(vol * 0.1, now + 0.02);
-    ringGain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
-    ring.connect(ringGain);
-    ringGain.connect(this.masterVolume);
-    ring.start(now + 0.02);
-    ring.stop(now + 0.15);
+    // Echo
+    const osc2 = this.audioCtx.createOscillator();
+    const gain2 = this.audioCtx.createGain();
+    osc2.type = 'sawtooth';
+    osc2.frequency.value = 60;
+    gain2.gain.setValueAtTime(vol * 0.2, now + 0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+    osc2.connect(gain2);
+    gain2.connect(this.masterVolume);
+    osc2.start(now + 0.15);
+    osc2.stop(now + 0.4);
   }
   
   playCrossbowSound(now, vol) {
@@ -6771,6 +5979,27 @@ class BirdTurdsScene extends Phaser.Scene {
     gain.connect(this.masterVolume);
     osc.start(now);
     osc.stop(now + 0.2);
+  }
+  
+  playRevolverSound(now, vol) {
+    // Revolver - heavy bang
+    const osc = this.audioCtx.createOscillator();
+    const noise = this.createNoise(0.1);
+    const gain = this.audioCtx.createGain();
+    const noiseGain = this.audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(250, now);
+    osc.frequency.exponentialRampToValueAtTime(60, now + 0.15);
+    gain.gain.setValueAtTime(vol * 0.6, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+    noiseGain.gain.setValueAtTime(vol * 0.3, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+    osc.connect(gain);
+    noise.connect(noiseGain);
+    gain.connect(this.masterVolume);
+    noiseGain.connect(this.masterVolume);
+    osc.start(now);
+    osc.stop(now + 0.18);
   }
   
   playGrenadeSound(now, vol) {
@@ -7115,7 +6344,7 @@ class BirdTurdsScene extends Phaser.Scene {
     // Load user preferences
     this.musicChoice = localStorage.getItem('birdturds_musicChoice') || 'adventure';
     this.currentTrackIndex = 0;
-    this.musicSequenceEnabled = localStorage.getItem('birdturds_musicSequence') === 'true'; // default: no auto-sequencing, single themed track
+    this.musicSequenceEnabled = localStorage.getItem('birdturds_musicSequence') !== 'false';
     
     // Define all music tracks
     this.musicTracks = {
@@ -7610,31 +6839,20 @@ class BirdTurdsScene extends Phaser.Scene {
     
     this.bgPanels = this.add.group();
     this.panelWidth = 1344; // Match actual landscape width
-    const numScenes = sceneSequence.length;
+    const panelHeight = 580; // Increased to fill more screen
+    const panelsNeeded = Math.ceil(WORLD_WIDTH / this.panelWidth) + 2;
     
-    // Create ONE panel per scene - NO CYCLING
-    // FIX: Scale proportionally to maintain aspect ratio, align bottoms to ground
-    for (let i = 0; i < numScenes; i++) {
-      const sceneData = sceneSequence[i];
+    for (let i = 0; i < panelsNeeded; i++) {
+      const sceneData = sceneSequence[i % sceneSequence.length];
       // Only add panel if texture exists
       if (this.textures.exists(sceneData.key)) {
-        // Get actual texture dimensions for proper scaling
-        const texture = this.textures.get(sceneData.key);
-        const frame = texture.getSourceImage();
-        const origWidth = frame.width || 1344;
-        const origHeight = frame.height || 580;
-        
-        // Scale width to panel width, height proportionally (no stretching!)
-        const scale = this.panelWidth / origWidth;
-        const scaledHeight = origHeight * scale;
-        
         const panel = this.add.image(i * this.panelWidth, this.groundY + 60, sceneData.key)
-          .setOrigin(0, 1)  // Bottom-left anchor - ground level aligned!
-          .setDisplaySize(this.panelWidth, scaledHeight)  // Proportional scaling
+          .setOrigin(0, 1)
+          .setDisplaySize(this.panelWidth, panelHeight) // Proper aspect ratio
           .setDepth(-10)
           .setScrollFactor(1); // Scroll 1:1 with camera - no gaps!
         panel.sceneData = sceneData;
-        panel.sceneIndex = i;
+        panel.sceneIndex = i % sceneSequence.length;
         this.bgPanels.add(panel);
       }
     }
@@ -7643,12 +6861,9 @@ class BirdTurdsScene extends Phaser.Scene {
     // You can replace these with Ludo ground textures later
     this.groundTiles = [];
     const tileWidth = 512;
-    const totalGroundWidth = numScenes * this.panelWidth;
-    const tilesNeeded = Math.ceil(totalGroundWidth / tileWidth) + 5;
+    const tilesNeeded = Math.ceil(WORLD_WIDTH / tileWidth) + 5;
     for (let i = 0; i < tilesNeeded; i++) {
-      // Calculate which scene this tile belongs to based on position
-      const tileX = i * tileWidth;
-      const sceneIdx = Math.min(Math.floor(tileX / this.panelWidth), numScenes - 1);
+      const sceneIdx = Math.floor(i / 4) % sceneSequence.length;
       const sceneData = sceneSequence[sceneIdx];
       
       // Create ground tile with scene-appropriate color
@@ -7733,8 +6948,6 @@ class BirdTurdsScene extends Phaser.Scene {
   
   spawnSnowflake() {
     if (!this.isChristmasMode || this.gameOver) return;
-    // ONLY spawn snow in Christmas scene - not in other scenes!
-    if (!this.currentScene || !this.currentScene.isChristmas) return;
     if (this.snowflakes && this.snowflakes.getLength() > 80) return; // Limit snowflakes
     
     const x = this.cameras.main.scrollX + Math.random() * GAME_WIDTH;
@@ -7783,25 +6996,14 @@ class BirdTurdsScene extends Phaser.Scene {
       .setDepth(9); // Just below hunter
     
     // Create hunter with ANIMATED sprite sheet
-    this.hunter = this.physics.add.sprite(300, this.groundY, `${charId}_idle`)
+    this.hunter = this.physics.add.sprite(300, this.groundY - 10, `${charId}_idle`)
       .setOrigin(0.5, 1)
       .setScale(HUNTER_SCALE)
       .setDepth(10);
     
-    
-    // Apply white outline border effect
-    if (this.hunter.preFX) {
-      this.hunter.preFX.addGlow(0xFFFFFF, 2, 0, false, 0.05, 12);
-    }
-    
-    // Initialize bot and sniper systems
-    if (window.GameIntegration && this.currentScene) {
-      const sceneName = this.currentScene.key || "park";
-      GameIntegration.initScene(this, sceneName);
-    }
-    // ========== WEAPON SPRITE OVERLAY - REMOVED ==========
-    // Weapon is now drawn as part of the hunter sprite animations
-    // this.createWeaponSprite();
+    // ========== WEAPON SPRITE OVERLAY ==========
+    // Create separate weapon sprite that follows hunter
+    this.createWeaponSprite();
     
     // Play idle animation
     if (this.anims.exists(idleKey)) {
@@ -7901,126 +7103,41 @@ class BirdTurdsScene extends Phaser.Scene {
   createWeaponSprite() {
     const weaponKey = this.getWeaponSpriteKey();
     
-    // Use PROPORTIONAL offset based on hunter's actual display size
-    // This works correctly across all characters & scale changes
-    this.weaponOffsetX = 30;           // Horizontal offset from center
-    this.weaponHeightFactor = 0.40;    // Vertical anchor: 0 = feet, 1 = head (0.40 = upper torso / hands)
+    // Position offset from hunter center (hand position)
+    this.weaponOffsetX = 25;  // Forward
+    this.weaponOffsetY = -35; // Up from feet
     
-    // Generate fallback weapon texture if needed
-    if (!this.textures.exists(weaponKey)) {
-      console.log('🔫 Weapon texture not found, creating fallback:', weaponKey);
-      this.createFallbackWeaponTexture(weaponKey);
-    }
-    
-    // Create weapon sprite (either from loaded texture or fallback)
-    if (this.textures.exists(weaponKey) && this.hunter) {
-      const flipMult = this.hunter.flipX ? -1 : 1;
-      
-      // Hunter.y is FEET because origin = (0.5, 1)
-      // So weapon Y = feet - (displayHeight * factor)
-      const baseY = this.hunter.y - (this.hunter.displayHeight * this.weaponHeightFactor);
-      
+    // Create weapon sprite
+    if (this.textures.exists(weaponKey)) {
       this.hunterWeapon = this.add.image(
-        this.hunter.x + (this.weaponOffsetX * flipMult),
-        baseY,
+        this.hunter.x + this.weaponOffsetX,
+        this.hunter.y + this.weaponOffsetY,
         weaponKey
       )
-      .setOrigin(0.3, 0.5)  // Anchor near grip
-      .setScale(0.13)       // Fit character nicely
-      .setDepth(this.hunter.depth + 1)  // Always just above hunter
-      .setAngle(-12)       // Slight upward angle
-      .setVisible(false);   // START HIDDEN - show after hunter is ready
+      .setOrigin(0.3, 0.5)
+      .setScale(0.15) // Adjust scale to fit character
+      .setDepth(11)   // Just above hunter
+      .setAngle(-15); // Slight upward angle
       
-      // Show weapon after short delay to ensure hunter is positioned correctly
-      this.time.delayedCall(100, () => {
-        if (this.hunterWeapon && this.hunter && this.hunter.displayHeight > 10) {
-          this.hunterWeapon.setVisible(true);
-        }
-      });
-      
-      console.log('🔫 Weapon sprite created:', weaponKey, 'displayHeight:', this.hunter.displayHeight);
-    } else {
-      console.warn('🔫 Could not create weapon sprite - no texture or hunter');
+      console.log('🔫 Weapon sprite created:', weaponKey);
     }
-  }
-  
-  // Create fallback weapon texture if external file fails to load
-  createFallbackWeaponTexture(key) {
-    const graphics = this.make.graphics({ x: 0, y: 0, add: false });
-    
-    // Draw a simple weapon shape based on type
-    if (key.includes('rocket') || key.includes('bazooka')) {
-      // Rocket launcher - long tube
-      graphics.fillStyle(0x556655);
-      graphics.fillRect(0, 20, 120, 25);
-      graphics.fillStyle(0x333333);
-      graphics.fillRect(110, 15, 30, 35);
-    } else if (key.includes('machine') || key.includes('minigun')) {
-      // Machine gun - boxy with barrel
-      graphics.fillStyle(0x444444);
-      graphics.fillRect(0, 20, 100, 20);
-      graphics.fillRect(80, 15, 40, 30);
-    } else if (key.includes('sniper') || key.includes('barrett')) {
-      // Sniper - long barrel
-      graphics.fillStyle(0x3a3a3a);
-      graphics.fillRect(0, 22, 130, 16);
-      graphics.fillStyle(0x5a5a5a);
-      graphics.fillRect(100, 18, 30, 24);
-    } else if (key.includes('shotgun')) {
-      // Shotgun - shorter, thicker
-      graphics.fillStyle(0x6b4423);
-      graphics.fillRect(0, 18, 90, 24);
-      graphics.fillStyle(0x333333);
-      graphics.fillRect(70, 15, 30, 30);
-    } else {
-      // Default rifle shape
-      graphics.fillStyle(0x5a4a3a);
-      graphics.fillRect(0, 20, 80, 18);
-      graphics.fillStyle(0x3a3a3a);
-      graphics.fillRect(60, 16, 30, 26);
-    }
-    
-    graphics.generateTexture(key, 150, 60);
-    graphics.destroy();
   }
   
   // Update weapon position (call in update loop)
   updateWeaponSprite() {
     if (!this.hunterWeapon || !this.hunter) return;
     
-    // Hide weapon if hunter isn't properly loaded yet
-    if (this.hunter.displayHeight < 10) {
-      this.hunterWeapon.setVisible(false);
-      return;
-    }
-    
-    // Show weapon once hunter is ready
-    if (!this.hunterWeapon.visible) {
-      this.hunterWeapon.setVisible(true);
-    }
-    
     // Flip weapon based on hunter direction
     const flipMult = this.hunter.flipX ? -1 : 1;
     
-    // Calculate Y position using displayHeight (works with scale changes)
-    // Hunter.y = feet, so weapon Y = feet - (height * factor)
-    const baseY = this.hunter.y - (this.hunter.displayHeight * this.weaponHeightFactor);
-    
-    // Update position to follow hunter
     this.hunterWeapon.x = this.hunter.x + (this.weaponOffsetX * flipMult);
-    this.hunterWeapon.y = baseY;
+    this.hunterWeapon.y = this.hunter.y + this.weaponOffsetY;
     this.hunterWeapon.flipX = this.hunter.flipX;
     
-    // Adjust angle based on aim or flip direction
+    // Angle weapon based on aim (if aiming system exists)
     if (this.aimAngle !== undefined) {
       this.hunterWeapon.setAngle(this.aimAngle * flipMult);
-    } else {
-      // Default slight upward angle when not aiming
-      this.hunterWeapon.setAngle(-12 * flipMult);
     }
-    
-    // Keep weapon depth relative to hunter
-    this.hunterWeapon.setDepth(this.hunter.depth + 1);
   }
   
   // Switch weapon (called when purchasing or equipping)
@@ -8050,17 +7167,31 @@ class BirdTurdsScene extends Phaser.Scene {
     
     const newSprite = spriteMap[weaponId] || 'rifle';
     
-    // WEAPON SPRITES DISABLED - weapons are part of character animations
-    // Just track which weapon is equipped for game logic
-    btState.currentWeapon = weaponId;
+    // Destroy old weapon sprite
+    if (this.hunterWeapon) {
+      this.hunterWeapon.destroy();
+    }
     
-    // Play weapon switch sound
-    this.playSound('reload');
-    
-    // Show notification
-    this.showNotification(`🔫 Equipped: ${weaponId.toUpperCase()}`, 0x22c55e);
-    
-    console.log('🔫 Weapon switched to:', weaponId, '(sprite disabled)');
+    // Create new weapon sprite
+    if (this.textures.exists(newSprite)) {
+      this.hunterWeapon = this.add.image(
+        this.hunter.x + this.weaponOffsetX,
+        this.hunter.y + this.weaponOffsetY,
+        newSprite
+      )
+      .setOrigin(0.3, 0.5)
+      .setScale(0.15)
+      .setDepth(11)
+      .setAngle(-15);
+      
+      // Play weapon switch sound
+      this.playSound('reload');
+      
+      // Show notification
+      this.showNotification(`🔫 Equipped: ${weaponId.toUpperCase()}`, 0x22c55e);
+      
+      console.log('🔫 Weapon switched to:', newSprite);
+    }
   }
   
   // ========== ROCKET JETPACK SYSTEM ==========
@@ -8696,7 +7827,7 @@ class BirdTurdsScene extends Phaser.Scene {
     vehicle.tireHits = (vehicle.tireHits || 0) + 1;
     bullet.destroy();
     
-    const isTractor = vehicle.texture && vehicle.texture.key === 'tractor_good' || vehicle.texture.key === 'tractor_bad';
+    const isTractor = vehicle.texture && vehicle.texture.key === 'tractor_green' || vehicle.texture.key === 'tractor_red';
     
     // Show hit indicator
     this.showPointIndicator(vehicle.x, vehicle.y - 30, '🛞 HIT!', 0xfacc15);
@@ -8776,7 +7907,7 @@ class BirdTurdsScene extends Phaser.Scene {
     // Funny messages for shooting turds
     const turdShotMessages = [
       "TURD SHOT! 💩🎯", "SPLATTERED! 💥💩", "NO TURD FOR YOU! 🚫💩",
-      "TURD TERMINATED! 🎯💩", "TURD-B-GONE! ✨", "BULLSEYE! 🎯💩",
+      "TURD TERMINATED! 💀💩", "TURD-B-GONE! ✨", "BULLSEYE! 🎯💩",
       "NICE SHOT! 💩", "TURD DEFLECTED! 🛡️", "TURD DOWN! 💩"
     ];
     const msg = turdShotMessages[Math.floor(Math.random() * turdShotMessages.length)];
@@ -8876,7 +8007,6 @@ class BirdTurdsScene extends Phaser.Scene {
       Z: Phaser.Input.Keyboard.KeyCodes.Z,  // Prone/lay down
       B: Phaser.Input.Keyboard.KeyCodes.B,  // Bible weapon!
       E: Phaser.Input.Keyboard.KeyCodes.E,  // Arrest villains!
-      P: Phaser.Input.Keyboard.KeyCodes.P,  // Quick-buy ammo!
       SPACE: Phaser.Input.Keyboard.KeyCodes.SPACE,
       SHIFT: Phaser.Input.Keyboard.KeyCodes.SHIFT,
       C: Phaser.Input.Keyboard.KeyCodes.C,
@@ -8921,27 +8051,13 @@ class BirdTurdsScene extends Phaser.Scene {
     this.villainSpawnTimer = 0;
     this.arrestedCount = 0;
     
-    // Track when splash/intro screens are showing
-    this.splashActive = false;
-    
     this.input.on('pointerdown', ptr => {
-      // Don't shoot during splash screens, game over, or paused
-      if (this.splashActive || this.gameOver || this.paused) return;
-      this.handleShoot(ptr.worldX, ptr.worldY);
+      if (!this.gameOver && !this.paused) this.handleShoot(ptr.worldX, ptr.worldY);
     });
     
     this.input.keyboard.on('keydown-L', () => this.showLeaderboard());
     this.input.keyboard.on('keydown-H', () => this.hideInstructions());
-    this.input.keyboard.on('keydown-R', () => { 
-      if (this.gameOver) {
-        console.log('🔄 R key pressed - restarting...');
-        if (typeof window.restartBirdTurds === 'function') {
-          window.restartBirdTurds();
-        } else {
-          window.location.href = window.location.pathname + '?restart=' + Date.now();
-        }
-      }
-    });
+    this.input.keyboard.on('keydown-R', () => { if (this.gameOver) location.reload(); });
     
     // KNIFE ATTACK! Press F or K to slash nearby birds!
     this.input.keyboard.on('keydown-F', () => this.knifeAttack());
@@ -8952,15 +8068,6 @@ class BirdTurdsScene extends Phaser.Scene {
     
     // CALL WIND/TORNADO! Press G to sweep away birds!
     this.input.keyboard.on('keydown-G', () => this.callTornado());
-    
-    // QUICK BUY AMMO! Press P for instant ammo refill (100 TurdCoins)
-    this.input.keyboard.on('keydown-P', () => {
-      // Don't capture if typing in input or quick shop is open
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) return;
-      if (this.quickShopOpen) return;
-      this.quickBuyAmmo();
-    });
     
     // ARREST GLOBALISTS! Press E to arrest nearby globalists!
     this.input.keyboard.on('keydown-E', () => this.tryArrestGlobalist());
@@ -8973,11 +8080,6 @@ class BirdTurdsScene extends Phaser.Scene {
     // Type the secret code to activate developer mode
     this.devCodeBuffer = '';
     this.input.keyboard.on('keydown', (event) => {
-      // Don't capture keys when typing in input fields
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.contentEditable === 'true')) {
-        return; // Let the input field handle the key
-      }
       if (event.key.length === 1) {
         this.devCodeBuffer += event.key.toUpperCase();
         // Keep only last 12 characters
@@ -9186,12 +8288,8 @@ class BirdTurdsScene extends Phaser.Scene {
       self.touchState.currentX = touch.clientX;
       self.touchState.isDragging = false;
       
-      // Immediate shoot on tap - but only once per tap
-      if (!self.mobileInput.shoot) {
-        self.mobileInput.shoot = true;
-        // Auto-reset shoot after one frame to prevent continuous fire
-        setTimeout(() => { self.mobileInput.shoot = false; }, 100);
-      }
+      // Immediate shoot on tap
+      self.mobileInput.shoot = true;
     }, { passive: false });
     
     // TOUCH MOVE - Drag to move character
@@ -9347,11 +8445,10 @@ class BirdTurdsScene extends Phaser.Scene {
       birdsLeft: document.getElementById('hud-birds-left')
     };
     
-    // Initialize level state - Level 0 for Christmas, Level 1 otherwise
-    const startLevel = isChristmasSeason() ? 0 : 1;
-    btState.currentLevel = startLevel;
+    // Initialize level state
+    btState.currentLevel = 1;
     btState.birdsKilledThisLevel = 0;
-    btState.birdsNeededThisLevel = LEVEL_CONFIG[startLevel].birdsToKill;
+    btState.birdsNeededThisLevel = LEVEL_CONFIG[1].birdsToKill;
     btState.levelComplete = false;
     btState.gameWon = false;
     
@@ -9403,24 +8500,6 @@ class BirdTurdsScene extends Phaser.Scene {
     
     const dt = delta / 1000;
     
-    // Update bot and sniper systems
-    if (window.GameIntegration) {
-      GameIntegration.updateScene(this, delta, this.hunter, this.birds);
-    }
-    
-    // Sync coin display with localStorage every 60 frames (~1 second)
-    if (!this.coinSyncCounter) this.coinSyncCounter = 0;
-    this.coinSyncCounter++;
-    if (this.coinSyncCounter >= 60) {
-      this.coinSyncCounter = 0;
-      this.updateCoinDisplay();
-    }
-    
-    // Update shield position if active
-    if (this.shieldActive && this.shieldSprite && this.hunter) {
-      this.shieldSprite.setPosition(this.hunter.x, this.hunter.y);
-    }
-    
     // ========== GAMEPAD INPUT POLLING ==========
     try { this.pollGamepad(); } catch(e) { /* Gamepad not available */ }
     
@@ -9439,15 +8518,13 @@ class BirdTurdsScene extends Phaser.Scene {
       try { this.updateBullets(); } catch(e) { console.warn('Bullets error:', e); }
       try { this.updateVehicles(adjustedDt); } catch(e) { console.warn('Vehicles error:', e); }
       try { this.updatePlanes(adjustedDt); } catch(e) { console.warn('Planes error:', e); }
-      try { if (window.SpriteAnimationSystem) window.SpriteAnimationSystem.update(this, adjustedDt); } catch(e) { console.warn('SpriteAnim error:', e); }
-      try { if (window.PerformanceSystem) window.PerformanceSystem.update(this, adjustedDt); } catch(e) { console.warn('Perf error:', e); }
       try { this.updateAnimals(adjustedDt); } catch(e) { console.warn('Animals error:', e); }
       try { this.updateNPCs(adjustedDt); } catch(e) { console.warn('NPCs error:', e); }
       try { this.updateTrump(adjustedDt); } catch(e) { console.warn('Trump error:', e); }
       try { this.updateItems(time); } catch(e) { console.warn('Items error:', e); }
       try { this.updateCoins(time); } catch(e) { console.warn('Coins error:', e); }
       try { this.updateParachuters(adjustedDt); } catch(e) { console.warn('Parachuters error:', e); }
-      try { this.updateAmmoBoxes(); } catch(e) { console.warn('Ammo boxes error:', e); }
+      try { this.updateWeaponPickups(); } catch(e) { console.warn('Weapons error:', e); }
       try { this.updateStorm(adjustedDt); } catch(e) { console.warn('Storm error:', e); }
       try { this.updateBombs(); } catch(e) { console.warn('Bombs error:', e); }
       try { this.updateBots(adjustedDt); } catch(e) { console.warn('Bots error:', e); }
@@ -9459,89 +8536,12 @@ class BirdTurdsScene extends Phaser.Scene {
       try { this.updateAngelProtection(adjustedDt); } catch(e) { console.warn('Angel error:', e); }
       try { this.updateSkyClarity(); } catch(e) { console.warn('Sky error:', e); }
       try { this.updateVillains(adjustedDt); } catch(e) { console.warn('Villains error:', e); }
-      // ========== DEBUG OVERLAY (F3) ==========
-      try { this.updateDebugOverlay(dt); } catch(e) { console.warn('Debug overlay error:', e); }
-      // ========== WEAPON SPRITE - REMOVED (integrated into hunter animations) ==========
-      // try { this.updateWeaponSprite(); } catch(e) { console.warn('Weapon update error:', e); }
+      // ========== WEAPON SPRITE FOLLOWS HUNTER ==========
+      try { this.updateWeaponSprite(); } catch(e) { /* Weapon update error */ }
       // ========== JETPACK SYSTEM ==========
       try { this.updateJetpack(adjustedDt); } catch(e) { /* Jetpack update error */ }
     } catch(e) {
       console.error('Update error:', e);
-    }
-    
-    // ========== HUNTER SAFETY CHECK (Enhanced per Copilot review) ==========
-    // Robust validation to prevent hunter from vanishing
-    if (this.hunter) {
-      // Check for NaN or Infinity positions - reset to safe spawn
-      if (!isFinite(this.hunter.x) || !isFinite(this.hunter.y) || isNaN(this.hunter.x) || isNaN(this.hunter.y)) {
-        console.warn('Hunter position invalid, resetting');
-        this.hunter.setPosition(this.cameras.main.worldView.x + 400, this.groundY);
-        if (this.hunter.body) this.hunter.setVelocity(0, 0);
-      }
-      
-      // If no physics body or body disabled -> re-enable
-      if (!this.hunter.body || this.hunter.body.enable === false) {
-        try {
-          this.physics.world.enable(this.hunter);
-          this.hunter.body.setAllowGravity(true);
-        } catch(e) { console.warn('Failed to re-enable hunter physics:', e); }
-      }
-      
-      // Reset alpha if somehow invisible
-      if (this.hunter.alpha < 0.5 || this.hunter.alpha === 0) {
-        this.hunter.setAlpha(1);
-      }
-      
-      // Ensure hunter is visible (not scaled to 0)
-      if (this.hunter.scaleX === 0 || this.hunter.scaleY === 0 || this.hunter.scaleX < 0.1 || this.hunter.scaleY < 0.1) {
-        this.hunter.setScale(0.24);
-      }
-      
-      // Reset if below ground or too high (fell through floor or launched to sky)
-      if (this.hunter.y > this.groundY + 50) {
-        this.hunter.y = this.groundY;
-        if (this.hunter.body) this.hunter.setVelocityY(0);
-      }
-      if (this.hunter.y < -800) {
-        this.hunter.y = this.groundY;
-        if (this.hunter.body) this.hunter.setVelocity(0, 0);
-      }
-      
-      // Reset if off screen horizontally
-      const view = this.cameras.main.worldView;
-      if (this.hunter.x < view.x - 100) {
-        this.hunter.x = view.x + 100;
-      }
-      if (this.hunter.x > view.right + 100) {
-        this.hunter.x = view.right - 100;
-      }
-      
-      // Check hunterBeingCarried flag - if carrier no longer exists, release
-      if (this.hunterBeingCarried) {
-        const carrier = this.birds ? this.birds.getChildren().find(b => b && b.active && b.isCarrying) : null;
-        if (!carrier) {
-          console.warn('Hunter carrier lost, releasing hunter');
-          this.hunterBeingCarried = false;
-          
-          // === COPILOT: Use stored pre-grab state if available ===
-          if (this.hunterPreGrabState) {
-            // Restore to safe position (ground level at stored X, clamped to view)
-            const view = this.cameras.main.worldView;
-            const safeX = Math.max(view.x + 50, Math.min(this.hunterPreGrabState.x, view.right - 50));
-            this.hunter.setPosition(safeX, this.groundY);
-            this.hunter.setAlpha(this.hunterPreGrabState.alpha || 1);
-            this.hunter.setScale(this.hunterPreGrabState.scaleX || 0.24, this.hunterPreGrabState.scaleY || 0.24);
-            this.hunterPreGrabState = null; // Clear stored state
-          } else {
-            this.hunter.y = this.groundY;
-          }
-          
-          if (this.hunter.body) {
-            this.hunter.body.enable = true;
-            this.hunter.setVelocity(0, 0);
-          }
-        }
-      }
     }
     
     if (this.fireRateCooldown > 0) this.fireRateCooldown -= dt;
@@ -9818,12 +8818,6 @@ class BirdTurdsScene extends Phaser.Scene {
   // NEW: Smooth scene transition with visual effects
   triggerSceneTransition(sceneData) {
     if (!sceneData) return;
-    
-    // Clear snowflakes when leaving Christmas scene
-    if (this.snowflakes && this.currentScene && this.currentScene.isChristmas && !sceneData.isChristmas) {
-      this.snowflakes.clear(true, true);
-      console.log('❄️ Cleared snowflakes - leaving Christmas scene');
-    }
     
     // 1. Show scene name banner with animation
     const sceneName = sceneData.name || sceneData.key.toUpperCase();
@@ -10149,41 +9143,9 @@ class BirdTurdsScene extends Phaser.Scene {
       this.isJumping = false;
     }
     
-    // LEVEL ZONE LOCKING - Player can't advance until level complete
-    const levelZoneWidth = this.panelWidth || 1344;
-    const currentLevelIndex = btState.currentLevel - (isChristmasSeason() ? 0 : 1); // Adjust for Christmas
-    const levelLeftBound = Math.max(50, currentLevelIndex * levelZoneWidth);
-    const levelRightBound = (currentLevelIndex + 1) * levelZoneWidth - 50;
-    
-    // Left boundary - can't go backwards past start of current level
-    if (this.hunter.x < levelLeftBound) {
-      this.hunter.x = levelLeftBound;
-      if (this.hunter.body) this.hunter.body.setVelocityX(0);
-    }
-    
-    // Right boundary - blocked until level complete
-    if (this.hunter.x > levelRightBound) {
-      if (btState.levelComplete) {
-        // Level complete - advance to next level!
-        this.advanceToNextLevel();
-        // Teleport player to start of next level zone
-        this.hunter.x = (currentLevelIndex + 1) * levelZoneWidth + 100;
-      } else {
-        // Not complete - block and show message
-        this.hunter.x = levelRightBound;
-        if (this.hunter.body) this.hunter.body.setVelocityX(0);
-        
-        // Show reminder (throttled to once per 3 seconds)
-        if (!this.lastBoundaryWarning || Date.now() - this.lastBoundaryWarning > 3000) {
-          const config = LEVEL_CONFIG[btState.currentLevel];
-          if (config && config.birdsToKill > 0) {
-            const remaining = config.birdsToKill - btState.birdsKilledThisLevel;
-            this.showNotification(`🚧 Kill ${remaining} more birds to advance! 🚧`, 0xffd700);
-          }
-          this.lastBoundaryWarning = Date.now();
-        }
-      }
-    }
+    // World wrap
+    if (this.hunter.x > WORLD_WIDTH - 50) this.hunter.x = 50;
+    else if (this.hunter.x < 50) this.hunter.x = WORLD_WIDTH - 50;
     
     // HUNTER FACING AND AIMING
     // FlipX controls left/right facing
@@ -10498,37 +9460,16 @@ class BirdTurdsScene extends Phaser.Scene {
   }
   
   advanceToNextLevel() {
-    const currentConfig = LEVEL_CONFIG[btState.currentLevel];
-    const isProtectedPark = this.currentScene && this.currentScene.isProtectedPark;
-    if (currentConfig && !isProtectedPark && !btState.levelComplete) {
-      const remaining = currentConfig.birdsToKill - btState.birdsKilledThisLevel;
-      if (remaining > 0) {
-        console.warn('Blocked premature level advance', { level: btState.currentLevel, remaining });
-        this.showNotification(`You still need to shoot ${remaining} birds to advance!`, 0xffd700);
-        return;
-      }
-    }
-
     btState.currentLevel++;
     btState.birdsKilledThisLevel = 0;
     btState.levelComplete = false;
-
+    
     const config = LEVEL_CONFIG[btState.currentLevel];
-    btState.birdsNeededThisLevel = config ? config.birdsToKill : 100;
+    btState.birdsNeededThisLevel = config.birdsToKill;
     
-    // Update scene index - account for Christmas mode offset
-    const levelOffset = isChristmasSeason() ? 0 : 1;
-    this.currentSceneIndex = btState.currentLevel - levelOffset;
-    this.currentScene = sceneSequence[this.currentSceneIndex] || sceneSequence[sceneSequence.length - 1];
-    
-    // TELEPORT player to start of new level zone
-    const zoneWidth = this.panelWidth || 1344;
-    const newZoneStart = this.currentSceneIndex * zoneWidth + 100;
-    if (this.hunter) {
-      this.hunter.x = newZoneStart;
-      // Smoothly pan camera to new position
-      this.cameras.main.pan(newZoneStart, GAME_HEIGHT/2, 500, 'Sine.easeInOut');
-    }
+    // Update scene
+    this.currentSceneIndex = btState.currentLevel - 1;
+    this.currentScene = sceneSequence[this.currentSceneIndex];
     
     // Show level intro
     this.showLevelIntro();
@@ -10640,29 +9581,24 @@ class BirdTurdsScene extends Phaser.Scene {
   animateHunter(dt) {
     // Safety check
     if (!this.hunter || !this.hunter.body) return;
-
-    const onGround = this.hunter.body.blocked.down && !this.isInAir;
-    const moving = Math.abs(this.hunter.body.velocity.x) > 10;
-
-    if (onGround && moving) {
-      // Anchor walk cycle to a base Y so we don't fight physics
-      if (this.hunter.baseWalkY == null) {
-        this.hunter.baseWalkY = this.hunter.y;
-      }
+    
+    // Only animate bobbing when walking ON GROUND (not in air)
+    if (!this.isInAir && Math.abs(this.hunter.body.velocity.x) > 10 && this.hunter.body.blocked.down) {
       this.walkFrame += dt * 10;
-      const bobAmount = this.isCrouching ? 0.5 : 1;
+      const bobAmount = this.isCrouching ? 1 : 2;
+      // Only slight Y offset, don't override position
       const bobOffset = Math.sin(this.walkFrame) * bobAmount;
-      this.hunter.y = this.hunter.baseWalkY + bobOffset;
+      // Make sure we don't push below ground
+      if (this.hunter.y + bobOffset <= this.groundY + 5) {
+        this.hunter.y = this.groundY + bobOffset;
+      }
     } else {
       this.walkFrame = 0;
-      this.hunter.baseWalkY = this.hunter.y;
     }
   }
 
   handleShoot(targetX, targetY) {
     if (this.gameOver || this.fireRateCooldown > 0) return;
-    if (!this.hunter || !this.hunter.active) return; // Can't shoot without hunter!
-    if (this.hunterBeingCarried) return; // Let the carrying code handle shooting
     
     // Check which weapon to use
     let weaponUsed = 'rifle';
@@ -10672,82 +9608,17 @@ class BirdTurdsScene extends Phaser.Scene {
     let bulletEmoji = null;
     let bulletTrail = true;
     
-    // Get character-specific weapon properties
-    const charId = btState.currentCharacter || 'buck';
-    
     if (btState.ammo > 0) {
-      // Use character's primary weapon with unique visuals
+      // Use rifle - yellow tracer bullet
       btState.ammo--;
       weaponUsed = 'rifle';
-      
-      // CHARACTER-SPECIFIC BULLET VISUALS
-      switch(charId) {
-        case 'buck': // Lever-Action Rifle - brass bullet
-          bulletColor = 0xD4A017; // Brass/gold
-          bulletSize = 4;
-          bulletSpeed = 950;
-          this.fireRateCooldown = 0.25 / btState.upgrades.fireRate; // Medium rate
-          break;
-          
-        case 'bubba': // Pump-Action Shotgun - pellet spread
-          this.fireShotgunSpread(targetX, targetY, 6, 0.35, 0x666666, 750); // 6 pellets
-          this.fireRateCooldown = 0.7 / btState.upgrades.fireRate;
-          return;
-          
-        case 'daisy': // Double-Barrel Shotgun - wide spread
-          this.fireShotgunSpread(targetX, targetY, 8, 0.5, 0x888888, 700); // 8 pellets, wider
-          this.fireRateCooldown = 0.9 / btState.upgrades.fireRate;
-          return;
-          
-        case 'sierra': // AR-15 Carbine - rapid small bullets
-          bulletColor = 0xFFD700; // Gold
-          bulletSize = 3;
-          bulletSpeed = 1100;
-          this.fireRateCooldown = 0.08 / btState.upgrades.fireRate; // Fast!
-          break;
-          
-        case 'clyde': // Semi-Auto Hunting Rifle - medium bullets
-          bulletColor = 0xCD7F32; // Bronze
-          bulletSize = 5;
-          bulletSpeed = 1000;
-          this.fireRateCooldown = 0.2 / btState.upgrades.fireRate;
-          break;
-          
-        case 'gunner': // AK Assault Rifle - large copper bullets
-          bulletColor = 0xB87333; // Copper
-          bulletSize = 5;
-          bulletSpeed = 1050;
-          this.fireRateCooldown = 0.1 / btState.upgrades.fireRate; // Fast
-          // Add slight spread for AK
-          targetX += (Math.random() - 0.5) * 30;
-          targetY += (Math.random() - 0.5) * 30;
-          break;
-          
-        case 'jolene': // Bolt-Action Sniper - large red tracer
-          bulletColor = 0xFF4444; // Red tracer
-          bulletSize = 6;
-          bulletSpeed = 1400; // Very fast
-          this.fireRateCooldown = 1.0 / btState.upgrades.fireRate; // Slow but powerful
-          this.createSniperTrail(targetX, targetY);
-          break;
-          
-        case 'tammy': // Semi-Auto Pistol - small quick bullets
-          bulletColor = 0xFFFF88; // Light yellow
-          bulletSize = 3;
-          bulletSpeed = 900;
-          this.fireRateCooldown = 0.12 / btState.upgrades.fireRate;
-          break;
-          
-        default:
-          bulletColor = 0xFFFF00;
-          bulletSize = 4;
-          bulletSpeed = 1000;
-          this.fireRateCooldown = 0.15 / btState.upgrades.fireRate;
-      }
-      
+      bulletColor = 0xFFFF00;
+      bulletEmoji = null; // Use circle
+      bulletSize = 4;
+      bulletTrail = true;
       this.playSound('shoot');
     } else if (btState.hasShotgun && btState.shotgunShells > 0) {
-      // Use shotgun pickup - spread of pellets!
+      // Use shotgun - spread of pellets!
       btState.shotgunShells--;
       weaponUsed = 'shotgun';
       this.fireRateCooldown = 0.8; // Slow pump action
@@ -10775,95 +9646,28 @@ class BirdTurdsScene extends Phaser.Scene {
       this.createMuzzleFlash(startX, startY);
       if (btState.shotgunShells <= 0) btState.hasShotgun = false;
       return; // Already fired
-    } else if (btState.hasMinigun && btState.minigunAmmo > 0) {
-      // MINIGUN - Extreme rapid fire!
-      btState.minigunAmmo--;
-      weaponUsed = 'minigun';
-      bulletColor = 0xFF6600; // Orange tracer
-      bulletSize = 3;
-      bulletSpeed = 1200;
-      this.fireRateCooldown = 0.03; // VERY FAST
-      targetX += (Math.random() - 0.5) * 40; // Spray
-      targetY += (Math.random() - 0.5) * 40;
-      this.playSound('minigun');
-      if (btState.minigunAmmo <= 0) btState.hasMinigun = false;
-    } else if (btState.hasMachinegun && btState.machinegunAmmo > 0) {
-      // MACHINEGUN - Rapid fire
-      btState.machinegunAmmo--;
-      weaponUsed = 'machinegun';
-      bulletColor = 0xFFAA00; // Yellow-orange
-      bulletSize = 4;
-      bulletSpeed = 1100;
-      this.fireRateCooldown = 0.06; // Fast
-      targetX += (Math.random() - 0.5) * 25; // Some spray
-      targetY += (Math.random() - 0.5) * 25;
-      this.playSound('machinegun');
-      if (btState.machinegunAmmo <= 0) btState.hasMachinegun = false;
-    } else if (btState.hasBarrett && btState.barrettAmmo > 0) {
-      // BARRETT .50 CAL - Massive damage sniper
-      btState.barrettAmmo--;
-      weaponUsed = 'barrett';
-      bulletColor = 0xFF0000; // Bright red
-      bulletSize = 8;
-      bulletSpeed = 1600;
-      this.fireRateCooldown = 1.5; // Very slow
-      bulletTrail = true;
-      this.createSniperTrail(targetX, targetY);
-      this.playSound('barrett');
-      // Screen shake for big gun
-      this.cameras.main.shake(100, 0.01);
-      if (btState.barrettAmmo <= 0) btState.hasBarrett = false;
-    } else if (btState.hasSniper && btState.sniperAmmo > 0) {
-      // SNIPER RIFLE - High damage, slow
-      btState.sniperAmmo--;
-      weaponUsed = 'sniper';
-      bulletColor = 0xFF4444; // Red
-      bulletSize = 6;
-      bulletSpeed = 1400;
-      this.fireRateCooldown = 1.0; // Slow
-      this.createSniperTrail(targetX, targetY);
-      this.playSound('sniper_shop');
-      if (btState.sniperAmmo <= 0) btState.hasSniper = false;
-    } else if (btState.hasDeagle && btState.deagleAmmo > 0) {
-      // DESERT EAGLE - Powerful pistol
-      btState.deagleAmmo--;
-      weaponUsed = 'deagle';
-      bulletColor = 0xFFD700; // Gold
-      bulletSize = 5;
-      bulletSpeed = 1000;
-      this.fireRateCooldown = 0.4; // Medium-slow
-      this.playSound('deagle');
-      if (btState.deagleAmmo <= 0) btState.hasDeagle = false;
-    } else if (btState.hasRevolver && btState.revolverAmmo > 0) {
-      // REVOLVER - Classic 6-shooter
-      btState.revolverAmmo--;
-      weaponUsed = 'revolver';
-      bulletColor = 0xC0C0C0; // Silver
-      bulletSize = 4;
+    } else if (btState.hasBow && btState.bowArrows > 0) {
+      // Use bow - wooden arrow
+      btState.bowArrows--;
+      weaponUsed = 'bow';
+      bulletColor = 0x8B4513;
+      bulletEmoji = '➵'; // Arrow
+      bulletSpeed = 700;
+      bulletTrail = false;
+      this.fireRateCooldown = 0.5;
+      this.playSound('knife'); // Whoosh
+      if (btState.bowArrows <= 0) btState.hasBow = false;
+    } else if (btState.hasCrossbow && btState.crossbowBolts > 0) {
+      // Use crossbow - metal bolt
+      btState.crossbowBolts--;
+      weaponUsed = 'crossbow';
+      bulletColor = 0x4A4A4A;
+      bulletEmoji = '🔩'; // Bolt
       bulletSpeed = 900;
-      this.fireRateCooldown = 0.5; // Slow but powerful
-      this.playSound('revolver');
-      if (btState.revolverAmmo <= 0) btState.hasRevolver = false;
-    } else if (btState.hasBazooka && btState.bazookaAmmo > 0) {
-      // BAZOOKA - Explosive rocket!
-      btState.bazookaAmmo--;
-      weaponUsed = 'bazooka';
-      bulletEmoji = '🚀';
-      bulletSpeed = 600; // Slower but explosive
       bulletTrail = false;
-      this.fireRateCooldown = 2.0; // Very slow
-      this.playSound('explosion', { volume: 0.5 });
-      if (btState.bazookaAmmo <= 0) btState.hasBazooka = false;
-    } else if (btState.hasRocketLauncher && btState.rocketAmmo > 0) {
-      // ROCKET LAUNCHER - Big explosion
-      btState.rocketAmmo--;
-      weaponUsed = 'rocket';
-      bulletEmoji = '💥';
-      bulletSpeed = 500;
-      bulletTrail = false;
-      this.fireRateCooldown = 2.5;
-      this.playSound('explosion', { volume: 0.6 });
-      if (btState.rocketAmmo <= 0) btState.hasRocketLauncher = false;
+      this.fireRateCooldown = 0.7;
+      this.playSound('shoot', { volume: 0.7 });
+      if (btState.crossbowBolts <= 0) btState.hasCrossbow = false;
     } else {
       // No ammo at all!
       this.showNotification('❌ NO AMMO! Use knife (F) or find a weapon!');
@@ -10871,6 +9675,9 @@ class BirdTurdsScene extends Phaser.Scene {
     }
     
     btState.shots++;
+    if (weaponUsed === 'rifle') {
+      this.fireRateCooldown = 0.15 / btState.upgrades.fireRate;
+    }
     
     const startX = this.hunter.x + (this.hunter.flipX ? -25 : 25);
     const startY = this.hunter.y - (this.isCrouching ? 20 : 35);
@@ -10892,25 +9699,7 @@ class BirdTurdsScene extends Phaser.Scene {
     const dist = Math.max(1, Math.hypot(dx, dy));
     bullet.body.setVelocity((dx / dist) * bulletSpeed, (dy / dist) * bulletSpeed);
     bullet.spawnTime = this.time.now;
-    
-    // Calculate damage based on weapon type
-    let damageMultiplier = 1;
-    switch(weaponUsed) {
-      case 'crossbow': damageMultiplier = 1.5; break;
-      case 'revolver': damageMultiplier = btState.revolverDamage || 2; break;
-      case 'deagle': damageMultiplier = btState.deagleDamage || 2.5; break;
-      case 'sniper': damageMultiplier = btState.sniperDamage || 3; break;
-      case 'barrett': damageMultiplier = btState.barrettDamage || 5; break;
-      case 'bazooka': damageMultiplier = 10; break; // Explosive!
-      case 'rocket': damageMultiplier = 15; break; // Big boom!
-      case 'machinegun': damageMultiplier = 0.8; break; // Rapid but weaker
-      case 'minigun': damageMultiplier = 0.5; break; // Very rapid, weaker per shot
-      default:
-        // Character-specific damage
-        if (charId === 'jolene') damageMultiplier = 2.0; // Sniper rifle
-        break;
-    }
-    bullet.damage = btState.upgrades.damage * damageMultiplier;
+    bullet.damage = btState.upgrades.damage * (weaponUsed === 'crossbow' ? 1.5 : 1);
     bullet.weaponType = weaponUsed;
     
     // Rotate arrow/bolt towards target
@@ -10918,69 +9707,10 @@ class BirdTurdsScene extends Phaser.Scene {
       bullet.setRotation(Math.atan2(dy, dx));
     }
     
-    // Muzzle flash
-    if (bulletTrail) {
+    // Muzzle flash (only for rifle)
+    if (weaponUsed === 'rifle' && bulletTrail) {
       this.createMuzzleFlash(startX, startY);
     }
-  }
-  
-  // Fire shotgun spread (for Bubba and Daisy)
-  fireShotgunSpread(targetX, targetY, pelletCount, spreadAngle, color, speed) {
-    const startX = this.hunter.x + (this.hunter.flipX ? -25 : 25);
-    const startY = this.hunter.y - (this.isCrouching ? 20 : 35);
-    const baseAngle = Math.atan2(targetY - startY, targetX - startX);
-    
-    btState.ammo--;
-    btState.shots++;
-    this.playSound('shoot', { volume: 1.2 });
-    
-    for (let i = 0; i < pelletCount; i++) {
-      const angle = baseAngle + (Math.random() - 0.5) * spreadAngle;
-      const pellet = this.add.circle(startX, startY, 3, color).setDepth(15);
-      this.physics.add.existing(pellet);
-      pellet.body.setAllowGravity(false);
-      pellet.body.setCircle(3);
-      this.bullets.add(pellet);
-      pellet.body.setVelocity(Math.cos(angle) * speed, Math.sin(angle) * speed);
-      pellet.spawnTime = this.time.now;
-      pellet.damage = btState.upgrades.damage * (0.5 + Math.random() * 0.3);
-      pellet.weaponType = 'shotgun';
-    }
-    
-    this.createShotgunFlash(startX, startY);
-  }
-  
-  // Big muzzle flash for shotguns
-  createShotgunFlash(x, y) {
-    const flash = this.add.circle(x, y, 25, 0xFFAA00, 0.9).setDepth(16);
-    const flash2 = this.add.circle(x, y, 15, 0xFFFFFF, 0.8).setDepth(17);
-    const flash3 = this.add.circle(x, y, 8, 0xFFFF00, 1).setDepth(18);
-    
-    this.tweens.add({
-      targets: [flash, flash2, flash3], 
-      alpha: 0, 
-      scale: 2.5, 
-      duration: 100,
-      onComplete: () => { flash.destroy(); flash2.destroy(); flash3.destroy(); }
-    });
-  }
-  
-  // Sniper tracer trail effect (for Jolene)
-  createSniperTrail(targetX, targetY) {
-    const startX = this.hunter.x + (this.hunter.flipX ? -25 : 25);
-    const startY = this.hunter.y - (this.isCrouching ? 20 : 35);
-    
-    // Red laser line effect
-    const line = this.add.graphics().setDepth(14);
-    line.lineStyle(2, 0xFF0000, 0.8);
-    line.lineBetween(startX, startY, targetX, targetY);
-    
-    this.tweens.add({
-      targets: line,
-      alpha: 0,
-      duration: 150,
-      onComplete: () => line.destroy()
-    });
   }
   
   // Create muzzle flash effect for any gun
@@ -11351,9 +10081,6 @@ class BirdTurdsScene extends Phaser.Scene {
     this.demons.add(demon);
     
     this.showNotification('😈 DEMON APPROACHES! Use Bible (B) to defeat!', 0xff4444);
-    
-    // Play demon voice!
-    if (window.onDemonSpawn) window.onDemonSpawn();
   }
   
   // Play demon attack animation
@@ -12247,11 +10974,12 @@ class BirdTurdsScene extends Phaser.Scene {
     
     // Points and coins - BIG POINTS!
     btState.score += villain.villainPoints;
-    this.addCoins(villain.villainCoins, 'Villain arrested!');
+    btState.coins += villain.villainCoins;
     
     // Show arrest effects
     this.showNotification(`${arrestQuote} +${villain.villainPoints} pts!`, 0x22c55e);
     this.showPointIndicator(villain.x, villain.y - 30, `+${villain.villainPoints}`, 0xffd700);
+    this.showPointIndicator(villain.x, villain.y - 50, `+${villain.villainCoins} coins`, 0xffd700);
     
     // Globalist's reaction
     const reaction = GLOBALIST_QUOTES[Math.floor(Math.random() * GLOBALIST_QUOTES.length)];
@@ -12295,7 +11023,7 @@ class BirdTurdsScene extends Phaser.Scene {
     if (btState.currentLevel === 7) {
       const swampBonus = 300;
       btState.score += swampBonus;
-      this.addCoins(15, 'Swamp drained!');
+      btState.coins += 15;
       this.showPointIndicator(villain.x, villain.y - 80, `SWAMP BONUS +${swampBonus}!`, 0x4a5d23);
       
       // Track Swamp arrests
@@ -12323,7 +11051,7 @@ class BirdTurdsScene extends Phaser.Scene {
     if (btState.currentLevel === 8) {
       const whBonus = 200;
       btState.score += whBonus;
-      this.addCoins(10, 'White House!');
+      btState.coins += 10;
       this.showPointIndicator(villain.x, villain.y - 80, `WHITE HOUSE BONUS +${whBonus}!`, 0x1e40af);
     }
   }
@@ -12415,16 +11143,14 @@ class BirdTurdsScene extends Phaser.Scene {
       
       // Bird size scaling - cfg.size is the intended scale (0.04-0.15)
       const depthScale = 0.9 + Math.random() * 0.2;
-      // Use cfg.size with 2x multiplier for proper visibility
+      // Use cfg.size directly with a 2x multiplier for visibility (not 15x!)
       const size = cfg.size * 2 * depthScale;
       
       const bird = this.birds.create(startX, startY, cfg.sprite)
         .setOrigin(0.5).setScale(size).setFlipX(direction > 0).setDepth(5 + depthScale * 5);
       
-      if (bird.preFX) bird.preFX.addGlow(0xFFFFFF, 1, 0, false, 0.03, 6);
       bird.config = cfg;
       bird.direction = direction;
-      bird.depthScale = depthScale; // Store for update loop
       bird.speed = cfg.speed + Math.random() * 30;
       bird.turdCooldown = 0.5 + Math.random() * 1.0; // Drop turds more often
       bird.phase = Math.random() * Math.PI * 2;
@@ -12638,7 +11364,7 @@ class BirdTurdsScene extends Phaser.Scene {
       
       // Victory text above Trump
       const victoryText = this.add.text(this.trumpNPC.x, this.trumpNPC.y - 100, 
-        'GOD BLESS AMERICA!', {
+        '🇺🇸 GOD BLESS AMERICA! 🇺🇸', {
         fontSize: '18px', fontWeight: 'bold', color: '#ffd700',
         backgroundColor: 'rgba(0,0,0,0.9)', padding: { x: 10, y: 5 }
       }).setOrigin(0.5).setDepth(100);
@@ -12675,7 +11401,6 @@ class BirdTurdsScene extends Phaser.Scene {
     
     bird.config = cfg;
     bird.direction = fromLeft ? 1 : -1;
-    bird.depthScale = 1; // Boss has fixed depth scale
     bird.speed = cfg.speed;
     bird.turdCooldown = 0.5;
     bird.phase = 0;
@@ -12689,74 +11414,57 @@ class BirdTurdsScene extends Phaser.Scene {
   }
 
   spawnVehicle() {
-    // Limit max vehicles on screen to prevent stacking
-    if (this.vehicles && this.vehicles.getLength() >= 2) return;
-    
     const view = this.cameras.main.worldView;
     
     const fromLeft = Math.random() < 0.5;
     const isGoodTractor = Math.random() < 0.4; // 40% chance of friendly cleanup tractor
     const startX = fromLeft ? view.x - 200 : view.right + 200;
     
-    // Use STATIC sprites - more reliable, less crash-prone
-    const spriteKey = isGoodTractor ? 'tractor_good' : 'tractor_bad';
+    // Use appropriate Ludo tractor sprite (green = friendly, red = renegade)
+    const tractorSprite = isGoodTractor ? 'tractor_green' : 'tractor_red';
     
-    if (!this.textures.exists(spriteKey)) {
-      console.warn('Tractor sprite not found:', spriteKey);
-      return;
-    }
+    if (!this.textures.exists(tractorSprite)) return;
     
-    // Create shadow under vehicle
-    const shadow = this.add.ellipse(startX, this.groundY + 4, 100, 30, 0x000000, 0.3)
+    // Create shadow under vehicle (bigger for tractors)
+    const shadow = this.add.ellipse(startX, this.groundY + 5, 80, 25, 0x000000, 0.3)
       .setOrigin(0.5).setDepth(5);
     
-    // Create tractor with static sprite
-    const vehicle = this.vehicles.create(startX, this.groundY, spriteKey)
-      .setOrigin(0.5, 1).setScale(0.3).setDepth(8);
+    // Create tractor with Ludo sprite
+    const vehicle = this.vehicles.create(startX, this.groundY + 2, tractorSprite)
+      .setOrigin(0.5, 1).setScale(0.45).setFlipX(fromLeft).setDepth(8);
     
-    // Flip based on direction - sprites face LEFT by default
-    // fromLeft = going right, so flip
-    vehicle.setFlipX(fromLeft);
-    
-    if (vehicle.preFX) vehicle.preFX.addGlow(0xFFFFFF, 1.5, 0, false, 0.04, 8);
-    vehicle.shadow = shadow;
-    
-    // === COPILOT SAFETY: Proper physics setup ===
+    vehicle.shadow = shadow; // Link shadow to vehicle
     vehicle.body.setAllowGravity(false);
-    vehicle.body.setImmovable(true);
-    
     vehicle.speed = isGoodTractor ? 80 : (100 + Math.random() * 50);
     vehicle.direction = fromLeft ? 1 : -1;
     vehicle.bouncePhase = Math.random() * Math.PI * 2;
     vehicle.isGoodTractor = isGoodTractor;
     vehicle.tireHealth = 3;
-    vehicle._isVehicle = true; // Tag for debug inspection
     
-    // === COPILOT SAFETY: Cleanup handler for destroy ===
-    // Store scene reference to avoid 'this' issues in callbacks
-    const scene = this;
-    vehicle.on('destroy', () => {
-      // Clean up shadow when vehicle is destroyed
-      if (vehicle.shadow && vehicle.shadow.active) {
-        vehicle.shadow.destroy();
-      }
-      // Kill any pending tweens on this vehicle
-      if (scene.tweens) {
-        scene.tweens.killTweensOf(vehicle);
-      }
-    });
-    
-    // Play driver audio
     if (isGoodTractor) {
-      this.playRealAudio('tractor_driver_good', 0.8);
-      this.showNotification('🚜✨ CLEANUP TRACTOR! Scoops turds!');
-    } else {
-      this.playRealAudio('tractor_driver_bad', 0.8);
-      this.showNotification('🚜⚠️ BAD TRACTOR! Jump or shoot tires!');
+      // Good tractor - already green from Ludo sprite, has front bucket/blade for cleanup
       
-      // Add smoke puff effect for bad tractor
-      vehicle.smokeOffset = fromLeft ? -30 : 30;
-      vehicle.lastSmokeTime = 0;
+      // Add front bucket/scoop graphic
+      const bucketX = fromLeft ? 45 : -45; // Position bucket in front
+      const bucket = this.add.rectangle(vehicle.x + bucketX, vehicle.y - 20, 40, 25, 0x22c55e)
+        .setOrigin(0.5, 1)
+        .setDepth(9)
+        .setStrokeStyle(2, 0x166534);
+      vehicle.bucket = bucket;
+      vehicle.bucketOffset = bucketX;
+      
+      // Scoop shape - angled front
+      const scoop = this.add.triangle(vehicle.x + bucketX + (fromLeft ? 20 : -20), vehicle.y - 10, 
+        0, 20, 15, 0, 15, 20, 0x166534)
+        .setDepth(9);
+      vehicle.scoop = scoop;
+      vehicle.scoopOffset = bucketX + (fromLeft ? 20 : -20);
+      
+      this.showNotification('🚜✨ CLEANUP TRACTOR! Scoops turds & lifts over you!');
+    } else {
+      // Bad tractor - red tint, aggressive
+      vehicle.setTint(0xef4444);
+      this.showNotification('🚜⚠️ BAD TRACTOR! Jump over or shoot tires!');
     }
   }
 
@@ -12784,7 +11492,7 @@ class BirdTurdsScene extends Phaser.Scene {
     if (this.textures.exists(spriteKey)) {
       zombie = this.add.sprite(x, y, spriteKey).setScale(0.15).setOrigin(0.5, 1);
       zombie.isAnimatedSprite = true;
-      zombie.setFlipX(fromLeft); // Face direction of movement
+      zombie.setFlipX(!fromLeft); // Face direction of movement
     } else {
       // Fallback: drawn phone zombie (shouldn't happen with Ludo assets)
       zombie = this.add.container(x, y);
@@ -13527,7 +12235,7 @@ class BirdTurdsScene extends Phaser.Scene {
           // Move toward enemy
           const dir = nearestEnemy.x > zombie.x ? 1 : -1;
           zombie.x += dir * 60 * dt;
-          if (zombie.setFlipX) zombie.setFlipX(dir > 0);
+          if (zombie.setFlipX) zombie.setFlipX(dir < 0);
           
           // Attack if close enough
           if (nearestDist < 50 && zombie.attackCooldown <= 0) {
@@ -13667,10 +12375,9 @@ class BirdTurdsScene extends Phaser.Scene {
     const shadow = this.add.ellipse(startX, this.groundY + 3, 40, 15, 0x000000, 0.25)
       .setOrigin(0.5).setDepth(5);
     
-    const animal = this.animals.create(startX, this.groundY - 10, key)
-      .setOrigin(0.5, 1).setScale(0.15).setFlipX(fromLeft).setDepth(6);
+    const animal = this.animals.create(startX, this.groundY, key)
+      .setOrigin(0.5, 1).setScale(0.12).setFlipX(fromLeft).setDepth(6);
     
-    if (animal.preFX) animal.preFX.addGlow(0xFFFFFF, 1.5, 0, false, 0.04, 8);
     animal.shadow = shadow; // Link shadow to animal
     animal.body.setAllowGravity(false);
     animal.speed = groundAnimals[key].speed + Math.random() * 20;
@@ -13694,9 +12401,8 @@ class BirdTurdsScene extends Phaser.Scene {
       .setOrigin(0.5).setDepth(5);
     
     const npc = this.npcs.create(startX, this.groundY, key)
-      .setOrigin(0.5, 1).setScale(0.15).setFlipX(fromLeft).setDepth(7);
+      .setOrigin(0.5, 1).setScale(0.10).setFlipX(fromLeft).setDepth(7);
     
-    if (npc.preFX) npc.preFX.addGlow(0xFFFFFF, 1.5, 0, false, 0.04, 8);
     npc.shadow = shadow; // Link shadow to NPC
     npc.body.setAllowGravity(false);
     npc.speed = npcTypes[key].speed + Math.random() * 10;
@@ -13715,9 +12421,8 @@ class BirdTurdsScene extends Phaser.Scene {
     
     // Create Trump
     this.trump = this.add.sprite(startX, this.groundY, 'trump_walk')
-      .setOrigin(0.5, 1).setScale(0.24).setDepth(15);
+      .setOrigin(0.5, 1).setScale(0.12).setDepth(15);
     
-    if (this.trump.preFX) this.trump.preFX.addGlow(0xFFFFFF, 2, 0, false, 0.05, 12);
     this.trump.direction = 1; // Moving right
     this.trump.speed = 80;
     this.trump.quoteTimer = 0;
@@ -13907,7 +12612,7 @@ class BirdTurdsScene extends Phaser.Scene {
     
     // Angel hovers DIRECTLY over Trump, leaned forward in protective stance
     this.angel = this.add.sprite(trumpX, this.groundY - 120, 'angel_protect')
-      .setOrigin(0.5, 1).setScale(0.24).setDepth(16);
+      .setOrigin(0.5, 1).setScale(0.12).setDepth(16);
     
     // Play protection animation
     this.angel.play('angel_protect_anim');
@@ -14400,14 +13105,9 @@ class BirdTurdsScene extends Phaser.Scene {
     const type = types[Math.floor(Math.random() * types.length)];
     if (!this.textures.exists(type)) return;
     
-    // Different scales per item type
-    const itemScales = { ammo: 0.06, firstaid: 0.05, coin: 0.04 };
-    const scale = itemScales[type] || 0.05;
-    
     const item = this.items.create(view.x + view.width * (0.3 + Math.random() * 0.5), this.groundY - 60 - Math.random() * 50, type)
-      .setOrigin(0.5).setScale(scale).setDepth(9);
+      .setOrigin(0.5).setScale(0.18).setDepth(9);
     item.type = type;
-    item.baseScale = scale; // Store for bobbing animation
     item.phase = Math.random() * Math.PI * 2;
     item.body.setAllowGravity(false);
   }
@@ -14459,8 +13159,6 @@ class BirdTurdsScene extends Phaser.Scene {
             if (bird.health <= 0) {
               this.hunterBeingCarried = false;
               bird.isCarrying = false;
-              this.hunter.y = this.groundY; // Reset hunter to ground!
-              this.hunter.x = Math.max(100, Math.min(this.hunter.x, WORLD_WIDTH - 100)); // Keep in bounds
               this.createDeathEffect(bird.x, bird.y);
               const pts = bird.config.score;
               btState.score += pts;
@@ -14484,15 +13182,6 @@ class BirdTurdsScene extends Phaser.Scene {
               this.hunterBeingCarried = false;
               bird.isCarrying = false;
               this.hunter.y = this.groundY;
-              this.hunter.x = Math.max(100, Math.min(this.hunter.x, WORLD_WIDTH - 100));
-              this.createDeathEffect(bird.x, bird.y);
-              const pts = bird.config.score;
-              btState.score += pts;
-              btState.kills++;
-              this.onBirdKilled();
-              this.showPointIndicator(bird.x, bird.y, `+${pts} SHOT FREE!`, 0x22c55e);
-              bird.destroy();
-              return; // Exit early - bird is dead
             }
           }
           
@@ -14542,19 +13231,6 @@ class BirdTurdsScene extends Phaser.Scene {
           if (distToHunter < 50 && !this.isProne && !this.isCrouching && !btState.invincible && !this.hunterBeingCarried) {
             // 30% chance to grab and carry!
             if (Math.random() < 0.3) {
-              // === COPILOT: Store pre-grab state for robust restore ===
-              this.hunterPreGrabState = {
-                x: this.hunter.x,
-                y: this.hunter.y,
-                velocityX: this.hunter.body ? this.hunter.body.velocity.x : 0,
-                velocityY: this.hunter.body ? this.hunter.body.velocity.y : 0,
-                alpha: this.hunter.alpha,
-                scaleX: this.hunter.scaleX,
-                scaleY: this.hunter.scaleY,
-                visible: this.hunter.visible,
-                bodyEnabled: this.hunter.body ? this.hunter.body.enable : true
-              };
-              
               bird.isCarrying = true;
               this.hunterBeingCarried = true;
               bird.isDiving = false;
@@ -14593,11 +13269,11 @@ class BirdTurdsScene extends Phaser.Scene {
       bird.flapPhase += dt * (bird.isBoss ? 6 : 10);
       const baseScale = cfg.size * 2 * (bird.depthScale || 1); // Match spawn multiplier (2x)
       // Scale Y to simulate wing flapping (squish/stretch)
-      const flapY = 1 + Math.sin(bird.flapPhase) * 0.25; // More visible flapping // 15% vertical squish
-      const flapX = 1 + Math.sin(bird.flapPhase) * 0.15; // More visible flapping // 8% horizontal
+      const flapY = 1 + Math.sin(bird.flapPhase) * 0.15; // 15% vertical squish
+      const flapX = 1 + Math.sin(bird.flapPhase) * 0.08; // 8% horizontal
       bird.setScale(baseScale * flapX, baseScale * flapY);
       // Slight rotation wobble
-      bird.rotation = Math.sin(bird.flapPhase * 0.5) * 0.15; // More visible wobble
+      bird.rotation = Math.sin(bird.flapPhase * 0.5) * 0.1;
       
       // Turd dropping OR coin dropping for helpers
       bird.turdCooldown -= dt;
@@ -14631,29 +13307,8 @@ class BirdTurdsScene extends Phaser.Scene {
       }
       
       const buffer = bird.isBoss ? 800 : 500;
-      if ((bird.direction > 0 && bird.x > view.right + buffer) || (bird.direction < 0 && bird.x < view.x - buffer)) {
-        // If this bird was carrying the hunter, release them!
-        if (bird.isCarrying && this.hunterBeingCarried) {
-          this.hunterBeingCarried = false;
-          if (this.hunter && this.hunter.active) {
-            this.hunter.x = Math.max(100, Math.min(view.x + 200, WORLD_WIDTH - 100));
-            this.hunter.y = this.groundY;
-          }
-        }
-        bird.destroy();
-      }
+      if ((bird.direction > 0 && bird.x > view.right + buffer) || (bird.direction < 0 && bird.x < view.x - buffer)) bird.destroy();
     });
-    
-    // SAFETY: If hunterBeingCarried but no bird is carrying, reset!
-    if (this.hunterBeingCarried) {
-      const carryingBird = this.birds.getChildren().find(b => b && b.active && b.isCarrying);
-      if (!carryingBird) {
-        this.hunterBeingCarried = false;
-        if (this.hunter && this.hunter.active) {
-          this.hunter.y = this.groundY;
-        }
-      }
-    }
   }
 
   updateTurds() {
@@ -14749,22 +13404,16 @@ class BirdTurdsScene extends Phaser.Scene {
         if (this.groundTurds) {
           this.groundTurds.getChildren().forEach(turd => {
             if (!turd || !turd.active) return;
-            const bucketX = v.x + v.bucketOffset;
-            const turdDist = Math.abs(bucketX - turd.x);
-            if (turdDist < 60 && Math.abs(turd.y - (v.y - 10)) < 50) {
-              // Scoop it up with better visual!
+            const turdDist = Math.abs(v.x + v.bucketOffset - turd.x);
+            if (turdDist < 50 && Math.abs(turd.y - (v.y - 10)) < 40) {
+              // Scoop it up!
               this.tweens.add({
                 targets: turd,
-                x: bucketX, // Move TO the bucket
-                y: v.y - 40, // Lift into bucket
-                scale: 0.03,
-                duration: 200,
-                ease: 'Power2',
-                onComplete: () => {
-                  // Show "+1 CLEANED" indicator
-                  this.showPointIndicator(bucketX, v.y - 50, '💩➡️🪣', 0x22c55e);
-                  turd.destroy();
-                }
+                y: turd.y - 60,
+                alpha: 0,
+                scale: 0.02,
+                duration: 300,
+                onComplete: () => turd.destroy()
               });
             }
           });
@@ -14782,25 +13431,6 @@ class BirdTurdsScene extends Phaser.Scene {
         v.shadow.setPosition(v.x, this.groundY + 5);
       }
       
-      // Spawn smoke puffs for bad tractors
-      if (!v.isGoodTractor && v.smokeOffset) {
-        const now = this.time.now;
-        if (!v.lastSmokeTime || now - v.lastSmokeTime > 200) {
-          v.lastSmokeTime = now;
-          const smokeX = v.x + v.smokeOffset;
-          const smokeY = v.y - 70;
-          const puff = this.add.circle(smokeX, smokeY, 8, 0x555555, 0.6).setDepth(7);
-          this.tweens.add({
-            targets: puff,
-            y: smokeY - 40,
-            alpha: 0,
-            scale: 2,
-            duration: 600,
-            onComplete: () => puff.destroy()
-          });
-        }
-      }
-      
       // Warning when vehicle approaching!
       if (!v.hasWarned && this.hunter && this.hunter.active) {
         const dist = Math.abs(v.x - this.hunter.x);
@@ -14815,9 +13445,7 @@ class BirdTurdsScene extends Phaser.Scene {
       }
       
       // Check collision with hunter - only BAD tractors damage
-      // SAFETY: Double-check isGoodTractor AND texture key
-      const isGreen = v.isGoodTractor || (v.texture && v.texture.key === 'tractor_good');
-      if (!isGreen && this.hunter && this.hunter.active && !this.gameOver) {
+      if (!v.isGoodTractor && this.hunter && this.hunter.active && !this.gameOver) {
         const dist = Math.abs(v.x - this.hunter.x);
         // Can jump over if high enough!
         const isAbove = this.hunter.y < this.groundY - 60;
@@ -14860,8 +13488,8 @@ class BirdTurdsScene extends Phaser.Scene {
       
       p.x += p.speed * dt * p.direction;
       p.bobPhase += dt * (p.isHelicopter ? 10 : 2);
-      if (p.isHelicopter) p.y += Math.sin(p.bobPhase) * 2; // More visible bob
-      else p.rotation = Math.sin(p.bobPhase) * 0.08; // More visible wobble
+      if (p.isHelicopter) p.y += Math.sin(p.bobPhase) * 0.5;
+      else p.rotation = Math.sin(p.bobPhase) * 0.03;
       
       // Randomly deploy parachuters from planes/helicopters (not fighters)!
       if (!p.isFighter && !p.hasDeployed && Math.random() < 0.003) {
@@ -15410,867 +14038,109 @@ class BirdTurdsScene extends Phaser.Scene {
     });
   }
 
-  // Check for low ammo and spawn ammo boxes
-  checkLowAmmo() {
-    // Only check occasionally
-    this.lowAmmoCheckTimer = (this.lowAmmoCheckTimer || 0) + 1;
-    if (this.lowAmmoCheckTimer < 180) return; // Check every 3 seconds
-    this.lowAmmoCheckTimer = 0;
-    
-    // If ammo is low (below 10), maybe spawn an ammo box
-    if (btState.ammo < 10) {
-      // 15% chance to spawn ammo box (not too easy!)
-      if (Math.random() < 0.15) {
-        this.spawnAmmoBox();
-      }
-    }
-    
-    // Low ammo warning with quick-buy option
-    if (btState.ammo < 10 && btState.ammo > 0) {
-      if (!this.lowAmmoWarned) {
-        this.showNotification('⚠️ LOW AMMO! Press [P] to quick-buy refill!');
-        this.showQuickBuyHint();
-        this.lowAmmoWarned = true;
-      }
-    } else if (btState.ammo === 0 && !this.noAmmoWarned) {
-      this.showNotification('🚫 OUT OF AMMO! Press [P] to buy refill!');
-      this.showQuickBuyHint();
-      this.noAmmoWarned = true;
-    } else if (btState.ammo >= 10) {
-      this.lowAmmoWarned = false;
-      this.noAmmoWarned = false;
-      this.hideQuickBuyHint();
-    }
-  }
-  
-  // Spawn ammo box pickup
-  spawnAmmoBox() {
-    if (!this.ammoPickups) {
-      this.ammoPickups = this.physics.add.group();
-    }
-    
-    // Don't spawn too many
-    if (this.ammoPickups.getChildren().length >= 2) return;
-    
-    const view = this.cameras.main.worldView;
-    const x = view.right + 100 + Math.random() * 200;
-    const y = GAME_HEIGHT - this.groundHeight - 20;
-    
-    // Create ammo box using the ammo sprite
-    const ammoBox = this.add.sprite(x, y, 'ammo')
-      .setOrigin(0.5)
-      .setDepth(15)
-      .setScale(0.08);
-    
-    ammoBox.baseY = y;
-    ammoBox.bobPhase = 0;
-    
-    this.ammoPickups.add(ammoBox);
-    this.physics.world.enable(ammoBox);
-    ammoBox.body.setAllowGravity(false);
-    
-    // Add glow effect
-    this.tweens.add({
-      targets: ammoBox,
-      alpha: { from: 0.7, to: 1 },
-      yoyo: true,
-      repeat: -1,
-      duration: 500
-    });
-    
-    this.showNotification('📦 AMMO BOX spotted! Go get it!');
-  }
-  
-  // Update ammo boxes (bob and check collection)
-  updateAmmoBoxes() {
-    if (!this.ammoPickups) return;
-    
-    this.ammoPickups.getChildren().forEach(box => {
-      if (!box || !box.active) return;
+  // Weapon pickup system - bow and crossbow!
+  updateWeaponPickups() {
+    this.weaponPickups.getChildren().forEach(w => {
+      if (!w || !w.active) return;
       
-      // Bob up and down
-      box.bobPhase = (box.bobPhase || 0) + 0.05;
-      box.y = box.baseY + Math.sin(box.bobPhase) * 5;
+      // Bob animation
+      w.bobPhase = (w.bobPhase || 0) + 0.05;
+      w.y = w.baseY + Math.sin(w.bobPhase) * 5;
       
-      // Check if player collected it
+      // Check collision with hunter
       if (this.hunter && this.hunter.active) {
-        const dist = Math.hypot(box.x - this.hunter.x, box.y - this.hunter.y);
+        const dist = Phaser.Math.Distance.Between(this.hunter.x, this.hunter.y, w.x, w.y);
         if (dist < 50) {
-          this.collectAmmoBox(box);
+          this.pickupWeapon(w);
         }
       }
       
-      // Remove if too far left
+      // Cleanup offscreen
       const view = this.cameras.main.worldView;
-      if (box.x < view.left - 100) {
-        box.destroy();
-      }
+      if (w.x < view.x - 300 || w.x > view.right + 300) w.destroy();
     });
   }
   
-  // Collect ammo box
-  collectAmmoBox(box) {
-    // Give 10-20 ammo
-    const ammoGain = 10 + Math.floor(Math.random() * 11);
-    btState.ammo += ammoGain;
+  // Spawn a weapon pickup on the ground
+  spawnWeaponPickup(type) {
+    const view = this.cameras.main.worldView;
+    const x = view.x + 100 + Math.random() * (view.width - 200);
+    const y = this.groundY - 20;
     
-    this.showNotification(`📦 +${ammoGain} AMMO!`);
-    this.showPointIndicator(box.x, box.y, `+${ammoGain} 🔫`, 0x22c55e);
-    this.playSound('coin');
+    const emoji = type === 'bow' ? '🏹' : '⚔️';
+    const weapon = this.add.text(x, y, emoji, { fontSize: '32px' })
+      .setOrigin(0.5)
+      .setDepth(15);
+    
+    weapon.weaponType = type;
+    weapon.baseY = y;
+    weapon.bobPhase = 0;
+    
+    // Glow effect
+    weapon.setStyle({ 
+      fontSize: '32px',
+      shadow: { color: '#facc15', blur: 10, fill: true }
+    });
+    
+    this.weaponPickups.add(weapon);
+    this.physics.world.enable(weapon);
+    
+    // Show nudge message
+    this.showNotification(`🎯 ${type === 'bow' ? 'BOW' : 'CROSSBOW'} spotted! Go get it!`);
+  }
+  
+  // Pick up a weapon
+  pickupWeapon(weapon) {
+    const type = weapon.weaponType;
+    
+    if (type === 'bow') {
+      btState.hasBow = true;
+      btState.bowArrows = 15;
+      this.showNotification('🏹 BOW ACQUIRED! +15 Arrows!');
+    } else {
+      btState.hasCrossbow = true;
+      btState.crossbowBolts = 10;
+      this.showNotification('⚔️ CROSSBOW ACQUIRED! +10 Bolts!');
+    }
     
     // Pickup effect
     this.tweens.add({
-      targets: box,
-      y: box.y - 50,
-      scale: 1.5,
+      targets: weapon,
+      y: weapon.y - 50,
+      scale: 2,
       alpha: 0,
       duration: 300,
-      onComplete: () => box.destroy()
+      onComplete: () => weapon.destroy()
     });
+    
+    this.showPointIndicator(weapon.x, weapon.y, type === 'bow' ? '🏹 GOT IT!' : '⚔️ NICE!', 0xfacc15);
   }
   
-  // ========== IN-GAME TURDCOIN DISPLAY & QUICK SHOP ==========
-  
-  setupCoinDisplay() {
-    // Persistent coin display in top-right corner (discrete)
-    this.coinDisplayContainer = this.add.container(GAME_WIDTH - 10, 10);
-    this.coinDisplayContainer.setDepth(999);
-    this.coinDisplayContainer.setScrollFactor(0);
+  // Check for low ammo and spawn weapon pickups
+  checkLowAmmo() {
+    // Only check occasionally
+    this.lowAmmoCheckTimer = (this.lowAmmoCheckTimer || 0) + 1;
+    if (this.lowAmmoCheckTimer < 120) return; // Check every 2 seconds
+    this.lowAmmoCheckTimer = 0;
     
-    // Background pill shape
-    const coinBg = this.add.rectangle(0, 0, 120, 28, 0x1e293b, 0.85);
-    coinBg.setStrokeStyle(1, 0xffd700, 0.5);
-    coinBg.setOrigin(1, 0);
-    
-    // Coin icon
-    const coinIcon = this.add.text(-100, 14, '💩', { fontSize: '14px' }).setOrigin(0.5);
-    
-    // Coin amount text
-    this.coinDisplayText = this.add.text(-55, 14, '0', {
-      fontSize: '13px',
-      fontFamily: 'Arial',
-      color: '#ffd700',
-      fontStyle: 'bold'
-    }).setOrigin(0, 0.5);
-    
-    // Quick shop hint
-    const shopHint = this.add.text(-10, 14, '[TAB]', {
-      fontSize: '9px',
-      fontFamily: 'Arial',
-      color: '#6b7280'
-    }).setOrigin(1, 0.5);
-    
-    this.coinDisplayContainer.add([coinBg, coinIcon, this.coinDisplayText, shopHint]);
-    
-    // Update display
-    this.updateCoinDisplay();
-    
-    // Coin change animation container
-    this.coinAnimations = [];
-  }
-  
-  updateCoinDisplay() {
-    if (!this.coinDisplayText) return;
-    const coins = parseInt(localStorage.getItem('birdturds_coins') || '0');
-    btState.coins = coins;
-    this.coinDisplayText.setText(coins.toLocaleString());
-  }
-  
-  // Animate coin change (+ green for earn, - red for spend)
-  animateCoinChange(amount, isEarning = true) {
-    if (!this.coinDisplayContainer) return;
-    
-    const color = isEarning ? '#22c55e' : '#ef4444';
-    const prefix = isEarning ? '+' : '-';
-    
-    const changeText = this.add.text(
-      GAME_WIDTH - 65, 40,
-      `${prefix}${Math.abs(amount)} 💩`,
-      {
-        fontSize: '14px',
-        fontFamily: 'Arial',
-        color: color,
-        fontStyle: 'bold',
-        stroke: '#000',
-        strokeThickness: 2
+    // If ammo is low (below 15) and no bow/crossbow, spawn one
+    if (btState.ammo < 15 && !btState.hasBow && !btState.hasCrossbow) {
+      // 30% chance to spawn a weapon each check
+      if (Math.random() < 0.3) {
+        const type = Math.random() < 0.5 ? 'bow' : 'crossbow';
+        this.spawnWeaponPickup(type);
       }
-    ).setOrigin(0.5).setScrollFactor(0).setDepth(1000);
-    
-    // Animate up and fade
-    this.tweens.add({
-      targets: changeText,
-      y: changeText.y - 30,
-      alpha: 0,
-      duration: 1200,
-      ease: 'Power2',
-      onComplete: () => changeText.destroy()
-    });
-    
-    // Pulse the main display
-    if (this.coinDisplayContainer) {
-      this.tweens.add({
-        targets: this.coinDisplayContainer,
-        scaleX: 1.15,
-        scaleY: 1.15,
-        yoyo: true,
-        duration: 150,
-        ease: 'Quad.easeOut'
-      });
     }
     
-    // Update the display
-    this.updateCoinDisplay();
-  }
-  
-  // Add coins with animation
-  addCoins(amount, reason = '') {
-    let coins = parseInt(localStorage.getItem('birdturds_coins') || '0');
-    coins += amount;
-    localStorage.setItem('birdturds_coins', coins.toString());
-    btState.coins = coins;
-    
-    this.animateCoinChange(amount, true);
-    
-    if (reason) {
-      this.showNotification(`+${amount} 🪙 ${reason}`);
-    }
-    
-    // Sync to cloud if user is logged in (debounced save)
-    if (window.saveUserData && !window._coinSaveDebounce) {
-      window._coinSaveDebounce = setTimeout(() => {
-        window.saveUserData();
-        window._coinSaveDebounce = null;
-      }, 2000); // Save after 2 seconds of no coin changes
-    }
-  }
-  
-  // Spend coins with animation
-  spendCoins(amount) {
-    let coins = parseInt(localStorage.getItem('birdturds_coins') || '0');
-    if (coins < amount) return false;
-    
-    coins -= amount;
-    localStorage.setItem('birdturds_coins', coins.toString());
-    btState.coins = coins;
-    
-    this.animateCoinChange(amount, false);
-    
-    // Sync to cloud immediately on purchase
-    if (window.saveUserData) {
-      window.saveUserData();
-    }
-    
-    return true;
-  }
-  
-  // Quick shop items for in-game purchase
-  getQuickShopItems() {
-    return {
-      consumables: [
-        { id: 'ammo_refill', name: '🔄 Ammo Refill', desc: 'Refill all ammo', cost: 100, key: '1' },
-        { id: 'health_pack', name: '❤️ Health +50', desc: '+50 HP', cost: 200, key: '2' },
-        { id: 'full_heal', name: '❤️❤️ Full Heal', desc: '100% HP', cost: 500, key: '3' },
-        { id: 'shield_temp', name: '🌟 Shield 10s', desc: 'Invincible 10s', cost: 500, key: '4' },
-        { id: 'double_points', name: '⭐ 2x Points', desc: '30s double score', cost: 300, key: '5' },
-        { id: 'slow_motion', name: '⏱️ Slow-Mo', desc: '15s slow birds', cost: 400, key: '6' },
-        { id: 'sturdy_hat', name: '🎩 Turd Hat', desc: 'Block turds 45s', cost: 800, key: '7' },
-        { id: 'jetpack', name: '🚀 Jetpack', desc: 'Fly 30 seconds!', cost: 5000, key: '8' },
-        { id: 'airstrike', name: '✈️ Airstrike', desc: 'Bomb all birds', cost: 2000, key: '9' },
-        { id: 'nuke', name: '☢️ NUKE', desc: 'Clear screen!', cost: 5000, key: '0' }
-      ],
-      weapons: [
-        { id: 'shotgun_12', name: '💥 12ga Shotgun', desc: '8-pellet spread', cost: 8000, key: 'F1' },
-        { id: 'machinegun', name: '⚡ M249 SAW', desc: 'Full auto 200rds', cost: 15000, key: 'F2' },
-        { id: 'sniper', name: '🎯 .308 Sniper', desc: '3x damage scope', cost: 12000, key: 'F3' },
-        { id: 'bazooka', name: '🚀 Bazooka', desc: 'AOE explosions', cost: 40000, key: 'F4' }
-      ],
-      bosses: [
-        { id: 'boss_pterodactyl', name: '🦖 Pterodactyl', desc: '+100pts +25💩', cost: 500, key: 'B' },
-        { id: 'boss_phoenix', name: '🔥 Phoenix', desc: '+150pts +50💩', cost: 1000, key: 'N' },
-        { id: 'boss_thunderbird', name: '⚡ Thunderbird', desc: '+300pts +75💩', cost: 2000, key: 'M' }
-      ]
-    };
-  }
-  
-  // Toggle quick shop overlay
-  toggleQuickShop() {
-    if (this.quickShopOpen) {
-      this.closeQuickShop();
+    // Low ammo warning
+    if (btState.ammo < 10 && btState.ammo > 0) {
+      if (!this.lowAmmoWarned) {
+        this.showNotification('⚠️ LOW AMMO! Find a bow or crossbow!');
+        this.lowAmmoWarned = true;
+      }
     } else {
-      this.openQuickShop();
+      this.lowAmmoWarned = false;
     }
-  }
-  
-  openQuickShop() {
-    if (this.quickShopOpen) return;
-    this.quickShopOpen = true;
-    this.paused = true; // Pause game while shopping
-    
-    const coins = parseInt(localStorage.getItem('birdturds_coins') || '0');
-    const items = this.getQuickShopItems();
-    
-    // Create overlay
-    this.quickShopOverlay = this.add.container(GAME_WIDTH / 2, GAME_HEIGHT / 2);
-    this.quickShopOverlay.setDepth(2000);
-    this.quickShopOverlay.setScrollFactor(0);
-    
-    // Dark background
-    const darkBg = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.85);
-    
-    // Main panel
-    const panelWidth = Math.min(700, GAME_WIDTH - 40);
-    const panelHeight = Math.min(500, GAME_HEIGHT - 40);
-    const panel = this.add.rectangle(0, 0, panelWidth, panelHeight, 0x1e293b, 0.98);
-    panel.setStrokeStyle(3, 0xffd700);
-    
-    // Title
-    const title = this.add.text(0, -panelHeight/2 + 25, '⚡ QUICK SHOP ⚡', {
-      fontSize: '22px',
-      fontFamily: 'Arial',
-      color: '#ffd700',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-    
-    // Coin balance
-    const balanceText = this.add.text(0, -panelHeight/2 + 55, `💩 ${coins.toLocaleString()} TurdCoins`, {
-      fontSize: '16px',
-      fontFamily: 'Arial',
-      color: '#22c55e',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-    
-    // Close hint
-    const closeHint = this.add.text(panelWidth/2 - 10, -panelHeight/2 + 15, '[TAB] or [ESC] to close', {
-      fontSize: '10px',
-      fontFamily: 'Arial',
-      color: '#6b7280'
-    }).setOrigin(1, 0);
-    
-    this.quickShopOverlay.add([darkBg, panel, title, balanceText, closeHint]);
-    
-    // Add item sections
-    let yOffset = -panelHeight/2 + 90;
-    
-    // Consumables section
-    const consLabel = this.add.text(-panelWidth/2 + 20, yOffset, '🎁 CONSUMABLES (Press number key)', {
-      fontSize: '12px', fontFamily: 'Arial', color: '#f472b6', fontStyle: 'bold'
-    });
-    this.quickShopOverlay.add(consLabel);
-    yOffset += 22;
-    
-    // Grid of consumables (2 rows of 5)
-    items.consumables.forEach((item, i) => {
-      const col = i % 5;
-      const row = Math.floor(i / 5);
-      const x = -panelWidth/2 + 70 + col * 130;
-      const y = yOffset + row * 55;
-      
-      const canAfford = coins >= item.cost;
-      const itemContainer = this.createShopItemButton(item, x, y, canAfford);
-      this.quickShopOverlay.add(itemContainer);
-    });
-    
-    yOffset += 130;
-    
-    // Weapons section
-    const weapLabel = this.add.text(-panelWidth/2 + 20, yOffset, '🔫 WEAPONS (Press F1-F4)', {
-      fontSize: '12px', fontFamily: 'Arial', color: '#60a5fa', fontStyle: 'bold'
-    });
-    this.quickShopOverlay.add(weapLabel);
-    yOffset += 22;
-    
-    items.weapons.forEach((item, i) => {
-      const x = -panelWidth/2 + 90 + i * 160;
-      const canAfford = coins >= item.cost;
-      const itemContainer = this.createShopItemButton(item, x, yOffset + 20, canAfford);
-      this.quickShopOverlay.add(itemContainer);
-    });
-    
-    yOffset += 80;
-    
-    // Boss summons section
-    const bossLabel = this.add.text(-panelWidth/2 + 20, yOffset, '🦖 SUMMON BOSSES (B/N/M keys) - Kill for bonus coins!', {
-      fontSize: '12px', fontFamily: 'Arial', color: '#a855f7', fontStyle: 'bold'
-    });
-    this.quickShopOverlay.add(bossLabel);
-    yOffset += 22;
-    
-    items.bosses.forEach((item, i) => {
-      const x = -panelWidth/2 + 120 + i * 180;
-      const canAfford = coins >= item.cost;
-      const itemContainer = this.createShopItemButton(item, x, yOffset + 20, canAfford);
-      this.quickShopOverlay.add(itemContainer);
-    });
-    
-    // Fade in
-    this.quickShopOverlay.setAlpha(0);
-    this.tweens.add({
-      targets: this.quickShopOverlay,
-      alpha: 1,
-      duration: 150
-    });
-  }
-  
-  createShopItemButton(item, x, y, canAfford) {
-    const container = this.add.container(x, y);
-    
-    const bgColor = canAfford ? 0x374151 : 0x1f2937;
-    const borderColor = canAfford ? 0x22c55e : 0x4b5563;
-    
-    const bg = this.add.rectangle(0, 0, 120, 50, bgColor, 0.9);
-    bg.setStrokeStyle(canAfford ? 2 : 1, borderColor);
-    
-    const keyBg = this.add.rectangle(-45, -15, 22, 18, 0x000000, 0.5);
-    const keyText = this.add.text(-45, -15, `[${item.key}]`, {
-      fontSize: '9px', fontFamily: 'Arial', color: '#ffd700'
-    }).setOrigin(0.5);
-    
-    const nameText = this.add.text(0, -5, item.name, {
-      fontSize: '10px', fontFamily: 'Arial', color: canAfford ? '#fff' : '#6b7280', fontStyle: 'bold'
-    }).setOrigin(0.5);
-    
-    const costText = this.add.text(0, 12, `${item.cost.toLocaleString()} 💩`, {
-      fontSize: '10px', fontFamily: 'Arial', color: canAfford ? '#22c55e' : '#ef4444'
-    }).setOrigin(0.5);
-    
-    container.add([bg, keyBg, keyText, nameText, costText]);
-    
-    // Make interactive
-    bg.setInteractive({ useHandCursor: canAfford });
-    if (canAfford) {
-      bg.on('pointerover', () => {
-        bg.setFillStyle(0x4b5563);
-        bg.setStrokeStyle(2, 0xffd700);
-      });
-      bg.on('pointerout', () => {
-        bg.setFillStyle(0x374151);
-        bg.setStrokeStyle(2, 0x22c55e);
-      });
-      bg.on('pointerdown', () => {
-        this.quickBuyItem(item.id, item.cost, item.name);
-      });
-    }
-    
-    return container;
-  }
-  
-  closeQuickShop() {
-    if (!this.quickShopOpen) return;
-    this.quickShopOpen = false;
-    this.paused = false;
-    
-    if (this.quickShopOverlay) {
-      this.tweens.add({
-        targets: this.quickShopOverlay,
-        alpha: 0,
-        duration: 100,
-        onComplete: () => {
-          this.quickShopOverlay.destroy();
-          this.quickShopOverlay = null;
-        }
-      });
-    }
-  }
-  
-  // Quick buy any item
-  quickBuyItem(itemId, cost, itemName) {
-    const coins = parseInt(localStorage.getItem('birdturds_coins') || '0');
-    
-    if (coins < cost) {
-      this.showNotification(`❌ Need ${cost} 💩, have ${coins}!`);
-      this.playSound('error');
-      return false;
-    }
-    
-    // Deduct coins
-    if (!this.spendCoins(cost)) return false;
-    
-    // Apply the item effect
-    this.applyQuickBuyItem(itemId);
-    
-    // Success feedback
-    this.showNotification(`✅ ${itemName} ACTIVATED!`);
-    this.playSound('powerup');
-    
-    // Close shop after purchase
-    this.closeQuickShop();
-    
-    return true;
-  }
-  
-  applyQuickBuyItem(itemId) {
-    switch(itemId) {
-      case 'ammo_refill':
-        btState.ammo = btState.ammoMax;
-        this.showPointIndicator(this.hunter.x, this.hunter.y - 20, 'FULL AMMO! 🔫', 0x22c55e);
-        break;
-        
-      case 'health_pack':
-        btState.health = Math.min(100, btState.health + 50);
-        this.showPointIndicator(this.hunter.x, this.hunter.y - 20, '+50 HP ❤️', 0xef4444);
-        break;
-        
-      case 'full_heal':
-        btState.health = 100;
-        this.showPointIndicator(this.hunter.x, this.hunter.y - 20, 'FULL HP! ❤️', 0xef4444);
-        break;
-        
-      case 'shield_temp':
-        this.activateShield(10);
-        break;
-        
-      case 'shield_long':
-        this.activateShield(30);
-        break;
-        
-      case 'double_points':
-        this.activateScoreMultiplier(2, 30);
-        break;
-        
-      case 'triple_points':
-        this.activateScoreMultiplier(3, 30);
-        break;
-        
-      case 'slow_motion':
-        this.activateSlowMotion(15);
-        break;
-        
-      case 'freeze':
-        this.freezeAllBirds(10);
-        break;
-        
-      case 'sturdy_hat':
-        this.activateTurdHat(45);
-        break;
-        
-      case 'sturdy_hat_xl':
-        this.activateTurdHat(90);
-        break;
-        
-      case 'jetpack':
-        this.activateJetpack(30);
-        break;
-        
-      case 'jetpack_xl':
-        this.activateJetpack(60);
-        break;
-        
-      case 'airstrike':
-        this.callAirstrike();
-        break;
-        
-      case 'nuke':
-        this.callNuke();
-        break;
-        
-      case 'boss_pterodactyl':
-        this.summonBoss('pterodactyl');
-        break;
-        
-      case 'boss_phoenix':
-        this.summonBoss('phoenix');
-        break;
-        
-      case 'boss_thunderbird':
-        this.summonBoss('thunderbird');
-        break;
-        
-      case 'boss_dragon':
-        this.summonBoss('dragon');
-        break;
-        
-      // Weapons - switch to purchased weapon
-      case 'shotgun_12':
-      case 'machinegun':
-      case 'sniper':
-      case 'bazooka':
-      case 'minigun':
-      case 'barrett':
-        // Add to owned items
-        let owned = JSON.parse(localStorage.getItem('birdturds_owned') || '[]');
-        if (!owned.includes(itemId)) {
-          owned.push(itemId);
-          localStorage.setItem('birdturds_owned', JSON.stringify(owned));
-        }
-        // Switch to weapon
-        if (typeof this.switchWeapon === 'function') {
-          this.switchWeapon(itemId);
-        }
-        break;
-        
-      default:
-        console.log('Unknown quick buy item:', itemId);
-    }
-    
-    this.updateHud();
-  }
-  
-  // Helper methods for power-ups
-  activateShield(duration) {
-    this.shieldActive = true;
-    this.shieldEndTime = this.time.now + duration * 1000;
-    
-    // Visual effect
-    if (!this.shieldSprite) {
-      this.shieldSprite = this.add.circle(0, 0, 50, 0x3b82f6, 0.3);
-      this.shieldSprite.setStrokeStyle(3, 0x60a5fa);
-    }
-    this.shieldSprite.setVisible(true);
-    
-    this.showNotification(`🌟 SHIELD ACTIVE ${duration}s!`);
-    
-    // Auto-disable after duration
-    this.time.delayedCall(duration * 1000, () => {
-      this.shieldActive = false;
-      if (this.shieldSprite) this.shieldSprite.setVisible(false);
-      this.showNotification('🌟 Shield expired!');
-    });
-  }
-  
-  activateScoreMultiplier(multiplier, duration) {
-    this.scoreMultiplier = multiplier;
-    this.showNotification(`⭐ ${multiplier}x POINTS for ${duration}s!`);
-    
-    this.time.delayedCall(duration * 1000, () => {
-      this.scoreMultiplier = 1;
-      this.showNotification('⭐ Score multiplier ended');
-    });
-  }
-  
-  activateSlowMotion(duration) {
-    this.slowMotionActive = true;
-    this.physics.world.timeScale = 2; // Slow physics
-    this.showNotification(`⏱️ SLOW-MO ${duration}s!`);
-    
-    this.time.delayedCall(duration * 1000, () => {
-      this.slowMotionActive = false;
-      this.physics.world.timeScale = 1;
-      this.showNotification('⏱️ Normal speed resumed');
-    });
-  }
-  
-  freezeAllBirds(duration) {
-    this.showNotification(`❄️ FREEZE ${duration}s!`);
-    
-    if (this.birds) {
-      this.birds.getChildren().forEach(bird => {
-        if (bird && bird.active) {
-          bird.frozen = true;
-          bird.setTint(0x87CEEB);
-          bird.body.setVelocity(0, 0);
-        }
-      });
-    }
-    
-    this.time.delayedCall(duration * 1000, () => {
-      if (this.birds) {
-        this.birds.getChildren().forEach(bird => {
-          if (bird && bird.active) {
-            bird.frozen = false;
-            bird.clearTint();
-          }
-        });
-      }
-      this.showNotification('❄️ Birds unfrozen!');
-    });
-  }
-  
-  activateTurdHat(duration) {
-    this.turdHatActive = true;
-    this.showNotification(`🎩 TURD HAT ${duration}s - Turds blocked!`);
-    
-    this.time.delayedCall(duration * 1000, () => {
-      this.turdHatActive = false;
-      this.showNotification('🎩 Hat wore off!');
-    });
-  }
-  
-  callAirstrike() {
-    this.showNotification('✈️ AIRSTRIKE INCOMING!');
-    
-    // Kill all birds on screen
-    if (this.birds) {
-      let killCount = 0;
-      this.birds.getChildren().forEach(bird => {
-        if (bird && bird.active) {
-          this.createExplosion(bird.x, bird.y);
-          this.addScore(bird.birdPoints || 10);
-          bird.destroy();
-          killCount++;
-        }
-      });
-      this.showNotification(`✈️ Airstrike killed ${killCount} birds!`);
-    }
-  }
-  
-  callNuke() {
-    this.showNotification('☢️ TACTICAL NUKE LAUNCHED!');
-    
-    // Screen flash
-    const flash = this.add.rectangle(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH, GAME_HEIGHT, 0xffffff, 1);
-    flash.setScrollFactor(0).setDepth(9999);
-    this.tweens.add({
-      targets: flash,
-      alpha: 0,
-      duration: 1000,
-      onComplete: () => flash.destroy()
-    });
-    
-    // Kill EVERYTHING
-    let totalKills = 0;
-    
-    if (this.birds) {
-      this.birds.getChildren().forEach(bird => {
-        if (bird && bird.active) {
-          this.addScore((bird.birdPoints || 10) * 2);
-          bird.destroy();
-          totalKills++;
-        }
-      });
-    }
-    
-    // Clear turds too
-    if (this.turds) {
-      this.turds.clear(true, true);
-    }
-    
-    this.showNotification(`☢️ NUKE! ${totalKills} kills! Screen cleared!`);
-  }
-  
-  // Override activateJetpack if not exists
-  activateJetpack(duration) {
-    if (this.jetpackActive) return;
-    
-    this.jetpackActive = true;
-    this.jetpackEndTime = this.time.now + duration * 1000;
-    this.showNotification(`🚀 JETPACK ${duration}s! Use W/S to fly!`);
-    
-    this.time.delayedCall(duration * 1000, () => {
-      this.jetpackActive = false;
-      this.showNotification('🚀 Jetpack fuel empty!');
-    });
-  }
-  
-  // Setup keyboard shortcuts for quick shop
-  setupQuickShopKeys() {
-    // TAB to open/close quick shop
-    this.input.keyboard.on('keydown-TAB', (event) => {
-      event.preventDefault();
-      this.toggleQuickShop();
-    });
-    
-    // ESC also closes
-    this.input.keyboard.on('keydown-ESC', () => {
-      if (this.quickShopOpen) this.closeQuickShop();
-    });
-    
-    // Number keys for quick buy when shop is open
-    const items = this.getQuickShopItems();
-    
-    // 1-0 for consumables
-    for (let i = 1; i <= 9; i++) {
-      this.input.keyboard.on(`keydown-${i}`, () => {
-        if (this.quickShopOpen && items.consumables[i-1]) {
-          const item = items.consumables[i-1];
-          this.quickBuyItem(item.id, item.cost, item.name);
-        }
-      });
-    }
-    this.input.keyboard.on('keydown-ZERO', () => {
-      if (this.quickShopOpen && items.consumables[9]) {
-        const item = items.consumables[9];
-        this.quickBuyItem(item.id, item.cost, item.name);
-      }
-    });
-    
-    // B, N, M for boss summons
-    this.input.keyboard.on('keydown-B', () => {
-      // Don't capture if typing in input
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) return;
-      
-      if (this.quickShopOpen) {
-        const item = items.bosses[0];
-        this.quickBuyItem(item.id, item.cost, item.name);
-      }
-    });
-    
-    this.input.keyboard.on('keydown-N', () => {
-      if (this.quickShopOpen && items.bosses[1]) {
-        const item = items.bosses[1];
-        this.quickBuyItem(item.id, item.cost, item.name);
-      }
-    });
-    
-    this.input.keyboard.on('keydown-M', () => {
-      if (this.quickShopOpen && items.bosses[2]) {
-        const item = items.bosses[2];
-        this.quickBuyItem(item.id, item.cost, item.name);
-      }
-    });
-  }
-  
-  showQuickBuyHint() {
-    if (this.quickBuyHint) return;
-    
-    this.quickBuyHint = this.add.container(GAME_WIDTH / 2, 100);
-    this.quickBuyHint.setDepth(1000);
-    this.quickBuyHint.setScrollFactor(0);
-    
-    const bg = this.add.rectangle(0, 0, 280, 50, 0x1e293b, 0.95);
-    bg.setStrokeStyle(2, 0x22c55e);
-    
-    const coins = parseInt(localStorage.getItem('birdturds_coins') || '0');
-    const text = this.add.text(0, 0, `⚠️ LOW AMMO! [TAB] Quick Shop | [P] Refill (100💩)`, {
-      fontSize: '12px',
-      fontFamily: 'Arial',
-      color: '#22c55e',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-    
-    this.quickBuyHint.add([bg, text]);
-    
-    // Pulse animation
-    this.tweens.add({
-      targets: this.quickBuyHint,
-      alpha: { from: 0.7, to: 1 },
-      yoyo: true,
-      repeat: -1,
-      duration: 500
-    });
-  }
-  
-  hideQuickBuyHint() {
-    if (this.quickBuyHint) {
-      this.quickBuyHint.destroy();
-      this.quickBuyHint = null;
-    }
-  }
-  
-  // P key for instant ammo refill (quick access)
-  quickBuyAmmo() {
-    const AMMO_COST = 100;
-    let coins = parseInt(localStorage.getItem('birdturds_coins') || '0');
-    
-    if (coins < AMMO_COST) {
-      this.showNotification(`❌ Need ${AMMO_COST}💩, have ${coins}!`);
-      this.playSound('error');
-      return;
-    }
-    
-    // Deduct coins with animation
-    this.spendCoins(AMMO_COST);
-    
-    // Refill ammo to max
-    btState.ammo = btState.ammoMax;
-    
-    // Update displays
-    this.showNotification(`✅ AMMO REFILLED! 🔫 ${btState.ammoMax} rounds!`);
-    this.playSound('powerup');
-    
-    // Update HUD
-    this.updateHud();
-    this.hideQuickBuyHint();
   }
 
   updateAnimals(dt) {
@@ -16430,64 +14300,35 @@ class BirdTurdsScene extends Phaser.Scene {
   // REALISTIC DEATH/HIT ANIMATIONS
   triggerVehicleHit(vehicle) {
     if (this.gameOver || this.hunterHitCooldown) return;
-    if (!this.hunter || !this.hunter.active) return; // Safety check
-    
     this.hunterHitCooldown = true;
     this.time.delayedCall(2000, () => { this.hunterHitCooldown = false; });
     
-    // === COPILOT: Store pre-hit state for robust restore ===
-    this.hunterPreHitState = {
-      x: this.hunter.x,
-      y: this.hunter.y,
-      velocityX: this.hunter.body ? this.hunter.body.velocity.x : 0,
-      velocityY: this.hunter.body ? this.hunter.body.velocity.y : 0,
-      alpha: this.hunter.alpha,
-      scaleX: this.hunter.scaleX,
-      scaleY: this.hunter.scaleY,
-      visible: this.hunter.visible,
-      bodyEnabled: this.hunter.body ? this.hunter.body.enable : true
-    };
-    
     const throwDir = vehicle.direction;
-    const startX = this.hunter.x;
-    const startY = this.hunter.y;
     this.hunter.setTint(0xff0000);
     
-    // Store reference for safety
-    const hunter = this.hunter;
-    const groundY = this.groundY;
-    const scene = this;
-    
-    // Flying animation with safety checks
+    // Flying animation
     this.tweens.add({
-      targets: hunter,
-      x: Math.max(100, Math.min(startX + throwDir * 150, 3900)), // Keep in bounds
-      y: startY - 100,
+      targets: this.hunter,
+      x: this.hunter.x + throwDir * 150,
+      y: this.hunter.y - 100,
       rotation: throwDir * Math.PI * 2,
       duration: 400,
       ease: 'Quad.easeOut',
       onComplete: () => {
-        if (!hunter || !hunter.active) return; // Safety
         this.tweens.add({
-          targets: hunter,
-          y: groundY,
+          targets: this.hunter,
+          y: this.groundY,
           rotation: 0,
           duration: 300,
           ease: 'Bounce.easeOut',
-          onComplete: () => {
-            if (hunter && hunter.active) {
-              hunter.clearTint();
-              hunter.setAlpha(1); // Ensure visible
-              hunter.y = groundY; // Force ground position
-            }
-          }
+          onComplete: () => { this.hunter.clearTint(); }
         });
       }
     });
     
     btState.turdMeter = Math.min(100, btState.turdMeter + 35);
     this.showNotification('🚜 HIT BY VEHICLE!');
-    this.createImpactEffect(startX, startY, 0xff6600);
+    this.createImpactEffect(this.hunter.x, this.hunter.y, 0xff6600);
     
     if (btState.turdMeter >= 100) this.triggerDeathAnimation('vehicle');
   }
@@ -16531,11 +14372,6 @@ class BirdTurdsScene extends Phaser.Scene {
     this.gameOver = true;
     this.physics.pause();
     btState.funnyDeaths++;
-    
-    // STOP ALL SOUNDS immediately
-    try {
-      this.sound.stopAll();
-    } catch(e) { console.warn('Error stopping sounds:', e); }
     
     // Play game over sound and stop music
     this.playSound('gameover');
@@ -16621,9 +14457,7 @@ class BirdTurdsScene extends Phaser.Scene {
     this.items.getChildren().forEach(item => {
       if (!item || !item.active) return;
       item.y += Math.sin(time / 400 + item.phase) * 0.4;
-      // Preserve original scale with slight pulse
-      const baseScale = item.baseScale || 0.05;
-      item.setScale(baseScale + Math.sin(time / 250) * 0.005);
+      item.setScale(0.18 + Math.sin(time / 250) * 0.02);
       if (item.type === 'coin') item.rotation += 0.05;
     });
   }
@@ -16654,6 +14488,17 @@ class BirdTurdsScene extends Phaser.Scene {
         return;
       }
       
+      // BIRDS CAN STEAL COINS! Check for nearby birds
+      this.birds.getChildren().forEach(bird => {
+        if (!bird || !bird.active || !coin || !coin.active) return;
+        const dist = Math.hypot(bird.x - coin.x, bird.y - coin.y);
+        if (dist < 40 && bird.config && bird.config.shootable) {
+          // Bird steals the coin!
+          this.showPointIndicator(coin.x, coin.y, '🐦 STOLEN!', 0xef4444);
+          coin.destroy();
+        }
+      });
+      
       // Cleanup offscreen coins
       if (coin.x < view.x - 200 || coin.x > view.right + 200) {
         coin.destroy();
@@ -16664,11 +14509,36 @@ class BirdTurdsScene extends Phaser.Scene {
   handlePanelsLoop() {
     if (!this.bgPanels || !this.cameras || !this.cameras.main) return;
     
-    // DISABLED - Panels are now fixed per level zone, no recycling needed
-    // const camX = this.cameras.main.scrollX;
-    // const panels = this.bgPanels.getChildren().filter(p => p && p.active);
+    const camX = this.cameras.main.scrollX;
+    const panels = this.bgPanels.getChildren().filter(p => p && p.active);
     
-    // Ground tiles also don't need recycling with zone-based levels
+    if (panels.length > 0) {
+      panels.forEach(panel => {
+        if (panel.x + this.panelWidth < camX - 200) {
+          const maxX = Math.max(...panels.map(p => p.x));
+          panel.x = maxX + this.panelWidth;
+        }
+        if (panel.x > camX + GAME_WIDTH + this.panelWidth + 200) {
+          const minX = Math.min(...panels.map(p => p.x));
+          panel.x = minX - this.panelWidth;
+        }
+      });
+    }
+    
+    if (this.groundTiles && this.groundTiles.length > 0) {
+      const groundCamX = this.cameras.main.scrollX;
+      this.groundTiles.forEach(tile => {
+        if (!tile) return;
+        if (tile.x + 512 < groundCamX - 100) {
+          const maxX = Math.max(...this.groundTiles.filter(t => t).map(t => t.x));
+          tile.x = maxX + 512;
+        }
+        if (tile.x > groundCamX + GAME_WIDTH + 512 + 100) {
+          const minX = Math.min(...this.groundTiles.filter(t => t).map(t => t.x));
+          tile.x = minX - 512;
+        }
+      });
+    }
   }
 
   cleanupOffscreen() {
@@ -16884,7 +14754,8 @@ class BirdTurdsScene extends Phaser.Scene {
       this.updateHud();
     }
     else if (item.type === 'coin') { 
-      this.addCoins(5);
+      btState.coins += 5; 
+      this.showNotification('💰 +5 COINS!'); 
     }
     item.destroy();
   }
@@ -17008,14 +14879,14 @@ class BirdTurdsScene extends Phaser.Scene {
   spawnCoinDrop(x, y, count) {
     if (!this.textures.exists('coin')) return;
     for (let i = 0; i < count; i++) {
-      // Coins at reasonable size
-      const coin = this.coins.create(x + (Math.random() - 0.5) * 30, y, 'coin').setOrigin(0.5).setScale(0.04).setDepth(12);
+      // Make coins BIGGER and more visible
+      const coin = this.coins.create(x + (Math.random() - 0.5) * 30, y, 'coin').setOrigin(0.5).setScale(0.15).setDepth(12);
       coin.phase = Math.random() * Math.PI * 2;
       coin.body.setAllowGravity(false);
       coin.body.setVelocity(Phaser.Math.Between(-60, 60), Phaser.Math.Between(-120, -40));
       
       // Add 💰 emoji above coin for extra visibility
-      const label = this.add.text(coin.x, coin.y - 15, '💰', { fontSize: '12px' }).setOrigin(0.5).setDepth(13);
+      const label = this.add.text(coin.x, coin.y - 15, '💰', { fontSize: '14px' }).setOrigin(0.5).setDepth(13);
       
       this.tweens.add({ 
         targets: coin.body.velocity, 
@@ -17062,13 +14933,6 @@ class BirdTurdsScene extends Phaser.Scene {
   }
 
   showNotification(message) {
-    // On mobile, route to popup below game instead of overlay
-    if (window.GameUIText && GameUIText.isMobile && GameUIText.isMobile()) {
-      GameUIText.show(message, { title: '📢 Alert', timeout: 3000 });
-      return;
-    }
-    
-    // Desktop: use standard notification
     const notif = document.createElement('div');
     notif.textContent = message;
     notif.style.cssText = 'position:fixed;top:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.85);color:#facc15;padding:12px 28px;border-radius:8px;font-size:18px;font-weight:bold;z-index:9999;';
@@ -17086,33 +14950,6 @@ class BirdTurdsScene extends Phaser.Scene {
     }
     this.lastScriptureTime = now;
     
-    // Handle both string format and object format
-    let verseText, refText;
-    if (typeof scripture === 'string') {
-      // Parse string format: "\"verse text\" — Reference"
-      const match = scripture.match(/^"?(.+?)"?\s*[—-]\s*(.+)$/);
-      if (match) {
-        verseText = match[1].replace(/^"|"$/g, '');
-        refText = match[2];
-      } else {
-        verseText = scripture;
-        refText = '';
-      }
-    } else if (scripture && typeof scripture === 'object') {
-      verseText = scripture.verse || scripture.text || 'Scripture';
-      refText = scripture.ref || scripture.reference || '';
-    } else {
-      console.warn('Invalid scripture format:', scripture);
-      return; // Don't show popup for invalid data
-    }
-    
-    // On mobile, route to popup below game
-    if (window.GameUIText && GameUIText.isMobile && GameUIText.isMobile()) {
-      const mobileMsg = `✝️ "${verseText}"${refText ? ' — ' + refText : ''}`;
-      GameUIText.show(mobileMsg, { title: '📖 Scripture', timeout: 6000 });
-      return;
-    }
-    
     // Create beautiful scripture banner at top of screen
     const colorHex = '#' + color.toString(16).padStart(6, '0');
     
@@ -17120,8 +14957,8 @@ class BirdTurdsScene extends Phaser.Scene {
     banner.id = 'scripture-popup';
     banner.innerHTML = `
       <button onclick="this.parentElement.remove()" style="position:absolute;top:8px;right:8px;background:#ef4444;color:#fff;border:none;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1;">×</button>
-      <div style="font-size:18px;font-weight:bold;margin-bottom:8px;">✝️ ${verseText} ✝️</div>
-      ${refText ? `<div style="font-size:14px;font-style:italic;color:#ffd700;">— ${refText}</div>` : ''}
+      <div style="font-size:18px;font-weight:bold;margin-bottom:8px;">✝️ ${scripture.verse} ✝️</div>
+      <div style="font-size:14px;font-style:italic;color:#ffd700;">— ${scripture.ref}</div>
     `;
     banner.style.cssText = `
       position:fixed;top:40px;left:50%;transform:translateX(-50%);
@@ -17154,8 +14991,7 @@ class BirdTurdsScene extends Phaser.Scene {
     setTimeout(() => banner.style.opacity = '1', 50);
     
     // SPEAK THE SCRIPTURE using ElevenLabs
-    const speakText = verseText + (refText ? '. ' + refText : '');
-    this.speakText(speakText, 'scripture');
+    this.speakText(scripture.verse + '. ' + scripture.ref, 'scripture');
     
     // Remove after duration (default 5 seconds)
     setTimeout(() => {
@@ -17450,23 +15286,15 @@ class BirdTurdsScene extends Phaser.Scene {
   // BOT SYSTEM - AI players that hunt alongside or compete
   initBots(count = 2) {
     this.bots = [];
-    console.log('🤖 initBots called with count:', count);
     
     const botNames = ['TurdHunterBot', 'BirdSlayer99', 'PoopDodger', 'SkyShooter', 'FeatherFury', 'WingClipper'];
     const botColors = [0x3b82f6, 0x22c55e, 0xf59e0b, 0xec4899, 0x8b5cf6];
     
-    // Get camera view to spawn bots near player
-    const view = this.cameras.main.worldView;
-    const spawnX = view.x + view.width / 2;
-    
     for (let i = 0; i < Math.min(count, this.maxBots); i++) {
-      // Spawn bots near center of current view (near player)
-      const offsetX = (i === 0) ? -150 : 150; // One on each side of player
-      
       const bot = {
         id: 'bot_' + i,
         name: botNames[i % botNames.length],
-        x: spawnX + offsetX,
+        x: 200 + Math.random() * (WORLD_WIDTH - 400),
         y: this.groundY,
         score: 0,
         kills: 0,
@@ -17477,8 +15305,7 @@ class BirdTurdsScene extends Phaser.Scene {
         moveCooldown: 0,
         color: botColors[i % botColors.length],
         sprite: null,
-        nameTag: null,
-        _isBot: true // Tag for debug
+        nameTag: null
       };
       
       // Create bot sprite (tinted hunter)
@@ -17488,9 +15315,7 @@ class BirdTurdsScene extends Phaser.Scene {
           .setScale(0.22) // Slightly smaller than player
           .setTint(bot.color)
           .setAlpha(0.85)
-          .setDepth(9)
-          .setVisible(true)
-          .setActive(true);
+          .setDepth(9);
         
         // Name tag above bot
         bot.nameTag = this.add.text(bot.x, bot.y - 80, `🤖 ${bot.name}`, {
@@ -17499,10 +15324,6 @@ class BirdTurdsScene extends Phaser.Scene {
           backgroundColor: '#000000aa',
           padding: { x: 4, y: 2 }
         }).setOrigin(0.5).setDepth(10);
-        
-        console.log(`🤖 Bot ${i} created:`, bot.name, 'at', bot.x, bot.y, 'sprite:', bot.sprite ? 'OK' : 'FAILED');
-      } else {
-        console.warn('🤖 Hunter texture not found for bot!');
       }
       
       this.bots.push(bot);
@@ -17925,7 +15746,7 @@ class BirdTurdsScene extends Phaser.Scene {
         ${deadHunterSVG}
         
         <!-- Funny Title -->
-        <h1 style="font-size:32px;color:#ef4444;margin-bottom:5px;">🎯 ${msg.title}</h1>
+        <h1 style="font-size:32px;color:#ef4444;margin-bottom:5px;">💀 ${msg.title}</h1>
         <p style="color:#fbbf24;font-size:14px;margin-bottom:15px;font-style:italic;">${msg.sub}</p>
         
         <!-- Stats -->
@@ -17946,9 +15767,8 @@ class BirdTurdsScene extends Phaser.Scene {
         <!-- Buttons -->
         <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:5px;">
           <button id="gameover-playagain-btn" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:12px 25px;font-size:14px;font-weight:bold;border-radius:999px;cursor:pointer;box-shadow:0 4px 15px rgba(34,197,94,0.4);touch-action:manipulation;">🔄 Play Again</button>
-          <button id="gameover-hunter-btn" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;border:none;padding:12px 25px;font-size:14px;font-weight:bold;border-radius:999px;cursor:pointer;box-shadow:0 4px 15px rgba(139,92,246,0.4);touch-action:manipulation;">👤 Choose Hunter</button>
           ${leaderboardBtn}
-          <button id="gameover-video-btn" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;padding:12px 25px;font-size:14px;font-weight:bold;border-radius:999px;cursor:pointer;box-shadow:0 4px 15px rgba(239,68,68,0.4);touch-action:manipulation;">✝️ Learn About Jesus</button>
+          <button id="gameover-video-btn" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;padding:12px 25px;font-size:14px;font-weight:bold;border-radius:999px;cursor:pointer;box-shadow:0 4px 15px rgba(239,68,68,0.4);touch-action:manipulation;">📺 Watch & Learn</button>
         </div>
         
         <!-- Share prompt -->
@@ -17960,7 +15780,6 @@ class BirdTurdsScene extends Phaser.Scene {
     // Add touch-friendly event listeners
     const closeBtn = document.getElementById('gameover-close-btn');
     const playAgainBtn = document.getElementById('gameover-playagain-btn');
-    const hunterBtn = document.getElementById('gameover-hunter-btn');
     const leaderboardBtnEl = document.getElementById('gameover-leaderboard-btn');
     const videoBtnEl = document.getElementById('gameover-video-btn');
     
@@ -17969,55 +15788,16 @@ class BirdTurdsScene extends Phaser.Scene {
       closeBtn.addEventListener('touchend', (e) => { e.preventDefault(); overlay.remove(); });
     }
     if (playAgainBtn) {
-      console.log('✅ Play Again button found, attaching restart handlers...');
-      const doRestart = () => {
-        console.log('🔄 Restarting game...');
-        if (typeof window.restartBirdTurds === 'function') {
-          window.restartBirdTurds();
-        } else {
-          overlay.remove();
-          window.location.href = window.location.pathname + '?restart=' + Date.now();
-        }
-      };
-      playAgainBtn.addEventListener('click', doRestart);
-      playAgainBtn.addEventListener('touchend', (e) => { e.preventDefault(); e.stopPropagation(); doRestart(); });
-    } else {
-      console.warn('⚠️ Play Again button NOT found!');
-    }
-    if (hunterBtn) {
-      const goToChooseHunter = () => {
-        overlay.remove();
-        window.location.href = '/?chooseHunter=1';
-      };
-      hunterBtn.addEventListener('click', goToChooseHunter);
-      hunterBtn.addEventListener('touchend', (e) => { e.preventDefault(); goToChooseHunter(); });
+      playAgainBtn.addEventListener('click', () => location.reload());
+      playAgainBtn.addEventListener('touchend', (e) => { e.preventDefault(); location.reload(); });
     }
     if (leaderboardBtnEl) {
       leaderboardBtnEl.addEventListener('click', () => showLeaderboardModal());
       leaderboardBtnEl.addEventListener('touchend', (e) => { e.preventDefault(); showLeaderboardModal(); });
     }
     if (videoBtnEl) {
-      const showSalvationVideo = () => { 
-        // Show embedded Jack Hibbs salvation video
-        const videoOverlay = document.createElement('div');
-        videoOverlay.id = 'salvation-video-overlay';
-        videoOverlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:20000;';
-        videoOverlay.innerHTML = `
-          <div style="background:#1e293b;padding:20px;border-radius:15px;max-width:800px;width:95%;border:2px solid #ffd700;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
-              <h2 style="color:#ffd700;margin:0;">✝️ How To Be Saved</h2>
-              <button onclick="document.getElementById('salvation-video-overlay').remove()" style="background:#ef4444;color:#fff;border:none;padding:8px 15px;border-radius:8px;cursor:pointer;font-weight:bold;">✕ Close</button>
-            </div>
-            <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:10px;">
-              <iframe src="https://www.youtube-nocookie.com/embed/qHGZlhJBKg8?rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
-            </div>
-            <p style="color:#9ca3af;font-size:12px;margin-top:10px;text-align:center;">Pastor Jack Hibbs explains how to receive salvation through Jesus Christ</p>
-          </div>
-        `;
-        document.body.appendChild(videoOverlay);
-      };
-      videoBtnEl.addEventListener('click', showSalvationVideo);
-      videoBtnEl.addEventListener('touchend', (e) => { e.preventDefault(); showSalvationVideo(); });
+      videoBtnEl.addEventListener('click', () => { if (typeof showVideoPlayer === 'function') showVideoPlayer('salvation'); });
+      videoBtnEl.addEventListener('touchend', (e) => { e.preventDefault(); if (typeof showVideoPlayer === 'function') showVideoPlayer('salvation'); });
     }
   }
 }
@@ -18148,8 +15928,8 @@ function applyOwnedUpgrades() {
   // Heavy weapons
   if (owned.includes('machinegun')) { btState.hasMachinegun = true; btState.machinegunAmmo = 200; }
   if (owned.includes('minigun')) { btState.hasMinigun = true; btState.minigunAmmo = 1000; }
-  if (owned.includes('sniper')) { btState.hasSniper = true; btState.sniperAmmo = 20; btState.sniperDamage = 3; }
-  if (owned.includes('barrett')) { btState.hasBarrett = true; btState.barrettAmmo = 10; btState.barrettDamage = 5; }
+  if (owned.includes('sniper')) { btState.hasSniper = true; btState.sniperDamage = 3; }
+  if (owned.includes('barrett')) { btState.hasBarrett = true; btState.barrettDamage = 5; }
   if (owned.includes('bazooka')) { btState.hasBazooka = true; btState.bazookaAmmo = 5; }
   if (owned.includes('rocketlauncher')) { btState.hasRocketLauncher = true; btState.rocketAmmo = 3; }
   if (owned.includes('minigun_mounted')) btState.hasMountedMinigun = true;
@@ -18303,41 +16083,14 @@ const config = {
   parent: 'game-container',
   width: GAME_WIDTH,
   height: GAME_HEIGHT,
-  backgroundColor: '#1a1a2e',  // Matches page gradient - no ugly black bars!
-  
-  // PERFORMANCE OPTIMIZATIONS
-  render: {
-    pixelArt: false,
-    antialias: !(window.IS_LOW_POWER_DEVICE),
-    antialiasGL: !(window.IS_LOW_POWER_DEVICE),
-    powerPreference: 'high-performance',
-    roundPixels: true,
-    transparent: false
-  },
-  fps: {
-    target: 60,
-    forceSetTimeOut: false,
-    smoothStep: true
-  },
-  physics: { 
-    default: 'arcade', 
-    arcade: { 
-      gravity: { y: 0 }, 
-      fps: 60,
-      debug: false,
-      tileBias: 16
-    } 
-  },
+  backgroundColor: '#87ceeb',
+  physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
   scene: BirdTurdsScene,
   scale: { 
-    mode: Phaser.Scale.FIT,  // FIT keeps whole game visible; use ENVELOP to fill (may crop)
-    autoCenter: Phaser.Scale.CENTER_BOTH,  // Center both axes for mobile
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_HORIZONTALLY,
     width: GAME_WIDTH,
     height: GAME_HEIGHT
-  },
-  audio: {
-    disableWebAudio: window.IS_LOW_POWER_DEVICE || false,
-    noAudio: false
   }
 };
 

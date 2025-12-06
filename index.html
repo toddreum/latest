@@ -3017,16 +3017,38 @@ async function buyPack(key) {
       body: JSON.stringify({pack: key, embedded: true})
     });
     const data = await res.json();
+    
+    // === COPILOT: Server redirect fallback when Stripe.js blocked ===
+    // If server returns session.url, we can redirect without stripe.js
+    if (data.ok && data.url && typeof Stripe === 'undefined') {
+      console.log('Using server redirect fallback (Stripe.js blocked)');
+      window.location = data.url;
+      return;
+    }
+    
     if (data.ok && data.clientSecret) {
+      if (typeof Stripe === 'undefined' || !stripe) {
+        // Fallback: if we have a URL, redirect
+        if (data.url) {
+          window.location = data.url;
+          return;
+        }
+        alert('Payment system not available. Please disable ad blocker and refresh.');
+        return;
+      }
       document.getElementById('shop-packs').style.display = 'none';
       document.getElementById('stripe-checkout-container').style.display = 'block';
       const checkout = await stripe.initEmbeddedCheckout({clientSecret: data.clientSecret});
       checkout.mount('#checkout');
+    } else if (data.url) {
+      // Redirect fallback
+      window.location = data.url;
     } else {
       alert('Error: ' + (data.error || 'Unknown'));
     }
   } catch (e) {
-    alert('Checkout failed');
+    console.error('Checkout error:', e);
+    alert('Checkout failed: ' + e.message);
   }
 }
 

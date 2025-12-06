@@ -3,6 +3,25 @@
 
 ---
 
+## 🔧 COPILOT FIXES IMPLEMENTED (v43-FIX19 → FIX20)
+
+Based on Copilot's review, the following improvements were added:
+
+### FIX19 Implementations:
+1. Enhanced Hunter Safety Check - NaN/Infinity detection, body re-enable, flag validation
+2. Improved spawnVehicle() - setImmovable, debug tags, destroy handler
+3. Robust Stripe Loader - 3 retries with exponential backoff
+4. Bot Initialization - delayed 500ms, spawn near player, debug logging
+
+### FIX20 Implementations (Copilot Round 2):
+1. **Fixed `this` reference in destroy handlers** - Store scene reference in local variable
+2. **Hunter pre-grab/pre-hit state storage** - Capture full state before vehicle hit or boss grab
+3. **Improved hunter release** - Uses stored state for more accurate restoration
+4. **Scene shutdown cleanup handler** - Kills tweens, clears bots, removes timers
+5. **Stripe server redirect fallback** - If stripe.js blocked, use session.url redirect
+
+---
+
 ## 🎮 GAME OVERVIEW
 
 **BirdTurds** is a browser-based arcade shooter game built with **Phaser 3**. Players control a hunter character, shooting birds that fly overhead while avoiding bird droppings ("turds"). The game has Christian/patriotic themes with Bible scriptures, wellness reminders, and a "Protect Trump at the White House" level.
