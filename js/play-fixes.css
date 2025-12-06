@@ -1,0 +1,91 @@
+/* play-fixes.css v40.6.1 */
+/* Fix scripture/quote text readability under character cards */
+
+/* Scripture text under hunter cards - make it readable */
+.char-card .scripture,
+.char-card .quote,
+.character-card .scripture,
+.character-card .quote,
+.hunter-mini .scripture,
+.hunter-mini .quote,
+[class*="scripture"],
+[class*="quote-text"],
+[class*="bible-verse"],
+.verse-text,
+.card-scripture,
+.hunter-quote {
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+  color: #ffd700 !important; /* Gold color for visibility */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+  padding: 8px 10px !important;
+  margin-top: 8px !important;
+  font-style: italic !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  min-height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Make scripture container visible */
+.char-card .scripture-container,
+.character-card .scripture-container,
+.quote-container {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  padding: 5px !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border-radius: 5px !important;
+  border-left: 3px solid #ffd700 !important;
+  margin-top: 10px !important;
+}
+
+/* Scripture reference (book:verse) */
+.scripture-ref,
+.verse-ref,
+.quote-ref,
+[class*="scripture"] span,
+[class*="quote"] span {
+  font-size: 12px !important;
+  color: #aaa !important;
+  font-style: normal !important;
+  display: block !important;
+  margin-top: 4px !important;
+}
+
+/* Ensure the cards have enough space for scripture */
+.char-card,
+.character-card,
+.hunter-mini {
+  min-height: auto !important;
+  padding-bottom: 15px !important;
+}
+
+/* Better contrast for card text overall */
+.char-card h3,
+.char-card h4,
+.char-card .hunter-name,
+.char-card .character-name {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Weapon text */
+.char-card .weapon,
+.char-card .weapon-name,
+.hunter-weapon {
+  font-size: 13px !important;
+  color: #4ade80 !important; /* Green for weapons */
+  font-weight: 600 !important;
+}
+
+/* Description text */
+.char-card .description,
+.char-card .hunter-desc,
+.char-card p {
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+  color: #e0e0e0 !important;
+}

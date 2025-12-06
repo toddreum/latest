@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🎯 BIRDTURDS v43 - Play Now!</title>
+    <meta name="description" content="Hunt birds, dodge turds, grow in faith! Family-friendly game.">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/polished-game.css?v=43.0">
+    
+    <!-- Viewport fix MUST load before Phaser so --vh is available -->
+    <script src="js/systems/viewport-fix.js?v=43.0"></script>
+    
+    <!-- Phaser 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.0/dist/phaser.min.js?v=43.0"></script>
+    
+    <!-- Firebase for Multiplayer -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .turd-emoji { display: inline-block; width: 1em; height: 1em; background: url('/sprites/turd-emoji.svg') center/contain no-repeat; vertical-align: middle; }
+        
+        :root {
+            --vh: 1vh;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: calc(var(--vh, 1vh) * 100);
+            overflow: hidden;
+            background: #1a1a2e;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(var(--vh, 1vh) * 100);
+        }
+        
+        /* ========== GAME CONTAINER - FILLS SCREEN ========== */
+        #game-container {
+            flex: 1;
+            width: 100%;
+            height: calc(var(--vh, 1vh) * 100);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #game-container canvas {
+            max-width: 100% !important;
+            max-height: 100% !important;
+            object-fit: contain;
+        }
+        
+        /* ========== MOBILE VIEWPORT FIXES ========== */
+        @media (max-width: 900px) {
+            /* HIDE HTML HUD on mobile - game has its own internal HUD */
+            #game-hud {
+                display: none !important;
+            }
+            #turd-meter {
+                display: none !important;
+            }
+            #germproof-banner {
+                display: none !important;
+            }
+            .back-btn {
+                display: none !important;
+            }
+            #shop-btn, #help-btn {
+                display: none !important;
+            }
+            
+            #game-container {
+                max-height: none !important;
+                height: 100vh !important;
+                height: calc(var(--vh, 1vh) * 100) !important;
+                width: 100vw !important;
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+            }
+            #game-container canvas {
+                width: 100% !important;
+                height: 100% !important;
+                object-fit: contain !important;
+            }
+            body, html {
+                min-height: calc(var(--vh, 1vh) * 100) !important;
+                height: calc(var(--vh, 1vh) * 100) !important;
+                overflow: hidden !important;
+            }
+            #game-shell {
+                padding-bottom: 0;
+            }
+            /* Move comments/comic bubbles below game */
+            #comic-bubble-container,
+            .comic-bubble,
+            .speech-bubble,
+            .game-comment,
+            .hunter-comment {
+                position: fixed !important;
+                bottom: 80px !important;
+                top: auto !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                max-width: 90vw !important;
+                z-index: 200 !important;
+            }
+        }
+            }
+        }
+        
+        /* ========== LOADING SCREEN ========== */
+        #loading-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+        #loading-screen.hidden { opacity: 0; pointer-events: none; }
+        
+        .loading-logo {
+            max-width: 300px;
+            width: 80%;
+            margin-bottom: 20px;
+        }
+        .loading-title { font-size: 2.2em; color: #ffd700; text-shadow: 3px 3px 0 #8B4513; margin-bottom: 25px; }
+        .loading-bar-wrapper { position: relative; width: 300px; height: 50px; }
+        .loading-bar-bg { width: 100%; height: 25px; background: rgba(255,255,255,0.1); border-radius: 15px; border: 2px solid #4ecdc4; margin-top: 20px; }
+        .loading-bar { height: 100%; background: linear-gradient(90deg, #4ecdc4, #ffd700, #4ecdc4); background-size: 200% 100%; width: 0%; border-radius: 15px; animation: shimmer 1.5s infinite; transition: width 0.2s; }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .running-chicken { position: absolute; top: -5px; left: 0; font-size: 2em; transform: scaleX(-1); animation: chickenRun 0.2s steps(2) infinite; transition: left 0.2s; }
+        @keyframes chickenRun { 0%, 100% { transform: scaleX(-1) translateY(0); } 50% { transform: scaleX(-1) translateY(-5px); } }
+        .loading-text { margin-top: 12px; color: rgba(255,255,255,0.8); }
+        .loading-tip { margin-top: 20px; color: #4ecdc4; font-style: italic; max-width: 350px; text-align: center; font-size: 0.9em; padding: 0 20px; }
+        
+        /* ========== BACK BUTTON ========== */
+        .back-btn {
+            position: fixed;
+            top: 10px; left: 10px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9em;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.2); }
+        
+        /* ========== BREAK REMINDER ========== */
+        .break-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+        .break-overlay.active { display: flex; }
+        .break-card {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 3px solid #4ecdc4;
+            border-radius: 25px;
+            padding: 35px;
+            max-width: 400px;
+            text-align: center;
+            color: white;
+            margin: 20px;
+        }
+        .break-icon { font-size: 4em; margin-bottom: 15px; }
+        .break-title { color: #ffd700; font-size: 1.6em; margin-bottom: 15px; }
+        .break-msg { margin-bottom: 15px; line-height: 1.5; }
+        .break-scripture { color: #4ecdc4; font-style: italic; margin-bottom: 20px; font-size: 0.95em; }
+        .break-btn {
+            background: #4ecdc4; color: #1a1a2e; border: none;
+            padding: 12px 25px; border-radius: 25px; font-size: 1em;
+            font-weight: bold; cursor: pointer; margin: 5px;
+        }
+        .break-btn.secondary { background: rgba(255,255,255,0.1); color: white; }
+        
+        /* ========== MOBILE ========== */
+        @media (max-width: 768px) {
+            .loading-title { font-size: 1.6em; }
+            .loading-bar-wrapper { width: 260px; }
+        }
+        
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .back-btn { top: calc(10px + env(safe-area-inset-top)); left: calc(10px + env(safe-area-inset-left)); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <a href="index.html" class="back-btn">← Menu</a>
+    
+    <!-- Help Button -->
+    <button id="help-btn" onclick="showHelpModal()" style="position:fixed;top:10px;right:10px;background:rgba(59,130,246,0.9);color:#fff;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;z-index:1000;">❓ Help</button>
+    
+    <!-- Shop Button -->
+    <button id="shop-btn" onclick="showQuickShop()" style="position:fixed;top:10px;right:80px;background:rgba(34,197,94,0.9);color:#fff;border:none;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:bold;cursor:pointer;z-index:1000;">🛒 Shop</button>
+    
+    <!-- Help Modal -->
+    <div id="help-modal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:10000;align-items:center;justify-content:center;">
+      <div style="background:linear-gradient(135deg,#1e293b,#0f172a);padding:25px;border-radius:15px;max-width:400px;width:90%;border:2px solid #3b82f6;">
+        <h2 style="color:#ffd700;margin:0 0 15px 0;text-align:center;">🎮 HOW TO PLAY</h2>
+        <div style="color:#e2e8f0;font-size:13px;line-height:1.6;">
+          <p><strong style="color:#60a5fa;">🖱️ Desktop:</strong></p>
+          <p>• WASD or Arrow Keys = Move</p>
+          <p>• Click = Shoot</p>
+          <p>• F or K = Knife attack</p>
+          <p>• Space = Jump</p>
+          <p>• Q = Shake off turds</p>
+          <p style="margin-top:10px;"><strong style="color:#60a5fa;">📱 Mobile:</strong></p>
+          <p>• Tap = Shoot</p>
+          <p>• Drag = Move</p>
+          <p>• Swipe up = Jump</p>
+          <p style="margin-top:10px;"><strong style="color:#22c55e;">🎯 Goal:</strong> Shoot birds, dodge turds, protect Trump!</p>
+        </div>
+        <button onclick="closeHelpModal()" style="margin-top:15px;width:100%;background:#3b82f6;color:#fff;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">GOT IT!</button>
+      </div>
+    </div>
+    
+    <script>
+      function showHelpModal() {
+        document.getElementById('help-modal').style.display = 'flex';
+      }
+      function closeHelpModal() {
+        document.getElementById('help-modal').style.display = 'none';
+      }
+      function showQuickShop() {
+        if (window.game && window.game.scene && window.game.scene.scenes[0]) {
+          window.game.scene.scenes[0].openQuickShop && window.game.scene.scenes[0].openQuickShop();
+        } else {
+          alert('Shop available during gameplay!');
+        }
+      }
+    </script>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <img src="https://birdturds.com/logo.png" alt="BIRDTURDS" class="loading-logo"
+             onerror="this.style.display='none'">
+        <div class="loading-title">🎯 BIRDTURDS v43 🐦<span class="turd-emoji"></span></div>
+        <div class="loading-bar-wrapper">
+            <div class="running-chicken" id="chicken">🐔</div>
+            <div class="loading-bar-bg">
+                <div class="loading-bar" id="loadBar"></div>
+            </div>
+        </div>
+        <div class="loading-text" id="loadText">Loading...</div>
+        <div class="loading-tip" id="loadTip">💡 Green tractors are friends! Jump in the bucket!</div>
+    </div>
+    
+    <!-- Game Container -->
+    <div id="game-container"></div>
+    
+    <!-- GermProof Ad Banner -->
+    <div id="germproof-banner" style="background:linear-gradient(90deg,#0f172a,#1e3a5f);padding:8px 15px;text-align:center;border-top:1px solid #334155;">
+      <a href="https://germproof.com" target="_blank" style="color:#60a5fa;text-decoration:none;font-size:12px;">
+        🛡️ <strong>GermProof</strong> - Protection & Healing for Gamers! 
+        <span style="color:#22c55e;">HEALS skin infections, cuts & bug bites FAST!</span>
+        <span style="background:#3b82f6;color:#fff;padding:2px 8px;border-radius:12px;margin-left:8px;font-size:10px;">SHOP →</span>
+      </a>
+    </div>
+    
+    <!-- GAME HUD - Score, Health, etc -->
+    <div id="game-hud" style="
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        z-index: 100;
+        pointer-events: none;
+        font-family: 'Arial Black', sans-serif;
+    ">
+        <!-- Left side: Score & Level -->
+        <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="background:rgba(0,0,0,0.7);padding:8px 15px;border-radius:10px;border:2px solid #ffd700;">
+                <span style="color:#ffd700;font-size:14px;">SCORE:</span>
+                <span id="hud-score" style="color:#fff;font-size:20px;margin-left:8px;">0</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.7);padding:6px 12px;border-radius:8px;border:1px solid #4ecdc4;">
+                <span style="color:#4ecdc4;font-size:12px;">LEVEL:</span>
+                <span id="hud-level" style="color:#fff;font-size:14px;margin-left:5px;">1</span>
+                <div style="width:60px;height:6px;background:#333;border-radius:3px;margin-top:3px;">
+                    <div id="hud-level-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#4ecdc4,#22c55e);border-radius:3px;"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right side: Health, Ammo, Coins -->
+        <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-end;">
+            <div style="background:rgba(0,0,0,0.7);padding:6px 12px;border-radius:8px;border:1px solid #ef4444;">
+                <span style="color:#ef4444;font-size:11px;">❤️ HEALTH</span>
+                <div style="width:80px;height:8px;background:#333;border-radius:4px;margin-top:3px;">
+                    <div id="hud-health-fill" style="width:100%;height:100%;background:linear-gradient(90deg,#22c55e,#16a34a);border-radius:4px;transition:width 0.3s;"></div>
+                </div>
+            </div>
+            <div style="background:rgba(0,0,0,0.7);padding:6px 12px;border-radius:8px;border:1px solid #facc15;display:flex;align-items:center;gap:8px;">
+                <span style="color:#facc15;font-size:11px;">🔫</span>
+                <div style="width:50px;height:6px;background:#333;border-radius:3px;">
+                    <div id="hud-ammo-fill" style="width:100%;height:100%;background:linear-gradient(90deg,#facc15,#eab308);border-radius:3px;"></div>
+                </div>
+                <span id="hud-ammo-text" style="color:#fff;font-size:11px;">30/30</span>
+            </div>
+            <div style="background:rgba(0,0,0,0.7);padding:5px 10px;border-radius:8px;border:1px solid #ffd700;">
+                <span style="color:#ffd700;font-size:11px;">🪙</span>
+                <span id="hud-coins" style="color:#ffd700;font-size:12px;margin-left:3px;">0</span>
+            </div>
+            <button id="shop-btn" onclick="if(window.gameInstance && window.gameInstance.scene.scenes[0]) window.gameInstance.scene.scenes[0].toggleQuickShop()" 
+                    style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;border:none;padding:6px 12px;border-radius:8px;font-size:11px;font-weight:bold;cursor:pointer;pointer-events:auto;margin-top:3px;">
+                🛒 SHOP [TAB]
+            </button>
+        </div>
+    </div>
+    
+    <!-- Turd Meter (bottom of screen) -->
+    <div id="turd-meter" style="
+        position: fixed;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.7);
+        padding: 8px 20px;
+        border-radius: 20px;
+        border: 2px solid #a16207;
+        z-index: 100;
+        pointer-events: none;
+    ">
+        <span style="color:#a16207;font-size:12px;"><span class="turd-emoji"></span> TURD METER</span>
+        <div style="width:150px;height:10px;background:#333;border-radius:5px;margin-top:5px;">
+            <div id="hud-turd-fill" style="width:0%;height:100%;background:linear-gradient(90deg,#9ca3af,#6b7280);border-radius:5px;transition:width 0.3s;"></div>
+        </div>
+    </div>
+
+    
+    <!-- Break Reminder -->
+    <div class="break-overlay" id="breakOverlay">
+        <div class="break-card">
+            <div class="break-icon">⏰</div>
+            <div class="break-title">Time for a Quick Break!</div>
+            <div class="break-msg" id="breakMsg">You've been playing for a while. How about a stretch?</div>
+            <div class="break-scripture" id="breakScripture"></div>
+            <button class="break-btn" onclick="takeBreak()">✓ Take a Break</button>
+            <button class="break-btn secondary" onclick="snoozeBreak()">5 More Minutes</button>
+        </div>
+    </div>
+    
+    <!-- System Scripts -->
+    <script src="js/systems/comic-bubble-voices.js?v=43.0"></script>
+    <script src="js/systems/sprite-border-helper.js?v=43.0"></script>
+    <script src="js/systems/game-patch-v41.js?v=43.0"></script>
+    <script src="js/systems/tranquilizer-mode.js?v=43.0"></script>
+    <script src="js/systems/game-over-fixes.js?v=43.0"></script>
+    <script src="js/systems/sprite-animations.js?v=43.0"></script>
+    <script src="js/systems/mobile-text-popup.js?v=43.0"></script>
+    <script src="js/systems/elevenlabs-voice.js?v=43.0"></script>
+    <script src="js/systems/performance-optimizations.js?v=43.0"></script>
+    <script src="js/systems/game-fixes-v41.js?v=43.0"></script>
+    <script src="js/systems/game-integration-v41.js?v=43.0"></script>
+    
+    <!-- Main Game -->
+    <script src="js/game.js?v=43.0"></script>
+    
+    <script>
+        // ========== VIEWPORT FIX FOR MOBILE ==========
+        function setVH() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', () => setTimeout(setVH, 100));
+        
+        // ========== LOADING SCREEN ==========
+        const tips = [
+            "💡 Green tractors are friends! Jump in the bucket!",
+            "🎯 Protected species (eagles, doves) = -50 points!",
+            "📱 Wake up phone zombies for +50 points!",
+            "📖 Bible pickups give you a protective shield!",
+            "🐄 Bounce on farm animals for height boosts!",
+            "👼 Call the Angel when demons appear!",
+            "💧 Stay hydrated! Gaming is a sport!",
+            "🌿 Park mode = tranquilizers only!",
+            "🙏 A joyful heart is good medicine! - Proverbs 17:22",
+            "🎯 Capture snipers for +800 points!",
+            "🐦 41 bird species to discover!",
+            "✝️ He's a lost soul, not an enemy!",
+            "🚜 Red tractors = DANGER! Avoid them!",
+            "🏆 Complete all 13 levels to win!"
+        ];
+        let tipIdx = 0, loadProg = 0;
+        
+        function updateLoad() {
+            loadProg += Math.random() * 10 + 5;
+            if (loadProg > 100) loadProg = 100;
+            
+            document.getElementById('loadBar').style.width = loadProg + '%';
+            document.getElementById('chicken').style.left = Math.min(loadProg * 2.4, 240) + 'px';
+            document.getElementById('loadText').textContent = `Loading... ${Math.floor(loadProg)}%`;
+            
+            if (loadProg >= 100) {
+                document.getElementById('loadText').textContent = 'Ready! Let\'s hunt! 🎮';
+                document.getElementById('chicken').textContent = '🐔💨';
+                setTimeout(() => {
+                    document.getElementById('loading-screen').classList.add('hidden');
+                }, 400);
+            } else {
+                setTimeout(updateLoad, 180);
+            }
+        }
+        
+        function rotateTips() {
+            tipIdx = (tipIdx + 1) % tips.length;
+            document.getElementById('loadTip').textContent = tips[tipIdx];
+        }
+        
+        // ========== BREAK REMINDER ==========
+        const breakMsgs = [
+            { msg: "Your spine wants to be straight! 🧘", scripture: "Your body is a temple. — 1 Cor 6:19" },
+            { msg: "20-20-20 rule! Look 20ft away for 20 seconds! 👁️", scripture: "The eye is the lamp of the body. — Matt 6:22" },
+            { msg: "Drink some water! Your brain is 75% H2O! 💧", scripture: "Whoever drinks the water I give will never thirst. — John 4:14" },
+            { msg: "Quick stretch! Even 30 seconds helps! 💪", scripture: "I can do all things through Christ. — Phil 4:13" },
+            { msg: "Step outside for fresh air! 🌿", scripture: "The heavens declare the glory of God. — Psalm 19:1" }
+        ];
+        let breakTimer = null;
+        
+        function startBreakTimer() {
+            breakTimer = setTimeout(showBreak, 20 * 60 * 1000); // 20 minutes
+        }
+        
+        function showBreak() {
+            const b = breakMsgs[Math.floor(Math.random() * breakMsgs.length)];
+            document.getElementById('breakMsg').textContent = b.msg;
+            document.getElementById('breakScripture').textContent = `"${b.scripture}"`;
+            document.getElementById('breakOverlay').classList.add('active');
+            // Pause game
+            if (window.game?.scene) try { window.game.scene.pause('GameScene'); } catch(e){}
+        }
+        
+        function takeBreak() {
+            document.getElementById('breakOverlay').classList.remove('active');
+            startBreakTimer();
+            resumeGame();
+        }
+        
+        function snoozeBreak() {
+            document.getElementById('breakOverlay').classList.remove('active');
+            resumeGame();
+            breakTimer = setTimeout(showBreak, 5 * 60 * 1000);
+        }
+        
+        function resumeGame() {
+            if (window.game?.scene) try { window.game.scene.resume('GameScene'); } catch(e){}
+        }
+        
+        // ========== SERVICE WORKER (PWA) ==========
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('✅ Service Worker registered'))
+                .catch(err => console.log('Service Worker error:', err));
+        }
+        
+        // ========== INIT ==========
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLoad();
+            setInterval(rotateTips, 3000);
+            startBreakTimer();
+        });
+    </script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyCqocaA6G6jFSlDVxGB3NC_4AIUbP6wfiQ",
+    authDomain: "birdturds-a9e0b.firebaseapp.com",
+    projectId: "birdturds-a9e0b",
+    storageBucket: "birdturds-a9e0b.firebasestorage.app",
+    messagingSenderId: "749367634086",
+    appId: "1:749367634086:web:2ac4da95a0ed12832f6c67",
+    databaseURL: "https://birdturds-a9e0b-default-rtdb.firebaseio.com"
+  };
+  
+  // Initialize Firebase if not already done
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+</script>
+
+<!-- Multiplayer System -->
+<script src="js/multiplayer.js?v=43.0"></script>
+<script src="js/multiplayer-ui.js?v=43.0"></script>
+
+<script>
+  // BT_AUTO_START_GAME - start the Phaser game when play.html is loaded
+  document.addEventListener('DOMContentLoaded', function () {
+    // Check if this is a multiplayer game
+    const urlParams = new URLSearchParams(window.location.search);
+    const isMultiplayer = urlParams.get('multiplayer') === 'true';
+    const roomCode = urlParams.get('room');
+    
+    if (isMultiplayer && roomCode && window.multiplayer) {
+      console.log('🌐 Joining multiplayer room:', roomCode);
+      // Multiplayer will handle game start
+    }
+    
+    try {
+      if (window.startBirdTurdsGame) {
+        console.log('🎮 Auto-starting BirdTurds game from play.html');
+        window.startBirdTurdsGame();
+      } else if (window.initializeGame) {
+        console.log('🎮 Auto-starting BirdTurds via initializeGame');
+        window.initializeGame();
+      } else {
+        console.warn('No game bootstrap function found');
+      }
+    } catch (e) {
+      console.error('Error auto-starting game:', e);
+    }
+  });
+</script>
+</body>
+</html>
