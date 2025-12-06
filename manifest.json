@@ -1,0 +1,27 @@
+{
+  "name": "BIRDTURDS v41 - Hunt Birds, Dodge Turds, Grow in Faith!",
+  "short_name": "BIRDTURDS",
+  "description": "The hilarious family-friendly hunting game with 41 birds, 8 hunters, and Christian values!",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": [
+    {
+      "src": "https://birdturds.com/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://birdturds.com/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "entertainment"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}

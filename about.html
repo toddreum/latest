@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - BIRDTURDS</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 2px 2px 0 #8B4513;
+            margin-bottom: 10px;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            margin-top: 15px;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(255,215,0,0.2);
+            border-color: #ffd700;
+        }
+        
+        main {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .story-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            border-left: 4px solid #ffd700;
+        }
+        
+        .story-section h2 {
+            color: #4ecdc4;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+        
+        .story-section p {
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+        
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(78,205,196,0.1));
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .highlight-box p {
+            font-size: 1.3em;
+            font-style: italic;
+            color: #ffd700;
+            margin: 0;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .value-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .value-card:hover {
+            transform: translateY(-5px);
+            border-color: #4ecdc4;
+        }
+        
+        .value-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .value-card h3 {
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .value-card p {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.95em;
+        }
+        
+        .scripture-quote {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 4px solid #4ecdc4;
+        }
+        
+        .scripture-quote p {
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        
+        .scripture-quote .reference {
+            color: #4ecdc4;
+            font-weight: bold;
+            font-style: normal;
+        }
+        
+        .team-note {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            margin-top: 40px;
+        }
+        
+        .team-note h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: rgba(255,255,255,0.5);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 40px;
+        }
+        
+        footer a {
+            color: #4ecdc4;
+            text-decoration: none;
+        }
+        
+        @media (max-width: 768px) {
+            header { padding: 25px 15px 20px; }
+            h1 { font-size: 2em; }
+            main { padding: 25px 15px; }
+            .story-section { padding: 25px 20px; }
+            .story-section h2 { font-size: 1.4em; }
+            .story-section p { font-size: 1em; }
+            .highlight-box { padding: 20px; }
+            .highlight-box p { font-size: 1.1em; }
+            .value-card { padding: 20px; }
+        }
+    </style>
+
+    <link rel="stylesheet" href="css/portraits.css?v=42.0">
+</head>
+<body>
+    <header>
+        <h1>👨‍👩‍👧‍👦 About Us</h1>
+        <p style="color: #4ecdc4; font-size: 1.2em;">The Story Behind BirdTurds</p>
+        <a href="index.html" class="back-btn">← Back to Home</a>
+    </header>
+    
+    <main>
+        <!-- The Origin Story -->
+        <section class="story-section">
+            <h2>🎮 How It All Started</h2>
+            <p>
+                It started with a simple observation that every parent knows too well: kids today are glued to their screens. 
+                A father watched as his own teenagers, along with kids everywhere, spent hours scrolling, gaming, and living 
+                in their digital worlds. This wasn't just happening in his home—it was happening everywhere, all over the world.
+            </p>
+            <p>
+                The easy path would have been to fight it. To lecture. To restrict. To confiscate devices and create conflict. 
+                But here's the thing about teenagers—the more you push, the more they pull away. The more you fight, the wider 
+                the gap becomes.
+            </p>
+            <p>
+                So this dad asked himself a different question: <strong>"What if, instead of fighting what they love, 
+                I could reach them through it?"</strong>
+            </p>
+        </section>
+        
+        <div class="highlight-box">
+            <p>"If you can't beat 'em... meet them where they are."</p>
+        </div>
+        
+        <!-- The Vision -->
+        <section class="story-section">
+            <h2>💡 The Vision</h2>
+            <p>
+                The idea was simple but powerful: create a game that's genuinely fun—something kids would actually 
+                want to play—but weave in messages of faith, encouragement, and positive values. Not in a preachy way. 
+                Not forced. Just naturally part of the experience.
+            </p>
+            <p>
+                Think about it: a kid spends 30 minutes playing BirdTurds, laughing at the chaos, trying to beat their 
+                high score. And somewhere in there, a Bible verse pops up. A moment of encouragement. A gentle reminder 
+                to take a break and drink some water—or better yet, do some pushups, situps, take a walk outside, 
+                get some sunshine and fresh air! Seeds being planted, one at a time.
+            </p>
+            <p>
+                And here's the bonus for parents: instead of screen time being a source of guilt and conflict, it becomes 
+                something you can feel a little lighter about. Your kid is still gaming, sure—but they're also being 
+                exposed to positive messages. That's a win.
+            </p>
+        </section>
+        
+        <div class="scripture-quote">
+            <p>"Train up a child in the way he should go: and when he is old, he will not depart from it."</p>
+            <span class="reference">— Proverbs 22:6</span>
+        </div>
+        
+        <!-- Why It Matters -->
+        <section class="story-section">
+            <h2>❤️ Why This Matters</h2>
+            <p>
+                We're living in a unique time. Kids have access to more content than any generation before them. 
+                They're constantly being influenced—by social media, by games, by content creators. The question isn't 
+                whether they'll be influenced. It's <em>what</em> will influence them.
+            </p>
+            <p>
+                BirdTurds is one small answer to that question. It's a fun, silly, slightly ridiculous game about 
+                hunting birds and dodging... well, you know. But underneath all that, it's also a vehicle for 
+                something more meaningful.
+            </p>
+            <p>
+                We're not trying to replace church or family devotions or real conversations about faith. We're just 
+                trying to plant seeds. To meet kids in their world. To make parents smile instead of stress. And maybe, 
+                just maybe, to make a small difference in a big, noisy digital world.
+            </p>
+        </section>
+        
+        <!-- Our Values -->
+        <section class="story-section">
+            <h2>🌟 What We Believe</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">🎯</div>
+                    <h3>Fun First</h3>
+                    <p>If it's not fun, kids won't play it. We make games they actually want to play.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🌱</div>
+                    <h3>Plant Seeds</h3>
+                    <p>Faith isn't forced. It's woven naturally into the experience.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">👨‍👩‍👧‍👦</div>
+                    <h3>Family Friendly</h3>
+                    <p>Content that parents can feel good about. Always.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">💚</div>
+                    <h3>Healthy Gaming</h3>
+                    <p>Break reminders, wellness tips, and balance built in. Drink water, do pushups, take a walk, get sunshine!</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <h3>Connection Over Conflict</h3>
+                    <p>Meeting kids where they are beats fighting where they're not.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">😄</div>
+                    <h3>Joy & Laughter</h3>
+                    <p>A joyful heart is good medicine. We believe in fun!</p>
+                </div>
+            </div>
+        </section>
+        
+        <div class="scripture-quote">
+            <p>"A joyful heart is good medicine, but a crushed spirit dries up the bones."</p>
+            <span class="reference">— Proverbs 17:22</span>
+        </div>
+        
+        <!-- For Parents -->
+        <section class="story-section">
+            <h2>📱 A Note to Parents</h2>
+            <p>
+                We get it. The screen time battle is exhausting. The guilt of letting them play "just one more game" 
+                is real. The worry about what they're seeing and absorbing online is constant.
+            </p>
+            <p>
+                BirdTurds won't solve all of that. But we hope it helps—even just a little. When your kid is playing 
+                our game, you can breathe a bit easier knowing they're getting positive messages mixed in with their fun. 
+                They might even learn a Bible verse or two without realizing it.
+            </p>
+            <p>
+                And hey—the game has built-in break reminders, hydration prompts, and wellness tips. Because we care 
+                about their health, not just their high scores.
+            </p>
+            <p style="color: #ffd700; font-weight: bold; margin-top: 25px;">
+                Thank you for trusting us with your family's screen time. We don't take that lightly.
+            </p>
+        </section>
+        
+        <div class="team-note">
+            <h3>🙏 From Our Family to Yours</h3>
+            <p style="color: rgba(255,255,255,0.8);">
+                BirdTurds started as one dad's idea and has grown into something we hope blesses families everywhere. 
+                We're just regular people who believe that faith, fun, and family can all come together—even in a 
+                silly game about birds and poop.
+            </p>
+            <p style="color: #4ecdc4; margin-top: 15px;">
+                God bless you and your family! 💛
+            </p>
+        </div>
+        
+        <!-- TESTIMONIAL VIDEOS SECTION -->
+        <section class="video-section" style="margin-top: 40px; padding: 30px; background: rgba(0,0,0,0.3); border-radius: 20px;">
+            <h2 style="text-align: center; color: #ffd700; margin-bottom: 20px; font-size: 1.8em;">Powerful Testimonies</h2>
+            <p style="text-align: center; color: rgba(255,255,255,0.8); margin-bottom: 25px;">Watch these incredible stories of lives transformed by Jesus Christ!</p>
+            
+            <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
+                <!-- Video 1 -->
+                <div style="text-align: center; max-width: 400px;">
+                    <iframe 
+                        width="100%" 
+                        height="225" 
+                        src="https://www.youtube.com/embed/nQ77wvjen7U" 
+                        title="Former Gay News Broadcaster Finds Jesus"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen
+                        style="border-radius: 12px; border: 2px solid #4ecdc4;">
+                    </iframe>
+                    <p style="color: #4ecdc4; font-weight: bold; margin-top: 10px;">Former Gay News Broadcaster Finds Jesus</p>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 0.9em;">A powerful testimony of transformation and redemption through Christ.</p>
+                </div>
+                
+                <!-- Video 2 -->
+                <div style="text-align: center; max-width: 400px;">
+                    <iframe 
+                        width="100%" 
+                        height="225" 
+                        src="https://www.youtube.com/embed/cJc0McjBo3o" 
+                        title="Lesbian Finds Jesus - Powerful Testimony"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen
+                        style="border-radius: 12px; border: 2px solid #4ecdc4;">
+                    </iframe>
+                    <p style="color: #4ecdc4; font-weight: bold; margin-top: 10px;">Lesbian Finds Jesus - Powerful Testimony</p>
+                    <p style="color: rgba(255,255,255,0.7); font-size: 0.9em;">An incredible story of finding truth and new life in Christ.</p>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: #ffd700; font-style: italic; margin-top: 25px;">
+                "Therefore, if anyone is in Christ, he is a new creation. The old has passed away; behold, the new has come." — 2 Corinthians 5:17
+            </p>
+        </section>
+        
+    </main>
+    
+    <footer>
+        <p>BIRDTURDS v42 | Made with 💛 and Faith</p>
+        <p><a href="index.html">Home</a> | <a href="play.html">Play Now</a> | <a href="howtoplay.html">How To Play</a></p>
+    </footer>
+
+    <script src="js/portrait-fix.js?v=42.0"></script>
+</body>
+</html>

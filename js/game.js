@@ -2353,7 +2353,11 @@ class BirdTurdsScene extends Phaser.Scene {
     this.time.delayedCall(this.breakInterval, () => this.checkWellness());
     
     // Initialize AI bots (2 bots by default for solo play)
-    this.initBots(2);
+    // Delay slightly to ensure camera and all assets are ready
+    this.time.delayedCall(500, () => {
+      console.log('🤖 Delayed bot initialization starting...');
+      this.initBots(2);
+    });
     
     // Initialize demon group
     this.demons = this.physics.add.group();
@@ -9443,20 +9447,44 @@ class BirdTurdsScene extends Phaser.Scene {
       console.error('Update error:', e);
     }
     
-    // ========== HUNTER SAFETY CHECK ==========
-    // Ensure hunter is always visible and at valid position
-    if (this.hunter && this.hunter.active) {
+    // ========== HUNTER SAFETY CHECK (Enhanced per Copilot review) ==========
+    // Robust validation to prevent hunter from vanishing
+    if (this.hunter) {
+      // Check for NaN or Infinity positions - reset to safe spawn
+      if (!isFinite(this.hunter.x) || !isFinite(this.hunter.y) || isNaN(this.hunter.x) || isNaN(this.hunter.y)) {
+        console.warn('Hunter position invalid, resetting');
+        this.hunter.setPosition(this.cameras.main.worldView.x + 400, this.groundY);
+        if (this.hunter.body) this.hunter.setVelocity(0, 0);
+      }
+      
+      // If no physics body or body disabled -> re-enable
+      if (!this.hunter.body || this.hunter.body.enable === false) {
+        try {
+          this.physics.world.enable(this.hunter);
+          this.hunter.body.setAllowGravity(true);
+        } catch(e) { console.warn('Failed to re-enable hunter physics:', e); }
+      }
+      
       // Reset alpha if somehow invisible
-      if (this.hunter.alpha < 0.5) {
+      if (this.hunter.alpha < 0.5 || this.hunter.alpha === 0) {
         this.hunter.setAlpha(1);
       }
-      // Reset if below ground or too high
+      
+      // Ensure hunter is visible (not scaled to 0)
+      if (this.hunter.scaleX === 0 || this.hunter.scaleY === 0 || this.hunter.scaleX < 0.1 || this.hunter.scaleY < 0.1) {
+        this.hunter.setScale(0.24);
+      }
+      
+      // Reset if below ground or too high (fell through floor or launched to sky)
       if (this.hunter.y > this.groundY + 50) {
         this.hunter.y = this.groundY;
+        if (this.hunter.body) this.hunter.setVelocityY(0);
       }
-      if (this.hunter.y < -100) {
+      if (this.hunter.y < -800) {
         this.hunter.y = this.groundY;
+        if (this.hunter.body) this.hunter.setVelocity(0, 0);
       }
+      
       // Reset if off screen horizontally
       const view = this.cameras.main.worldView;
       if (this.hunter.x < view.x - 100) {
@@ -9465,9 +9493,19 @@ class BirdTurdsScene extends Phaser.Scene {
       if (this.hunter.x > view.right + 100) {
         this.hunter.x = view.right - 100;
       }
-      // Ensure hunter is visible (not scaled to 0)
-      if (this.hunter.scaleX < 0.1 || this.hunter.scaleY < 0.1) {
-        this.hunter.setScale(0.24);
+      
+      // Check hunterBeingCarried flag - if carrier no longer exists, release
+      if (this.hunterBeingCarried) {
+        const carrier = this.birds ? this.birds.getChildren().find(b => b && b.active && b.isCarrying) : null;
+        if (!carrier) {
+          console.warn('Hunter carrier lost, releasing hunter');
+          this.hunterBeingCarried = false;
+          this.hunter.y = this.groundY;
+          if (this.hunter.body) {
+            this.hunter.body.enable = true;
+            this.hunter.setVelocity(0, 0);
+          }
+        }
       }
     }
     
@@ -12647,12 +12685,29 @@ class BirdTurdsScene extends Phaser.Scene {
     
     if (vehicle.preFX) vehicle.preFX.addGlow(0xFFFFFF, 1.5, 0, false, 0.04, 8);
     vehicle.shadow = shadow;
+    
+    // === COPILOT SAFETY: Proper physics setup ===
     vehicle.body.setAllowGravity(false);
+    vehicle.body.setImmovable(true);
+    
     vehicle.speed = isGoodTractor ? 80 : (100 + Math.random() * 50);
     vehicle.direction = fromLeft ? 1 : -1;
     vehicle.bouncePhase = Math.random() * Math.PI * 2;
     vehicle.isGoodTractor = isGoodTractor;
     vehicle.tireHealth = 3;
+    vehicle._isVehicle = true; // Tag for debug inspection
+    
+    // === COPILOT SAFETY: Cleanup handler for destroy ===
+    vehicle.on('destroy', () => {
+      // Clean up shadow when vehicle is destroyed
+      if (vehicle.shadow && vehicle.shadow.active) {
+        vehicle.shadow.destroy();
+      }
+      // Kill any pending tweens on this vehicle
+      if (this.tweens) {
+        this.tweens.killTweensOf(vehicle);
+      }
+    });
     
     // Play driver audio
     if (isGoodTractor) {
@@ -17331,15 +17386,23 @@ class BirdTurdsScene extends Phaser.Scene {
   // BOT SYSTEM - AI players that hunt alongside or compete
   initBots(count = 2) {
     this.bots = [];
+    console.log('🤖 initBots called with count:', count);
     
     const botNames = ['TurdHunterBot', 'BirdSlayer99', 'PoopDodger', 'SkyShooter', 'FeatherFury', 'WingClipper'];
     const botColors = [0x3b82f6, 0x22c55e, 0xf59e0b, 0xec4899, 0x8b5cf6];
     
+    // Get camera view to spawn bots near player
+    const view = this.cameras.main.worldView;
+    const spawnX = view.x + view.width / 2;
+    
     for (let i = 0; i < Math.min(count, this.maxBots); i++) {
+      // Spawn bots near center of current view (near player)
+      const offsetX = (i === 0) ? -150 : 150; // One on each side of player
+      
       const bot = {
         id: 'bot_' + i,
         name: botNames[i % botNames.length],
-        x: 200 + Math.random() * (WORLD_WIDTH - 400),
+        x: spawnX + offsetX,
         y: this.groundY,
         score: 0,
         kills: 0,
@@ -17350,7 +17413,8 @@ class BirdTurdsScene extends Phaser.Scene {
         moveCooldown: 0,
         color: botColors[i % botColors.length],
         sprite: null,
-        nameTag: null
+        nameTag: null,
+        _isBot: true // Tag for debug
       };
       
       // Create bot sprite (tinted hunter)
@@ -17360,7 +17424,9 @@ class BirdTurdsScene extends Phaser.Scene {
           .setScale(0.22) // Slightly smaller than player
           .setTint(bot.color)
           .setAlpha(0.85)
-          .setDepth(9);
+          .setDepth(9)
+          .setVisible(true)
+          .setActive(true);
         
         // Name tag above bot
         bot.nameTag = this.add.text(bot.x, bot.y - 80, `🤖 ${bot.name}`, {
@@ -17369,6 +17435,10 @@ class BirdTurdsScene extends Phaser.Scene {
           backgroundColor: '#000000aa',
           padding: { x: 4, y: 2 }
         }).setOrigin(0.5).setDepth(10);
+        
+        console.log(`🤖 Bot ${i} created:`, bot.name, 'at', bot.x, bot.y, 'sprite:', bot.sprite ? 'OK' : 'FAILED');
+      } else {
+        console.warn('🤖 Hunter texture not found for bot!');
       }
       
       this.bots.push(bot);

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>BirdTurds - Debug Test</title>
+  <style>
+    body { background: #0f172a; color: #fff; font-family: Arial; padding: 20px; }
+    .test { padding: 10px; margin: 5px 0; border-radius: 8px; }
+    .pass { background: #166534; }
+    .fail { background: #991b1b; }
+    .warn { background: #854d0e; }
+    button { background: #7c3aed; color: #fff; border: none; padding: 10px 20px; margin: 5px; border-radius: 8px; cursor: pointer; }
+    h2 { color: #ffd700; }
+    #results { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>🧪 BirdTurds Debug Test Suite</h1>
+  
+  <h2>Manual Tests</h2>
+  <button onclick="testWorshipScene()">Test Worship Scene</button>
+  <button onclick="showMusicAdminPanel()">Test Music Admin</button>
+  <button onclick="showCharitySelector(10, (c) => console.log('Selected:', c))">Test Charity Selector</button>
+  <button onclick="openChurchDirectory()">Test Church Directory</button>
+  <button onclick="showVillainShowcase()">Test Villain Showcase</button>
+  <button onclick="showAudioBiblePlayer()">Test Audio Bible</button>
+  <button onclick="showRandomJoyScripture()">Test Scripture</button>
+  <button onclick="showCharityStats()">Test Charity Stats</button>
+  
+  <h2>Automated Tests</h2>
+  <button onclick="runAllTests()">Run All Tests</button>
+  
+  <div id="results"></div>
+  
+  <!-- Test Canvas -->
+  <canvas id="game-canvas" width="800" height="600" style="display:none;"></canvas>
+  
+  <!-- Load Scripts in Order -->
+  <script src="js/joy-scriptures-audio-bible.js"></script>
+  <script src="js/worship-ending-scene.js"></script>
+  <script src="js/charity-selection.js"></script>
+  <script src="js/villain-system.js"></script>
+  <script src="js/music-admin.js"></script>
+  <script src="js/church-directory.js"></script>
+  <script src="js/church-directory-ui.js"></script>
+  
+  <script>
+    const results = document.getElementById('results');
+    
+    function log(msg, status) {
+      const div = document.createElement('div');
+      div.className = 'test ' + status;
+      div.textContent = msg;
+      results.appendChild(div);
+    }
+    
+    function runAllTests() {
+      results.innerHTML = '';
+      
+      // Test 1: Joy Scriptures
+      try {
+        if (typeof JOY_SCRIPTURES !== 'undefined' && JOY_SCRIPTURES.length > 0) {
+          log('✓ JOY_SCRIPTURES loaded: ' + JOY_SCRIPTURES.length + ' verses', 'pass');
+        } else {
+          log('✗ JOY_SCRIPTURES not loaded', 'fail');
+        }
+      } catch(e) { log('✗ JOY_SCRIPTURES error: ' + e.message, 'fail'); }
+      
+      // Test 2: Audio Bible Books
+      try {
+        if (typeof AUDIO_BIBLE_BOOKS !== 'undefined' && AUDIO_BIBLE_BOOKS.length > 0) {
+          log('✓ AUDIO_BIBLE_BOOKS loaded: ' + AUDIO_BIBLE_BOOKS.length + ' books', 'pass');
+        } else {
+          log('✗ AUDIO_BIBLE_BOOKS not loaded', 'fail');
+        }
+      } catch(e) { log('✗ AUDIO_BIBLE_BOOKS error: ' + e.message, 'fail'); }
+      
+      // Test 3: Worship Playlist
+      try {
+        if (typeof MODERN_WORSHIP_PLAYLIST !== 'undefined' && MODERN_WORSHIP_PLAYLIST.length > 0) {
+          log('✓ MODERN_WORSHIP_PLAYLIST loaded: ' + MODERN_WORSHIP_PLAYLIST.length + ' songs', 'pass');
+        } else {
+          log('✗ MODERN_WORSHIP_PLAYLIST not loaded', 'fail');
+        }
+      } catch(e) { log('✗ MODERN_WORSHIP_PLAYLIST error: ' + e.message, 'fail'); }
+      
+      // Test 4: Worship Scene Functions
+      try {
+        const funcs = ['startWorshipEndingScene', 'endWorshipScene', 'changeWorshipSong', 'testWorshipScene'];
+        let passed = 0;
+        funcs.forEach(f => {
+          if (typeof window[f] === 'function') passed++;
+        });
+        if (passed === funcs.length) {
+          log('✓ Worship Scene functions: ' + passed + '/' + funcs.length, 'pass');
+        } else {
+          log('⚠ Worship Scene functions: ' + passed + '/' + funcs.length, 'warn');
+        }
+      } catch(e) { log('✗ Worship Scene error: ' + e.message, 'fail'); }
+      
+      // Test 5: Charity System
+      try {
+        if (typeof CHARITY_OPTIONS !== 'undefined' && CHARITY_OPTIONS.length > 0) {
+          log('✓ CHARITY_OPTIONS loaded: ' + CHARITY_OPTIONS.length + ' charities', 'pass');
+        } else {
+          log('✗ CHARITY_OPTIONS not loaded', 'fail');
+        }
+      } catch(e) { log('✗ CHARITY_OPTIONS error: ' + e.message, 'fail'); }
+      
+      // Test 6: Charity Functions
+      try {
+        const funcs = ['showCharitySelector', 'selectPresetCharity', 'confirmCharitySelection', 'showCharityStats'];
+        let passed = 0;
+        funcs.forEach(f => {
+          if (typeof window[f] === 'function') passed++;
+        });
+        if (passed === funcs.length) {
+          log('✓ Charity functions: ' + passed + '/' + funcs.length, 'pass');
+        } else {
+          log('⚠ Charity functions: ' + passed + '/' + funcs.length, 'warn');
+        }
+      } catch(e) { log('✗ Charity functions error: ' + e.message, 'fail'); }
+      
+      // Test 7: Villains
+      try {
+        if (typeof VILLAINS !== 'undefined' && VILLAINS.length > 0) {
+          log('✓ VILLAINS loaded: ' + VILLAINS.length + ' villains', 'pass');
+        } else {
+          log('✗ VILLAINS not loaded', 'fail');
+        }
+      } catch(e) { log('✗ VILLAINS error: ' + e.message, 'fail'); }
+      
+      // Test 8: Villain Manager
+      try {
+        if (typeof villainManager !== 'undefined' && villainManager.spawnVillain) {
+          log('✓ VillainManager instance ready', 'pass');
+        } else {
+          log('✗ VillainManager not ready', 'fail');
+        }
+      } catch(e) { log('✗ VillainManager error: ' + e.message, 'fail'); }
+      
+      // Test 9: Music Admin
+      try {
+        const funcs = ['showMusicAdminPanel', 'toggleMusicSong', 'saveMusicAdminSettings', 'closeMusicAdmin'];
+        let passed = 0;
+        funcs.forEach(f => {
+          if (typeof window[f] === 'function') passed++;
+        });
+        if (passed === funcs.length) {
+          log('✓ Music Admin functions: ' + passed + '/' + funcs.length, 'pass');
+        } else {
+          log('⚠ Music Admin functions: ' + passed + '/' + funcs.length, 'warn');
+        }
+      } catch(e) { log('✗ Music Admin error: ' + e.message, 'fail'); }
+      
+      // Test 10: Church Directory
+      try {
+        if (typeof churchDirectory !== 'undefined' && churchDirectory.fetchChurches) {
+          log('✓ ChurchDirectory instance ready', 'pass');
+        } else {
+          log('✗ ChurchDirectory not ready', 'fail');
+        }
+      } catch(e) { log('✗ ChurchDirectory error: ' + e.message, 'fail'); }
+      
+      // Test 11: Church Directory UI
+      try {
+        if (typeof churchDirectoryUI !== 'undefined' && churchDirectoryUI.open) {
+          log('✓ ChurchDirectoryUI instance ready', 'pass');
+        } else {
+          log('✗ ChurchDirectoryUI not ready', 'fail');
+        }
+      } catch(e) { log('✗ ChurchDirectoryUI error: ' + e.message, 'fail'); }
+      
+      // Test 12: openChurchDirectory function
+      try {
+        if (typeof openChurchDirectory === 'function') {
+          log('✓ openChurchDirectory function ready', 'pass');
+        } else {
+          log('✗ openChurchDirectory not ready', 'fail');
+        }
+      } catch(e) { log('✗ openChurchDirectory error: ' + e.message, 'fail'); }
+      
+      // Test 13: Demo data availability
+      try {
+        const demoChurches = churchDirectory.getDemoChurches();
+        const demoEvents = churchDirectory.getDemoEvents();
+        const demoBulletins = churchDirectory.getDemoBulletins();
+        if (demoChurches.length > 0 && demoEvents.length > 0 && demoBulletins.length > 0) {
+          log('✓ Demo data available: ' + demoChurches.length + ' churches, ' + demoEvents.length + ' events, ' + demoBulletins.length + ' bulletins', 'pass');
+        } else {
+          log('⚠ Some demo data missing', 'warn');
+        }
+      } catch(e) { log('✗ Demo data error: ' + e.message, 'fail'); }
+      
+      // Test 14: Scripture functions
+      try {
+        const funcs = ['showRandomJoyScripture', 'startScriptureRotation', 'stopScriptureRotation', 'toggleScriptures'];
+        let passed = 0;
+        funcs.forEach(f => {
+          if (typeof window[f] === 'function') passed++;
+        });
+        if (passed === funcs.length) {
+          log('✓ Scripture functions: ' + passed + '/' + funcs.length, 'pass');
+        } else {
+          log('⚠ Scripture functions: ' + passed + '/' + funcs.length, 'warn');
+        }
+      } catch(e) { log('✗ Scripture functions error: ' + e.message, 'fail'); }
+      
+      // Test 15: Audio Bible functions
+      try {
+        const funcs = ['showAudioBiblePlayer', 'playAudioBible', 'pauseAudioBible', 'onBibleBookChange'];
+        let passed = 0;
+        funcs.forEach(f => {
+          if (typeof window[f] === 'function') passed++;
+        });
+        if (passed === funcs.length) {
+          log('✓ Audio Bible functions: ' + passed + '/' + funcs.length, 'pass');
+        } else {
+          log('⚠ Audio Bible functions: ' + passed + '/' + funcs.length, 'warn');
+        }
+      } catch(e) { log('✗ Audio Bible functions error: ' + e.message, 'fail'); }
+      
+      // Summary
+      const passCount = document.querySelectorAll('.pass').length;
+      const failCount = document.querySelectorAll('.fail').length;
+      const warnCount = document.querySelectorAll('.warn').length;
+      
+      log('', 'pass');
+      log('=== SUMMARY: ' + passCount + ' passed, ' + warnCount + ' warnings, ' + failCount + ' failed ===', 
+          failCount === 0 ? 'pass' : 'fail');
+    }
+    
+    // Auto-run tests on load
+    setTimeout(runAllTests, 500);
+  </script>
+</body>
+</html>

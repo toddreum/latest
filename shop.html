@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Shop - BirdTurds.com</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at top, #111827 0%, #020617 55%, #000 100%);
+      color: #fff;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    #shop-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 40px;
+      padding: 20px;
+      background: rgba(17,24,39,0.8);
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #facc15;
+    }
+
+    #back-btn {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+    
+    #back-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99,102,241,0.6);
+    }
+
+    #products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .product-card {
+      background: linear-gradient(135deg, rgba(31,41,55,0.8), rgba(17,24,39,0.9));
+      border: 1px solid #374151;
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      border-color: #facc15;
+      box-shadow: 0 8px 24px rgba(250,204,21,0.2);
+    }
+
+    .product-badge {
+      display: inline-block;
+      background: #facc15;
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .product-card h3 {
+      font-size: 22px;
+      margin-bottom: 8px;
+      color: #facc15;
+    }
+
+    .product-card .price {
+      font-size: 28px;
+      font-weight: 700;
+      color: #22c55e;
+      margin: 12px 0;
+    }
+
+    .product-card .description {
+      color: #9ca3af;
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .product-card ul {
+      list-style: none;
+      margin: 16px 0;
+    }
+
+    .product-card li {
+      padding: 6px 0;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+
+    .product-card li:before {
+      content: "✓ ";
+      color: #22c55e;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+
+    .buy-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #facc15, #f59e0b);
+      color: #000;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 16px;
+    }
+
+    .buy-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(250,204,21,0.6);
+    }
+
+    .buy-btn:active {
+      transform: translateY(0);
+    }
+
+    #checkout-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(34,197,94,0.95);
+      color: #fff;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      z-index: 1000;
+      display: none;
+      animation: slideIn 0.3s;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 24px;
+      }
+      #products {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+<div id="shop-container">
+  <header>
+    <h1>🛒 BirdTurds Shop</h1>
+    <a href="/" id="back-btn">← Back to Game</a>
+  </header>
+
+  <div id="products">
+    <!-- Starter Pack -->
+    <div class="product-card">
+      <span class="product-badge">Popular</span>
+      <h3>🎮 Starter Pack</h3>
+      <div class="price">$4.99</div>
+      <p class="description">
+        Get started with the essentials! Perfect for new players.
+      </p>
+      <ul>
+        <li>500 TurdCoins</li>
+        <li>2 Extra Lives</li>
+        <li>Shotgun Weapon</li>
+        <li>Ad-Free for 7 Days</li>
+      </ul>
+      <button class="buy-btn" onclick="checkout('starter')">Buy Now</button>
+    </div>
+
+    <!-- Pro Pack -->
+    <div class="product-card">
+      <span class="product-badge">Best Value</span>
+      <h3>⚡ Pro Pack</h3>
+      <div class="price">$9.99</div>
+      <p class="description">
+        Level up your game with premium perks!
+      </p>
+      <ul>
+        <li>1,500 TurdCoins</li>
+        <li>5 Extra Lives</li>
+        <li>Machine Gun Weapon</li>
+        <li>Shield Power-up</li>
+        <li>Ad-Free for 30 Days</li>
+      </ul>
+      <button class="buy-btn" onclick="checkout('pro')">Buy Now</button>
+    </div>
+
+    <!-- Ultimate Pack -->
+    <div class="product-card">
+      <span class="product-badge">Ultimate</span>
+      <h3>👑 Ultimate Pack</h3>
+      <div class="price">$19.99</div>
+      <p class="description">
+        Everything you need to dominate! Maximum power!
+      </p>
+      <ul>
+        <li>5,000 TurdCoins</li>
+        <li>Unlimited Lives</li>
+        <li>All Weapons Unlocked</li>
+        <li>All Power-ups</li>
+        <li>Exclusive Skins</li>
+        <li>Ad-Free Forever</li>
+        <li>VIP Discord Access</li>
+      </ul>
+      <button class="buy-btn" onclick="checkout('ultimate')">Buy Now</button>
+    </div>
+
+    <!-- TurdCoins Only -->
+    <div class="product-card">
+      <h3>💰 TurdCoins</h3>
+      <div class="price">$2.99</div>
+      <p class="description">
+        Just need more coins? We got you!
+      </p>
+      <ul>
+        <li>300 TurdCoins</li>
+        <li>Use for in-game purchases</li>
+        <li>Never expires</li>
+      </ul>
+      <button class="buy-btn" onclick="checkout('coins')">Buy Now</button>
+    </div>
+    
+    <!-- No Jokes (Coins Purchase) -->
+    <div class="product-card">
+      <h3>🤫 No Jokes Mode</h3>
+      <div class="price" style="color:#facc15;">50 Coins</div>
+      <p class="description">
+        Prefer a distraction-free experience?
+      </p>
+      <ul>
+        <li>Disable joke popups</li>
+        <li>Cleaner gameplay</li>
+        <li>Toggle on/off anytime</li>
+      </ul>
+      <button class="buy-btn" style="background:linear-gradient(135deg,#facc15,#eab308);color:#000;" onclick="buyNoJokes()">Buy with Coins</button>
+    </div>
+  </div>
+</div>
+
+<!-- Charity Mission Statement -->
+<div id="charity-mission" style="max-width:1200px;margin:0 auto 40px auto;background:linear-gradient(135deg,rgba(147,51,234,0.2),rgba(79,70,229,0.2));border:2px solid rgba(147,51,234,0.5);border-radius:20px;padding:30px;text-align:center;">
+  <div style="font-size:48px;margin-bottom:15px;">✝️ 💜 🙏</div>
+  <h2 style="color:#c084fc;font-size:24px;margin-bottom:15px;">20% Goes to the Charity or Cause of YOUR Choice!</h2>
+  <div style="color:#e5e7eb;line-height:1.8;max-width:700px;margin:0 auto;">
+    <p style="margin-bottom:15px;font-size:16px;">
+      <strong style="color:#facc15;">YOU choose where your 20% goes:</strong>
+    </p>
+    <div style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin:20px 0;">
+      <div style="text-align:center;">
+        <span style="font-size:28px;">🌍</span>
+        <p style="color:#a78bfa;font-weight:bold;font-size:14px;">The Poor</p>
+      </div>
+      <div style="text-align:center;">
+        <span style="font-size:28px;">💔</span>
+        <p style="color:#a78bfa;font-weight:bold;font-size:14px;">Widows</p>
+      </div>
+      <div style="text-align:center;">
+        <span style="font-size:28px;">👶</span>
+        <p style="color:#a78bfa;font-weight:bold;font-size:14px;">Orphans</p>
+      </div>
+      <div style="text-align:center;">
+        <span style="font-size:28px;">💜</span>
+        <p style="color:#a78bfa;font-weight:bold;font-size:14px;">Your Own Cause</p>
+      </div>
+    </div>
+    <p style="color:#94a3b8;font-size:14px;font-style:italic;margin-top:20px;border-top:1px solid rgba(147,51,234,0.3);padding-top:20px;">
+      "We are accountable to Jesus our Lord for the administration of His funds."
+      <br><span style="color:#a78bfa;">— James 1:27</span>
+    </p>
+  </div>
+</div>
+
+<!-- 100% CHARITY DONATION OPTION -->
+<div id="pure-donation-section" style="max-width:1200px;margin:0 auto 40px auto;background:linear-gradient(135deg,rgba(34,197,94,0.2),rgba(16,185,129,0.1));border:3px solid #22c55e;border-radius:20px;padding:30px;text-align:center;">
+  <div style="font-size:48px;margin-bottom:15px;">💚 ✝️ 💚</div>
+  <h2 style="color:#22c55e;font-size:28px;margin-bottom:15px;">100% Charity Donation</h2>
+  <p style="color:#e5e7eb;font-size:16px;margin-bottom:20px;max-width:600px;margin-left:auto;margin-right:auto;">
+    Want to give directly? <strong style="color:#fcd34d;">100% of your donation</strong> goes to the charity or cause of YOUR choice!
+    <br><span style="color:#86efac;font-size:14px;">No coins, no items - just pure giving.</span>
+  </p>
+  
+  <div style="display:flex;justify-content:center;gap:15px;flex-wrap:wrap;margin-bottom:20px;">
+    <button onclick="showPureDonationSelector(5)" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:15px 30px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;">
+      💚 Donate $5
+    </button>
+    <button onclick="showPureDonationSelector(10)" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:15px 30px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;">
+      💚 Donate $10
+    </button>
+    <button onclick="showPureDonationSelector(25)" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:15px 30px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;">
+      💚 Donate $25
+    </button>
+    <button onclick="showPureDonationSelector(50)" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:15px 30px;border-radius:12px;font-size:18px;font-weight:bold;cursor:pointer;">
+      💚 Donate $50
+    </button>
+  </div>
+  
+  <p style="color:#86efac;font-size:13px;">
+    ✓ Specify any charity, cause, organization, or person to receive your donation
+  </p>
+</div>
+
+<div id="checkout-message">Processing...</div>
+
+<!-- Charity Selection Script -->
+<script src="/js/charity-selection.js?v=42.0"></script>
+
+<script>
+const stripe = Stripe("pk_test_YOUR_PUBLISHABLE_KEY_HERE");
+const priceIds = {
+  starter: "price_STARTER_ID",
+  pro: "price_PRO_ID", 
+  ultimate: "price_ULTIMATE_ID",
+  coins: "price_COINS_ID"
+};
+const packPrices = {
+  starter: 4.99,
+  pro: 9.99,
+  ultimate: 19.99,
+  coins: 2.99
+};
+
+// Modified checkout - shows charity selector first!
+async function checkout(packType) {
+  const priceId = priceIds[packType];
+  const amount = packPrices[packType] || 4.99;
+  
+  if (!priceId || priceId.includes("YOUR_") || priceId.includes("_ID")) {
+    showMessage("⚠️ Stripe not configured yet! Add your keys to shop.html");
+    return;
+  }
+  
+  // Show charity selector first!
+  showCharitySelector(amount, async (selectedCharity) => {
+    console.log(`Charity selected: ${selectedCharity.name}`);
+    localStorage.setItem('birdturds_pending_charity', selectedCharity.id);
+    
+    showMessage("Redirecting to checkout...");
+    try {
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId: priceId,
+          productType: packType,
+          charityId: selectedCharity.id
+        })
+      });
+      const data = await response.json();
+      const result = await stripe.redirectToCheckout({ sessionId: data.id });
+      if (result.error) {
+        showMessage("❌ " + result.error.message, true);
+      }
+    } catch (error) {
+      console.error("Checkout error:", error);
+      showMessage("❌ Error: " + error.message, true);
+    }
+  });
+}
+
+function showMessage(msg, isError = false) {
+  const el = document.getElementById("checkout-message");
+  el.textContent = msg;
+  el.style.display = "block";
+  el.style.background = isError ? "rgba(239,68,68,0.95)" : "rgba(34,197,94,0.95)";
+  setTimeout(() => { el.style.display = "none"; }, 5000);
+}
+
+function buyNoJokes() {
+  const coins = parseInt(localStorage.getItem("birdturds_coins") || "0");
+  if (coins < 50) {
+    showMessage("❌ Not enough coins! You have " + coins + ", need 50", true);
+  } else {
+    localStorage.setItem("birdturds_coins", (coins - 50).toString());
+    localStorage.setItem("birdturds_noJokes", "true");
+    showMessage("✅ No Jokes Mode activated! You now have " + (coins - 50) + " coins.");
+  }
+}
+
+// Check URL params
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get("success") === "true") {
+  showMessage("✅ Purchase successful! Thank you for supporting charity! 💜");
+} else if (urlParams.get("canceled") === "true") {
+  showMessage("⚠️ Checkout canceled. Come back anytime!");
+}
+
+// 100% Pure Charity Donation
+function showPureDonationSelector(amount) {
+  showCharitySelector(amount, async (selectedCharity) => {
+    console.log(`100% Charity donation: $${amount} to ${selectedCharity.name}`);
+    localStorage.setItem('birdturds_pending_charity', JSON.stringify(selectedCharity));
+    localStorage.setItem('birdturds_charity_100_percent', 'true');
+    
+    showMessage("Redirecting to checkout for 100% charity donation...");
+    
+    // For now show success message - integrate with Stripe donation product
+    try {
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId: `price_donation_${amount}`,
+          productType: 'charity_donation',
+          charityId: selectedCharity.id,
+          charityName: selectedCharity.name,
+          charityNote: selectedCharity.note || '',
+          isCustomCharity: selectedCharity.isCustom || false,
+          is100Percent: true,
+          amount: amount
+        })
+      });
+      const data = await response.json();
+      if (data.id) {
+        const result = await stripe.redirectToCheckout({ sessionId: data.id });
+        if (result.error) showMessage("❌ " + result.error.message, true);
+      } else {
+        showMessage("💚 Thank you! Donation recorded. Stripe integration pending.", false);
+      }
+    } catch (error) {
+      console.log("Stripe donation product not yet configured");
+      showMessage("💚 Thank you for your heart to give! Stripe donation products coming soon.", false);
+    }
+  }, true); // true = 100% to charity
+}
+</script>
+
+<!-- View Charity Impact Button -->
+<div style="text-align:center;margin:30px 0;">
+  <button onclick="showCharityStats()" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:15px 30px;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;">
+    💚 View Charity Impact Report
+  </button>
+</div>
+
+<footer style="text-align:center;padding:15px;color:#6b7280;font-size:12px;border-top:1px solid #1f2937;margin-top:20px;">
+  <p>Dude.com © 2024 All Rights Reserved</p>
+  <p style="margin-top:8px;color:#a78bfa;font-size:11px;">✝️ 20% of proceeds go to the charity or cause of YOUR choice!</p>
+  <p style="margin-top:5px;color:#22c55e;font-size:11px;">💚 100% charity donations also available - YOU decide where it goes!</p>
+</footer>
+</body>
+</html>

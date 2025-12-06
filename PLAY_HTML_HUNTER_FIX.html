@@ -1,0 +1,372 @@
+<!-- ============================================================ -->
+<!-- FIXED HUNTER SELECTION SECTION FOR play.html                 -->
+<!-- ============================================================ -->
+<!-- 
+  INSTRUCTIONS:
+  1. In cPanel, edit play.html
+  2. Search for: "ALL 8 HUNTERS PREVIEW"
+  3. Select from that line down to (and including) the </script> after "Hunter selected on start screen"
+  4. Delete that entire section  
+  5. Paste this entire file content in its place
+  6. Save and test!
+-->
+
+<!-- ALL 8 HUNTERS - FIXED 4x2 GRID with Bug Fix -->
+<div id="all-hunters-preview" style="margin-bottom:15px;padding:20px;background:rgba(0,0,0,0.8);border-radius:16px;display:inline-block;border:2px solid #facc15;max-width:750px;">
+  <h2 style="color:#facc15;font-size:26px;margin:0 0 20px 0;text-shadow:0 0 10px rgba(250,204,21,0.5);text-align:center;">🎯 Choose Your Hunter!</h2>
+  
+  <!-- 4x2 Grid Layout - Alternating Male/Female -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:15px;justify-items:center;">
+    
+    <!-- ROW 1: Buck, Daisy, Bubba, Sierra -->
+    
+    <!-- Buck (Male) -->
+    <div class="hunter-card" onclick="quickSelectHunter('buck', this)" data-hunter="buck">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/buck_idle.png')"></div>
+      <span class="hunter-name">Buck</span>
+      <span class="hunter-desc">Texas cowboy. 5th gen rancher.</span>
+      <span class="hunter-weapon">🔫 Lever-Action Rifle</span>
+      <span class="hunter-verse">"Be strong and courageous." — Joshua 1:9</span>
+    </div>
+    
+    <!-- Daisy (Female) -->
+    <div class="hunter-card" onclick="quickSelectHunter('daisy', this)" data-hunter="daisy">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/daisy_idle.png')"></div>
+      <span class="hunter-name">Daisy</span>
+      <span class="hunter-desc">Nashville cowgirl. 3x champ.</span>
+      <span class="hunter-weapon">🔫 Double-Barrel Shotgun</span>
+      <span class="hunter-verse">"Clothed with strength." — Prov 31:25</span>
+    </div>
+    
+    <!-- Bubba (Male) -->
+    <div class="hunter-card" onclick="quickSelectHunter('bubba', this)" data-hunter="bubba">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/bubba_idle.png')"></div>
+      <span class="hunter-name">Bubba</span>
+      <span class="hunter-desc">Louisiana swamp guide.</span>
+      <span class="hunter-weapon">🔫 Pump-Action Shotgun</span>
+      <span class="hunter-verse">"I can do all things." — Phil 4:13</span>
+    </div>
+    
+    <!-- Sierra (Female) -->
+    <div class="hunter-card" onclick="quickSelectHunter('sierra', this)" data-hunter="sierra">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/sierra_idle.png')"></div>
+      <span class="hunter-name">Sierra</span>
+      <span class="hunter-desc">Ex-Special Forces sniper.</span>
+      <span class="hunter-weapon">🔫 AR-15 Carbine</span>
+      <span class="hunter-verse">"The Lord is my rock." — Ps 18:2</span>
+    </div>
+    
+    <!-- ROW 2: Clyde, Jolene, Gunner, Tammy -->
+    
+    <!-- Clyde (Male) -->
+    <div class="hunter-card" onclick="quickSelectHunter('clyde', this)" data-hunter="clyde">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/clyde_idle.png')"></div>
+      <span class="hunter-name">Clyde</span>
+      <span class="hunter-desc">Mountain man. 40 years exp.</span>
+      <span class="hunter-weapon">🔫 Bolt-Action Rifle</span>
+      <span class="hunter-verse">"Be still and know." — Ps 46:10</span>
+    </div>
+    
+    <!-- Jolene (Female) -->
+    <div class="hunter-card" onclick="quickSelectHunter('jolene', this)" data-hunter="jolene">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/jolene_idle.png')"></div>
+      <span class="hunter-name">Jolene</span>
+      <span class="hunter-desc">Kentucky ranch owner.</span>
+      <span class="hunter-weapon">🔫 Custom Hunting Rifle</span>
+      <span class="hunter-verse">"Trust in the Lord." — Prov 3:5</span>
+    </div>
+    
+    <!-- Gunner (Male) -->
+    <div class="hunter-card" onclick="quickSelectHunter('gunner', this)" data-hunter="gunner">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/gunner_idle.png')"></div>
+      <span class="hunter-name">Gunner</span>
+      <span class="hunter-desc">Army vet. 3 tours overseas.</span>
+      <span class="hunter-weapon">🔫 M249 SAW</span>
+      <span class="hunter-verse">"Greater love has no one." — Jn 15:13</span>
+    </div>
+    
+    <!-- Tammy (Female) -->
+    <div class="hunter-card" onclick="quickSelectHunter('tammy', this)" data-hunter="tammy">
+      <div class="hunter-img" style="background-image:url('/sprites/characters/tammy_idle.png')"></div>
+      <span class="hunter-name">Tammy</span>
+      <span class="hunter-desc">Olympic archery hopeful.</span>
+      <span class="hunter-weapon">🏹 Compound Crossbow</span>
+      <span class="hunter-verse">"Let your light shine." — Matt 5:16</span>
+    </div>
+  </div>
+  
+  <!-- Selected hunter indicator -->
+  <div id="hunter-selection-status" style="margin-top:20px;padding-top:15px;border-top:1px solid rgba(255,255,255,0.2);text-align:center;">
+    <p id="no-hunter-warning" style="color:#ef4444;font-weight:bold;margin:0;font-size:16px;animation:pulseWarning 1.2s ease-in-out infinite;">
+      ⚠️ Click a hunter above to play!
+    </p>
+    <p id="hunter-selected-msg" style="color:#22c55e;font-weight:bold;margin:0;font-size:20px;display:none;">
+      ✅ Playing as: <span id="selected-char-name"></span>
+    </p>
+  </div>
+</div>
+
+<style>
+  /* ===== HUNTER CARD STYLES - 4x2 GRID ===== */
+  .hunter-card {
+    width: 160px;
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 8px 10px;
+    border: 3px solid #374151;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  }
+  
+  .hunter-card:hover {
+    transform: scale(1.05);
+    border-color: #facc15;
+    box-shadow: 0 8px 25px rgba(250,204,21,0.4);
+  }
+  
+  .hunter-card.selected {
+    border-color: #22c55e !important;
+    border-width: 4px;
+    box-shadow: 0 0 30px rgba(34,197,94,0.6);
+    background: linear-gradient(145deg, #14532d 0%, #052e16 100%);
+  }
+  
+  .hunter-card.selected .hunter-name {
+    color: #22c55e;
+  }
+  
+  /* Hunter Image - Clean, no animation clutter */
+  .hunter-img {
+    width: 90px;
+    height: 90px;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    margin-bottom: 8px;
+  }
+  
+  .hunter-card:hover .hunter-img {
+    animation: gentleBounce 0.5s ease infinite;
+  }
+  
+  @keyframes gentleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  
+  /* Hunter Name */
+  .hunter-name {
+    font-size: 18px;
+    color: #facc15;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+  
+  /* Hunter Description - 1 line */
+  .hunter-desc {
+    font-size: 11px;
+    color: #9ca3af;
+    text-align: center;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    height: 14px;
+    overflow: hidden;
+  }
+  
+  /* Hunter Weapon */
+  .hunter-weapon {
+    font-size: 11px;
+    color: #22c55e;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  
+  /* Scripture Verse - LARGER and readable */
+  .hunter-verse {
+    font-size: 11px;
+    color: #fbbf24;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.3;
+    padding: 6px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    border-left: 2px solid #fbbf24;
+  }
+  
+  .hunter-card.selected .hunter-verse {
+    color: #86efac;
+    border-color: #86efac;
+  }
+  
+  /* Warning pulse animation */
+  @keyframes pulseWarning {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  
+  /* ===== MOBILE RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    #all-hunters-preview > div:nth-child(2) {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px;
+    }
+    .hunter-card {
+      width: 145px;
+      padding: 10px 6px 8px;
+    }
+    .hunter-img {
+      width: 75px;
+      height: 75px;
+    }
+    .hunter-name {
+      font-size: 16px;
+    }
+    .hunter-desc {
+      font-size: 10px;
+    }
+    .hunter-weapon {
+      font-size: 10px;
+    }
+    .hunter-verse {
+      font-size: 9px;
+      padding: 4px;
+    }
+  }
+  
+  @media (max-width: 400px) {
+    .hunter-card {
+      width: 130px;
+    }
+    .hunter-img {
+      width: 65px;
+      height: 65px;
+    }
+  }
+</style>
+
+<script>
+  // ============================================================
+  // FIXED HUNTER SELECTION - Uses window. for global scope
+  // ============================================================
+  
+  // Track if hunter is selected - USE WINDOW for global access!
+  window.hunterSelected = false;
+  window.selectedHunter = null;
+  window.selectedCharacter = null;
+  
+  // Quick select hunter from start screen
+  function quickSelectHunter(hunterId, element) {
+    // Save to localStorage (multiple keys for compatibility)
+    localStorage.setItem('birdturds_character', hunterId);
+    localStorage.setItem('selectedCharacter', hunterId);
+    localStorage.setItem('selected_hunter', hunterId);
+    
+    // Set WINDOW flags (this is the bug fix!)
+    window.hunterSelected = true;
+    window.selectedHunter = hunterId;
+    window.selectedCharacter = hunterId;
+    window.hunterSelectedOnStartScreen = true;
+    window.pendingCharacter = hunterId;
+    
+    // Pretty names
+    const names = {
+      buck: 'Buck', daisy: 'Daisy', bubba: 'Bubba', clyde: 'Clyde',
+      sierra: 'Sierra', gunner: 'Gunner', jolene: 'Jolene', tammy: 'Tammy'
+    };
+    
+    // Update name display
+    const nameEl = document.getElementById('selected-char-name');
+    if (nameEl && names[hunterId]) nameEl.textContent = names[hunterId];
+    
+    // Show selected message, hide warning
+    const noWarn = document.getElementById('no-hunter-warning');
+    const selectedMsg = document.getElementById('hunter-selected-msg');
+    if (noWarn) noWarn.style.display = 'none';
+    if (selectedMsg) selectedMsg.style.display = 'block';
+    
+    // Update visual selection - remove from all, add to clicked
+    document.querySelectorAll('.hunter-card, .hunter-mini').forEach(el => el.classList.remove('selected'));
+    
+    // Add selected class to clicked element
+    if (element && element.classList) {
+      element.classList.add('selected');
+    } else {
+      // Fallback - find by data attribute
+      const card = document.querySelector('[data-hunter="' + hunterId + '"]');
+      if (card) card.classList.add('selected');
+    }
+    
+    // Enable play button
+    const playBtn = document.getElementById('play-now-btn');
+    if (playBtn) {
+      playBtn.style.opacity = '1';
+      playBtn.style.pointerEvents = 'auto';
+    }
+    
+    console.log('✅ Hunter selected on start screen:', hunterId);
+  }
+  
+  // Initialize on load
+  document.addEventListener('DOMContentLoaded', function() {
+    // Always start fresh - make them choose every time
+    window.hunterSelected = false;
+    window.selectedHunter = null;
+    
+    // Dim play button until selection
+    const playBtn = document.getElementById('play-now-btn');
+    if (playBtn) {
+      playBtn.style.opacity = '0.5';
+      
+      // Add click guard - checks WINDOW variables
+      playBtn.addEventListener('click', function(e) {
+        // Check all possible selection indicators
+        const hasSelection = 
+          window.hunterSelected || 
+          window.selectedHunter || 
+          window.selectedCharacter ||
+          window.pendingCharacter ||
+          localStorage.getItem('birdturds_character') ||
+          localStorage.getItem('selectedCharacter') ||
+          document.querySelector('.hunter-card.selected, .hunter-mini.selected');
+        
+        if (!hasSelection) {
+          e.stopPropagation();
+          e.preventDefault();
+          alert('🎯 Please choose your hunter first!');
+          return false;
+        }
+        
+        // Hunter selected - allow play
+        console.log('✅ Starting game with:', window.selectedHunter || localStorage.getItem('birdturds_character'));
+        return true;
+      }, true); // Use capture phase
+    }
+  });
+</script>
+
+<!-- BIG PLAY BUTTON -->
+<div style="margin:20px 0;">
+  <button id="play-now-btn" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:20px 70px;font-size:22px;font-weight:bold;border-radius:999px;cursor:pointer;box-shadow:0 8px 30px rgba(34,197,94,0.5);touch-action:manipulation;transition:all 0.3s;">
+    ▶ PLAY NOW
+  </button>
+</div>
+
+<!-- Secondary Options -->
+<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:15px;">
+  <button id="multiplayer-btn" onclick="showMultiplayerModal()" style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;border:none;padding:12px 20px;font-size:13px;font-weight:bold;border-radius:999px;cursor:pointer;">🌐 Multiplayer</button>
+</div>
+
+<!-- Difficulty Selection -->
+<div style="margin-bottom:15px;">
+  <div style="display:flex;gap:8px;justify-content:center;">
+    <button id="diff-beginner" onclick="setDifficulty('beginner')" style="background:#22c55e;color:#fff;border:2px solid transparent;padding:8px 16px;font-size:11px;font-weight:bold;border-radius:8px;cursor:pointer;">🟢 Easy</button>
+    <button id="diff-intermediate" onclick="setDifficulty('intermediate')" style="background:#f59e0b;color:#fff;border:2px solid #ffd700;padding:8px 16px;font-size:11px;font-weight:bold;border-radius:8px;cursor:pointer;">🟡 Normal</button>
+    <button id="diff-advanced" onclick="setDifficulty('advanced')" style="background:#ef4444;color:#fff;border:2px solid transparent;padding:8px 16px;font-size:11px;font-weight:bold;border-radius:8px;cursor:pointer;">🔴 Hard</button>
+  </div>
+</div>

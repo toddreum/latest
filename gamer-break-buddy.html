@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>🎮 Gamer Break Buddy - Take Care of Yourself!</title>
+    
+    <!-- PWA Manifest for installing as app -->
+    <link rel="manifest" href="data:application/json,{
+        &quot;name&quot;: &quot;Gamer Break Buddy&quot;,
+        &quot;short_name&quot;: &quot;BreakBuddy&quot;,
+        &quot;start_url&quot;: &quot;.&quot;,
+        &quot;display&quot;: &quot;standalone&quot;,
+        &quot;background_color&quot;: &quot;%231a1a2e&quot;,
+        &quot;theme_color&quot;: &quot;%231a1a2e&quot;,
+        &quot;icons&quot;: [{&quot;src&quot;: &quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>&quot;, &quot;sizes&quot;: &quot;any&quot;}]
+    }">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .logo {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: #ffd700;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+        }
+        
+        .tagline {
+            color: #4ecdc4;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+        
+        /* Timer Display */
+        .timer-section {
+            background: rgba(255,255,255,0.08);
+            border-radius: 25px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+            border: 2px solid rgba(78,205,196,0.3);
+        }
+        
+        .timer-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: #4ecdc4;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(78,205,196,0.5);
+        }
+        
+        .timer-label {
+            color: rgba(255,255,255,0.7);
+            margin-top: 10px;
+            font-size: 1.1em;
+        }
+        
+        .session-info {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5em;
+            color: #ffd700;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.85em;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(145deg, #4ecdc4, #3db8b0);
+            color: #1a1a2e;
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        /* Settings */
+        .settings-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 15px 0;
+        }
+        
+        .settings-title {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-label {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .setting-input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            padding: 8px 15px;
+            color: white;
+            width: 80px;
+            text-align: center;
+            font-size: 1em;
+        }
+        
+        /* Break Popup */
+        .break-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .break-overlay.active {
+            display: flex;
+        }
+        
+        .break-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 25px;
+            padding: 35px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 3px solid #4ecdc4;
+            animation: bounceIn 0.5s ease;
+        }
+        
+        .break-icon {
+            font-size: 5em;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+        
+        .break-title {
+            color: #ffd700;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        
+        .break-message {
+            color: rgba(255,255,255,0.9);
+            font-size: 1.15em;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .break-suggestion {
+            background: rgba(78,205,196,0.15);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #4ecdc4;
+        }
+        
+        .suggestion-category {
+            color: #4ecdc4;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .suggestion-text {
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .suggestion-joke {
+            color: rgba(255,255,255,0.7);
+            font-style: italic;
+            font-size: 0.95em;
+            margin-top: 10px;
+        }
+        
+        .scripture-box {
+            background: rgba(255,215,0,0.1);
+            border-left: 3px solid #ffd700;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+            text-align: left;
+        }
+        
+        .scripture-text {
+            font-style: italic;
+            color: rgba(255,255,255,0.9);
+        }
+        
+        .scripture-ref {
+            color: #ffd700;
+            font-size: 0.9em;
+            margin-top: 8px;
+            display: block;
+        }
+        
+        .break-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
+        }
+        
+        .snooze-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn-snooze {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.8);
+            padding: 10px 20px;
+            font-size: 0.9em;
+        }
+        
+        /* Activity Suggestions List */
+        .activities-section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .activity-category {
+            margin-bottom: 20px;
+        }
+        
+        .category-title {
+            color: #4ecdc4;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .activity-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .chip {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .chip:hover {
+            background: rgba(78,205,196,0.3);
+        }
+        
+        .chip.active {
+            background: #4ecdc4;
+            color: #1a1a2e;
+        }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.5);
+            margin-top: auto;
+            font-size: 0.85em;
+        }
+        
+        footer a {
+            color: #4ecdc4;
+            text-decoration: none;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(78,205,196,0.4); }
+            50% { box-shadow: 0 0 0 15px rgba(78,205,196,0); }
+        }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .pulsing {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Nudge popup */
+        .nudge-popup {
+            transition: all 0.3s ease;
+        }
+        
+        .nudge-icon {
+            font-size: 1.5em;
+        }
+        
+        .nudge-text {
+            font-weight: 500;
+        }
+        
+        /* Notification Sound Toggle */
+        .sound-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.3em;
+            cursor: pointer;
+            color: white;
+        }
+        
+        /* Info Toggle */
+        .info-toggle {
+            position: absolute;
+            top: 20px;
+            right: 75px;
+            background: rgba(255,215,0,0.2);
+            border: 2px solid rgba(255,215,0,0.5);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 1.3em;
+            cursor: pointer;
+            color: #ffd700;
+            transition: all 0.3s;
+        }
+        
+        .info-toggle:hover {
+            background: rgba(255,215,0,0.4);
+            transform: scale(1.1);
+        }
+        
+        /* Info Overlay */
+        .info-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .info-overlay.active {
+            display: flex;
+        }
+        
+        .info-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 25px;
+            padding: 35px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 3px solid #ffd700;
+            position: relative;
+        }
+        
+        .info-card h2 {
+            color: #ffd700;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .info-section:last-of-type {
+            border-bottom: none;
+        }
+        
+        .info-section h3 {
+            color: #4ecdc4;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        
+        .info-section p {
+            color: rgba(255,255,255,0.85);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        .info-section ul {
+            color: rgba(255,255,255,0.8);
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+        
+        .info-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 1.8em;
+            cursor: pointer;
+            line-height: 1;
+        }
+        
+        .info-close:hover {
+            color: white;
+        }
+        
+        /* Mobile Install Prompt */
+        .install-prompt {
+            background: linear-gradient(90deg, rgba(255,215,0,0.2), rgba(78,205,196,0.2));
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .install-prompt.hidden {
+            display: none;
+        }
+        
+        .install-icon {
+            font-size: 2em;
+        }
+        
+        .install-text {
+            flex: 1;
+        }
+        
+        .install-text strong {
+            color: #ffd700;
+        }
+        
+        .install-btn {
+            background: #4ecdc4;
+            color: #1a1a2e;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        /* Responsive */
+        @media (max-width: 400px) {
+            .timer-display { font-size: 3em; }
+            .break-card { padding: 25px 20px; }
+            .controls { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <button class="sound-toggle" onclick="toggleSound()" id="soundToggle">🔔</button>
+        <button class="info-toggle" onclick="showInfoPopup()" id="infoToggle">❓</button>
+        
+        <header>
+            <div class="logo">🎮</div>
+            <h1>Gamer Break Buddy</h1>
+            <p class="tagline">Because even legends need rest!</p>
+        </header>
+        
+        <!-- INFO POPUP -->
+        <div class="info-overlay" id="infoOverlay">
+            <div class="info-card">
+                <button class="info-close" onclick="hideInfoPopup()">×</button>
+                <h2>❓ What is Gamer Break Buddy?</h2>
+                
+                <div class="info-section">
+                    <h3>🎯 Purpose</h3>
+                    <p>This app helps gamers remember to take healthy breaks! It runs alongside ANY game on ANY device and reminds you to step away, stretch, hydrate, and take care of yourself.</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>⏰ How It Works</h3>
+                    <p>Set your gaming session timer, and the app will remind you at your chosen intervals (default: every 20 minutes). Each reminder includes a fun activity suggestion and optional Scripture encouragement.</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>💪 Why It Matters</h3>
+                    <p>Gaming is awesome, but our bodies need movement! Extended sitting can cause:</p>
+                    <ul>
+                        <li>Eye strain and headaches</li>
+                        <li>Back and neck pain</li>
+                        <li>Poor circulation</li>
+                        <li>Dehydration</li>
+                        <li>Mental fatigue</li>
+                    </ul>
+                    <p>Regular breaks actually <strong>improve your gaming performance</strong>!</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>📲 Install as App</h3>
+                    <p><strong>iPhone:</strong> Tap Share → Add to Home Screen</p>
+                    <p><strong>Android:</strong> Tap Menu (⋮) → Add to Home Screen</p>
+                    <p><strong>Desktop:</strong> Look for install icon in address bar</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>🙏 The Heart Behind It</h3>
+                    <p>Created by a dad who wanted to help gamers stay healthy while doing what they love. Because taking care of your body is taking care of God's temple!</p>
+                </div>
+                
+                <button class="btn btn-primary" onclick="hideInfoPopup()" style="margin-top: 20px;">Got It! 👍</button>
+            </div>
+        </div>
+        
+        <!-- Install Prompt -->
+        <div class="install-prompt" id="installPrompt">
+            <span class="install-icon">📲</span>
+            <div class="install-text">
+                <strong>Install this app!</strong><br>
+                <span style="font-size: 0.9em; color: rgba(255,255,255,0.7);">Add to home screen for quick access</span>
+            </div>
+            <button class="install-btn" onclick="installApp()">Install</button>
+        </div>
+        
+        <!-- Timer Section -->
+        <div class="timer-section">
+            <div class="timer-display" id="timerDisplay">00:00</div>
+            <div class="timer-label" id="timerLabel">Press Start to begin your session</div>
+            
+            <div class="session-info">
+                <div class="stat">
+                    <div class="stat-value" id="breaksCount">0</div>
+                    <div class="stat-label">Breaks Taken</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="totalTime">0h</div>
+                    <div class="stat-label">Total Today</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value" id="streak">0</div>
+                    <div class="stat-label">Day Streak 🔥</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="startBtn" onclick="toggleTimer()">
+                ▶️ Start Session
+            </button>
+            <button class="btn btn-secondary" onclick="resetTimer()">
+                🔄 Reset
+            </button>
+        </div>
+        
+        <!-- Settings -->
+        <div class="settings-section">
+            <div class="settings-title">⚙️ Break Settings</div>
+            
+            <div class="setting-row">
+                <span class="setting-label">Remind me every</span>
+                <div>
+                    <input type="number" class="setting-input" id="intervalInput" value="20" min="5" max="120"> min
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <span class="setting-label">Break duration</span>
+                <div>
+                    <input type="number" class="setting-input" id="breakDuration" value="5" min="1" max="30"> min
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <span class="setting-label">Include Scripture</span>
+                <input type="checkbox" id="includeScripture" checked style="width: 20px; height: 20px;">
+            </div>
+            
+            <div class="setting-row">
+                <span class="setting-label">Include Humor</span>
+                <input type="checkbox" id="includeHumor" checked style="width: 20px; height: 20px;">
+            </div>
+        </div>
+        
+        <!-- Activity Preferences -->
+        <div class="activities-section">
+            <div class="settings-title">🎯 Suggest These Activities</div>
+            
+            <div class="activity-category">
+                <div class="category-title">💪 Physical</div>
+                <div class="activity-chips">
+                    <span class="chip active" data-activity="stretch">Stretch</span>
+                    <span class="chip active" data-activity="workout">Quick Workout</span>
+                    <span class="chip active" data-activity="walk">Take a Walk</span>
+                    <span class="chip" data-activity="pushups">Push-ups</span>
+                    <span class="chip" data-activity="jumping">Jumping Jacks</span>
+                </div>
+            </div>
+            
+            <div class="activity-category">
+                <div class="category-title">🏠 Productivity</div>
+                <div class="activity-chips">
+                    <span class="chip active" data-activity="room">Clean Room</span>
+                    <span class="chip" data-activity="dishes">Do Dishes</span>
+                    <span class="chip" data-activity="laundry">Laundry</span>
+                    <span class="chip" data-activity="trash">Take Out Trash</span>
+                </div>
+            </div>
+            
+            <div class="activity-category">
+                <div class="category-title">👥 Social</div>
+                <div class="activity-chips">
+                    <span class="chip active" data-activity="call">Call a Friend</span>
+                    <span class="chip active" data-activity="family">Talk to Family</span>
+                    <span class="chip" data-activity="text">Text Someone</span>
+                </div>
+            </div>
+            
+            <div class="activity-category">
+                <div class="category-title">🐕 Pets & Care</div>
+                <div class="activity-chips">
+                    <span class="chip active" data-activity="dog">Walk the Dog</span>
+                    <span class="chip" data-activity="pet">Pet Your Pet</span>
+                    <span class="chip" data-activity="feed">Feed Animals</span>
+                </div>
+            </div>
+            
+            <div class="activity-category">
+                <div class="category-title">✝️ Spiritual</div>
+                <div class="activity-chips">
+                    <span class="chip active" data-activity="bible">Bible Reading</span>
+                    <span class="chip active" data-activity="pray">Prayer Time</span>
+                    <span class="chip" data-activity="devotional">Devotional</span>
+                </div>
+            </div>
+            
+            <div class="activity-category">
+                <div class="category-title">😌 Self-Care</div>
+                <div class="activity-chips">
+                    <span class="chip active" data-activity="water">Drink Water</span>
+                    <span class="chip active" data-activity="snack">Healthy Snack</span>
+                    <span class="chip" data-activity="eyes">Rest Eyes</span>
+                    <span class="chip" data-activity="outside">Go Outside</span>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>🎮 Gamer Break Buddy v1.0</p>
+            <p>Made with 💛 for healthy gaming</p>
+            <p style="margin-top: 10px;"><a href="https://birdturds.com">From the BirdTurds Team</a></p>
+        </footer>
+    </div>
+    
+    <!-- Break Reminder Popup -->
+    <div class="break-overlay" id="breakOverlay">
+        <div class="break-card">
+            <div class="break-icon" id="breakIcon">⏰</div>
+            <h2 class="break-title" id="breakTitle">Time for a Break!</h2>
+            <p class="break-message" id="breakMessage">You've been gaming for a while, champ!</p>
+            
+            <div class="break-suggestion">
+                <div class="suggestion-category" id="suggestionCategory">SUGGESTED ACTIVITY</div>
+                <div class="suggestion-text" id="suggestionText">Take a stretch break!</div>
+                <div class="suggestion-joke" id="suggestionJoke">"Your spine called. It wants to be straight for once."</div>
+            </div>
+            
+            <div class="scripture-box" id="scriptureBox">
+                <p class="scripture-text" id="scriptureText">"Come to me, all who are weary, and I will give you rest."</p>
+                <span class="scripture-ref" id="scriptureRef">— Matthew 11:28</span>
+            </div>
+            
+            <div class="break-actions">
+                <button class="btn btn-primary" onclick="takeBreak()">
+                    ✓ I'll Take a Break!
+                </button>
+                <div class="snooze-row">
+                    <button class="btn btn-snooze" onclick="snooze(5)">5 more min</button>
+                    <button class="btn btn-snooze" onclick="snooze(10)">10 more min</button>
+                </div>
+                <button class="btn btn-secondary" onclick="skipBreak()" style="font-size: 0.9em;">
+                    Skip This Time
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ==========================================
+        // GAMER BREAK BUDDY - Complete App Logic
+        // ==========================================
+        
+        // State
+        let isRunning = false;
+        let secondsElapsed = 0;
+        let breakInterval = 20 * 60; // 20 minutes default
+        let timerInterval = null;
+        let breaksToday = 0;
+        let totalSecondsToday = 0;
+        let streak = 0;
+        let soundEnabled = true;
+        let selectedActivities = [];
+        let nudgeInterval = null;
+        
+        // SELF-CARE NUDGES - Things people often forget!
+        const selfCareNudges = [
+            // Posture & Body
+            { icon: '🧘', text: "Quick posture check! Sit up straight, shoulders back!", category: 'posture' },
+            { icon: '🪑', text: "Scoot back in your chair - don't perch on the edge!", category: 'posture' },
+            { icon: '👣', text: "Feet flat on the floor? Or use a footrest!", category: 'posture' },
+            { icon: '🦴', text: "Unclench your jaw! You're probably tensing it.", category: 'body' },
+            { icon: '👐', text: "Shake out your hands and wrists!", category: 'body' },
+            { icon: '🙆', text: "Roll your shoulders - forward, up, back, down!", category: 'body' },
+            { icon: '😮', text: "Deep breath! In through nose, out through mouth.", category: 'body' },
+            { icon: '🦵', text: "Bounce those legs! Get the blood flowing!", category: 'body' },
+            
+            // Eyes
+            { icon: '👁️', text: "Look away from screen! Focus on something 20+ feet away.", category: 'eyes' },
+            { icon: '😌', text: "Blink! Gamers forget to blink. Do it 10 times now.", category: 'eyes' },
+            { icon: '🌅', text: "Look out a window if you can - natural light helps!", category: 'eyes' },
+            { icon: '👓', text: "Screen brightness okay? Not too bright in the dark!", category: 'eyes' },
+            
+            // Hydration & Nutrition
+            { icon: '💧', text: "Sip some water! Your brain is 75% water!", category: 'hydration' },
+            { icon: '🥤', text: "Energy drinks aren't water! Have some H2O!", category: 'hydration' },
+            { icon: '🍎', text: "When did you last eat something healthy?", category: 'nutrition' },
+            { icon: '🥜', text: "Grab a healthy snack - nuts, fruit, veggies!", category: 'nutrition' },
+            { icon: '☕', text: "If it's late, maybe switch from caffeine to water!", category: 'hydration' },
+            
+            // Environment
+            { icon: '🌡️', text: "Room temperature okay? Not too hot or cold?", category: 'environment' },
+            { icon: '💨', text: "Open a window! Fresh air = fresh focus!", category: 'environment' },
+            { icon: '💡', text: "Is your room lighting okay? Not gaming in total darkness?", category: 'environment' },
+            { icon: '🧹', text: "Quick clean! Tidy desk = tidy mind.", category: 'environment' },
+            
+            // Mental
+            { icon: '😤', text: "Feeling frustrated? Take 3 deep breaths.", category: 'mental' },
+            { icon: '🎯', text: "Remember: It's just a game. Have fun!", category: 'mental' },
+            { icon: '😊', text: "Smile! Even a fake smile releases endorphins!", category: 'mental' },
+            { icon: '🙏', text: "Quick gratitude moment: Name 3 things you're thankful for.", category: 'mental' },
+            
+            // Movement
+            { icon: '🏃', text: "Stand up and march in place for 30 seconds!", category: 'movement' },
+            { icon: '💪', text: "5 push-ups or wall push-ups! You got this!", category: 'movement' },
+            { icon: '🦵', text: "10 squats right now! Your legs will thank you!", category: 'movement' },
+            { icon: '🙆‍♂️', text: "Stretch your arms above your head! Hold for 10 seconds!", category: 'movement' },
+            { icon: '🚶', text: "Walk to another room and back. Movement = life!", category: 'movement' },
+            
+            // Social & Spiritual
+            { icon: '👋', text: "Text someone you haven't talked to in a while!", category: 'social' },
+            { icon: '❤️', text: "Tell someone in your house you love them!", category: 'social' },
+            { icon: '📖', text: "Quick verse: \"I can do all things through Christ!\" - Phil 4:13", category: 'spiritual' },
+            { icon: '🙏', text: "30-second prayer! Talk to God about your day.", category: 'spiritual' },
+            
+            // Forgotten basics
+            { icon: '🚽', text: "Do you need to use the bathroom? Don't hold it!", category: 'basic' },
+            { icon: '🦷', text: "Have you brushed your teeth today?", category: 'basic' },
+            { icon: '🧴', text: "Dry hands? Gaming is hard on skin - use lotion!", category: 'basic' },
+            { icon: '🛏️', text: "Is it getting late? Good sleep = better gaming tomorrow!", category: 'basic' },
+            { icon: '🐕', text: "Does your pet need attention? Give them some love!", category: 'basic' }
+        ];
+        
+        // Function to show random nudge
+        function showNudge() {
+            if (!isRunning) return;
+            
+            const nudge = selfCareNudges[Math.floor(Math.random() * selfCareNudges.length)];
+            
+            const nudgeEl = document.createElement('div');
+            nudgeEl.className = 'nudge-popup';
+            nudgeEl.innerHTML = `
+                <span class="nudge-icon">${nudge.icon}</span>
+                <span class="nudge-text">${nudge.text}</span>
+            `;
+            nudgeEl.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: rgba(78,205,196,0.95);
+                color: #1a1a2e;
+                padding: 12px 20px;
+                border-radius: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 0.9em;
+                max-width: 300px;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                animation: slideInRight 0.3s ease;
+                z-index: 1500;
+            `;
+            
+            document.body.appendChild(nudgeEl);
+            
+            setTimeout(() => {
+                nudgeEl.style.opacity = '0';
+                nudgeEl.style.transform = 'translateX(100%)';
+                setTimeout(() => nudgeEl.remove(), 300);
+            }, 5000);
+        }
+        
+        // Start nudge system (every 3-5 minutes)
+        function startNudges() {
+            if (nudgeInterval) clearInterval(nudgeInterval);
+            
+            // Random nudge every 3-5 minutes
+            const scheduleNudge = () => {
+                const delay = (180 + Math.random() * 120) * 1000; // 3-5 min
+                nudgeInterval = setTimeout(() => {
+                    showNudge();
+                    scheduleNudge();
+                }, delay);
+            };
+            scheduleNudge();
+        }
+        
+        function stopNudges() {
+            if (nudgeInterval) {
+                clearTimeout(nudgeInterval);
+                nudgeInterval = null;
+            }
+        }
+        
+        // Info popup functions
+        function showInfoPopup() {
+            document.getElementById('infoOverlay').classList.add('active');
+        }
+        
+        function hideInfoPopup() {
+            document.getElementById('infoOverlay').classList.remove('active');
+        }
+        
+        // Activity suggestions with humor
+        const activities = {
+            // Physical
+            stretch: {
+                category: "💪 PHYSICAL",
+                text: "Time to stretch!",
+                jokes: [
+                    "Your spine called. It wants to be straight for once.",
+                    "Touch your toes! Or at least wave at them from a distance.",
+                    "Pretend you're a cat. They stretch like 47 times a day.",
+                    "Your muscles are staging a protest. Give them what they want!"
+                ]
+            },
+            workout: {
+                category: "💪 PHYSICAL",
+                text: "Quick workout time!",
+                jokes: [
+                    "No pain, no... actually, let's keep it pain-free.",
+                    "Your future six-pack is waiting. Say hi!",
+                    "Exercise: the only game where you level up IRL!",
+                    "Sweat is just your fat crying. Make it weep!"
+                ]
+            },
+            walk: {
+                category: "💪 PHYSICAL",
+                text: "Take a walk!",
+                jokes: [
+                    "Your legs are not just controller holders, you know.",
+                    "Walking: fast travel IRL, but scenic!",
+                    "Touch grass. Literally. It's a thing now.",
+                    "One does not simply sit all day. Oh wait, we do."
+                ]
+            },
+            pushups: {
+                category: "💪 PHYSICAL",
+                text: "Do some push-ups!",
+                jokes: [
+                    "The floor misses you. Give it a visit.",
+                    "Push the earth away! Show it who's boss!",
+                    "Even 5 push-ups is infinity more than zero!",
+                    "Your arms are just fancy joysticks. Train them!"
+                ]
+            },
+            jumping: {
+                category: "💪 PHYSICAL",
+                text: "Do some jumping jacks!",
+                jokes: [
+                    "Pretend you're excited about something. Keep going!",
+                    "Cardio: because zombies don't do walk attacks.",
+                    "Jump like no one's watching. They probably aren't.",
+                    "Congrats! You're now a human starfish for 30 seconds."
+                ]
+            },
+            
+            // Productivity
+            room: {
+                category: "🏠 PRODUCTIVITY",
+                text: "Clean your room!",
+                jokes: [
+                    "Your room's final boss: that pile of clothes on the chair.",
+                    "Clean room = +10 to all stats. Probably.",
+                    "Your future self will thank you. Trust me, I'm from there.",
+                    "Marie Kondo would cry if she saw this. Help her out."
+                ]
+            },
+            dishes: {
+                category: "🏠 PRODUCTIVITY",
+                text: "Do the dishes!",
+                jokes: [
+                    "The dishes aren't going to wash themselves. We checked.",
+                    "Sink full? Achievement unlocked: Clean Kitchen Hero!",
+                    "Think of it as a water-based mini-game.",
+                    "Your mom/roommate will be so confused!"
+                ]
+            },
+            laundry: {
+                category: "🏠 PRODUCTIVITY",
+                text: "Check the laundry!",
+                jokes: [
+                    "Those clothes in the washer? They're evolving.",
+                    "Laundry: the respawn point for clean clothes.",
+                    "The dryer ate another sock. Investigate!",
+                    "Pro tip: Dirty clothes don't fold themselves."
+                ]
+            },
+            trash: {
+                category: "🏠 PRODUCTIVITY",
+                text: "Take out the trash!",
+                jokes: [
+                    "The trash is plotting against you. Remove it!",
+                    "Bag's full? Time for an epic journey to the bin.",
+                    "Taking out trash: cardio + responsibility combo!",
+                    "Your bin is at max capacity. Empty inventory!"
+                ]
+            },
+            
+            // Social
+            call: {
+                category: "👥 SOCIAL",
+                text: "Call a friend!",
+                jokes: [
+                    "Your friend list isn't just for multiplayer, you know.",
+                    "Voice chat IRL! Revolutionary technology!",
+                    "Someone out there is wondering how you're doing. Call them!",
+                    "Plot twist: Talk to a human without a headset!"
+                ]
+            },
+            family: {
+                category: "👥 SOCIAL",
+                text: "Talk to family!",
+                jokes: [
+                    "Those NPCs in the other room? They're actually family!",
+                    "Quick side quest: Say hi to mom/dad.",
+                    "Family interaction: +100 relationship points!",
+                    "They feed you. Maybe thank them?"
+                ]
+            },
+            text: {
+                category: "👥 SOCIAL",
+                text: "Text someone!",
+                jokes: [
+                    "Send a meme to a friend. Spread the joy!",
+                    "That friend you've been meaning to text? Now's the time.",
+                    "Your keyboard can do more than rage typing!",
+                    "Send a 'thinking of you' text. It's free loot!"
+                ]
+            },
+            
+            // Pets
+            dog: {
+                category: "🐕 PET CARE",
+                text: "Walk the dog!",
+                jokes: [
+                    "Your dog is staring at you. You know what that means.",
+                    "Pupper needs walkies! Don't make those eyes at you!",
+                    "Dog walking: The original battle royale (vs. squirrels).",
+                    "Your dog thinks every walk is an adventure. Be their hero!"
+                ]
+            },
+            pet: {
+                category: "🐕 PET CARE",
+                text: "Pet your pet!",
+                jokes: [
+                    "Studies show petting animals = instant serotonin.",
+                    "Your pet is a living stress ball. Use them! Gently.",
+                    "That fur isn't going to pet itself!",
+                    "Animal companionship: The OG multiplayer experience."
+                ]
+            },
+            feed: {
+                category: "🐕 PET CARE",
+                text: "Check on your pets!",
+                jokes: [
+                    "Hangry pets = dangerous pets. Feed the beast!",
+                    "Your pet's food bowl might be giving you the empty stare.",
+                    "Happy pet = happy life. It's science!",
+                    "They can't order DoorDash. You're their only hope."
+                ]
+            },
+            
+            // Spiritual
+            bible: {
+                category: "✝️ SPIRITUAL",
+                text: "Read some Scripture!",
+                jokes: [
+                    "The Good Book: Better plot than most games!",
+                    "Daily bread > daily grind. Take a moment.",
+                    "Scripture: The original power-up!",
+                    "Find wisdom that doesn't require WiFi!"
+                ]
+            },
+            pray: {
+                category: "✝️ SPIRITUAL",
+                text: "Take a prayer moment!",
+                jokes: [
+                    "Prayer: The original wireless communication.",
+                    "God's always online. No server maintenance!",
+                    "Talk to the ultimate Admin. He's listening!",
+                    "Prayer requests have 0 ping and unlimited bandwidth."
+                ]
+            },
+            devotional: {
+                category: "✝️ SPIRITUAL",
+                text: "Do a quick devotional!",
+                jokes: [
+                    "Level up your spirit! XP for the soul!",
+                    "Devotional time: Better than any loading screen tip.",
+                    "Feed your soul, not just your high score!",
+                    "The Bible app has better reviews than most games!"
+                ]
+            },
+            
+            // Self-Care
+            water: {
+                category: "😌 SELF-CARE",
+                text: "Drink some water!",
+                jokes: [
+                    "Your body is 60% water. Don't let it become a desert.",
+                    "Water: The health potion you can actually drink!",
+                    "Hydration check! Your cells are thirsty.",
+                    "Pro gamers drink water. Be a pro gamer.",
+                    "That energy drink isn't water. Nice try though!",
+                    "Fun fact: Your brain is 75% water. Feed it!",
+                    "Dehydration debuff: -10 to all stats. Drink up!",
+                    "Water: It's like a coolant for your internal CPU."
+                ]
+            },
+            snack: {
+                category: "😌 SELF-CARE",
+                text: "Get a healthy snack!",
+                jokes: [
+                    "Your stomach: 'Feed me, Seymour!'",
+                    "Snack break! Choose wisely, young grasshopper.",
+                    "An apple a day keeps the doctor away... and tastes better than Doritos. Maybe.",
+                    "Your body is a temple. Feed it something green occasionally!",
+                    "Brain food! Nuts, fruit, or veggies = power-up!",
+                    "Hungry? Your body's asking for fuel, not just snacks!",
+                    "Plot twist: Healthy snacks can actually taste good!"
+                ]
+            },
+            eyes: {
+                category: "😌 SELF-CARE",
+                text: "Rest your eyes!",
+                jokes: [
+                    "20-20-20 rule: Look 20ft away, for 20 seconds, every 20 minutes!",
+                    "Your eyes: They've seen things. Let them rest.",
+                    "Close your eyes. No, this isn't a trap. Probably.",
+                    "Your retinas are filing a complaint. Give them a break!",
+                    "Fun fact: You blink less when gaming. Blink now!",
+                    "Your eyes just worked a 20-minute shift. Break time!",
+                    "Staring contest with the screen? You'll lose. Look away!"
+                ]
+            },
+            outside: {
+                category: "😌 SELF-CARE",
+                text: "Go outside briefly!",
+                jokes: [
+                    "The outdoors: It's like open-world but with better graphics!",
+                    "That bright thing in the sky? It's called the Sun. Say hi!",
+                    "Fresh air: It's like a full heal but free!",
+                    "Touch grass. It's not just a meme, it's a lifestyle!",
+                    "Vitamin D is calling! Step outside for 2 minutes!",
+                    "Nature: The original VR experience!",
+                    "Outside has infinite render distance. Check it out!"
+                ]
+            }
+        };
+        
+        // Scripture verses
+        const scriptures = [
+            { text: "Come to me, all who are weary, and I will give you rest.", ref: "Matthew 11:28" },
+            { text: "I can do all things through Christ who strengthens me.", ref: "Philippians 4:13" },
+            { text: "Be still, and know that I am God.", ref: "Psalm 46:10" },
+            { text: "The joy of the Lord is your strength.", ref: "Nehemiah 8:10" },
+            { text: "Trust in the Lord with all your heart.", ref: "Proverbs 3:5" },
+            { text: "A joyful heart is good medicine.", ref: "Proverbs 17:22" },
+            { text: "Your body is a temple of the Holy Spirit.", ref: "1 Corinthians 6:19" },
+            { text: "Be strong and courageous. Do not be afraid.", ref: "Joshua 1:9" },
+            { text: "In all things God works for the good of those who love him.", ref: "Romans 8:28" },
+            { text: "Cast all your anxiety on him because he cares for you.", ref: "1 Peter 5:7" }
+        ];
+        
+        // Icons for different break types
+        const breakIcons = ['⏰', '🎮', '💪', '🌟', '🧘', '☕', '🌿', '✨', '🎯', '💧'];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSettings();
+            updateSelectedActivities();
+            setupActivityChips();
+            checkInstallPrompt();
+            
+            // Load stats
+            loadStats();
+        });
+        
+        function setupActivityChips() {
+            document.querySelectorAll('.chip').forEach(chip => {
+                chip.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    updateSelectedActivities();
+                    saveSettings();
+                });
+            });
+        }
+        
+        function updateSelectedActivities() {
+            selectedActivities = [];
+            document.querySelectorAll('.chip.active').forEach(chip => {
+                selectedActivities.push(chip.dataset.activity);
+            });
+        }
+        
+        function toggleTimer() {
+            if (isRunning) {
+                pauseTimer();
+            } else {
+                startTimer();
+            }
+        }
+        
+        function startTimer() {
+            isRunning = true;
+            document.getElementById('startBtn').innerHTML = '⏸️ Pause';
+            document.getElementById('timerLabel').textContent = 'Session in progress...';
+            
+            breakInterval = parseInt(document.getElementById('intervalInput').value) * 60;
+            
+            timerInterval = setInterval(function() {
+                secondsElapsed++;
+                totalSecondsToday++;
+                updateDisplay();
+                
+                // Check if break time
+                if (secondsElapsed >= breakInterval && secondsElapsed % breakInterval === 0) {
+                    showBreakReminder();
+                }
+                
+                saveStats();
+            }, 1000);
+            
+            // Start the nudge system
+            startNudges();
+        }
+        
+        function pauseTimer() {
+            isRunning = false;
+            document.getElementById('startBtn').innerHTML = '▶️ Resume';
+            document.getElementById('timerLabel').textContent = 'Session paused';
+            clearInterval(timerInterval);
+            
+            // Stop nudges when paused
+            stopNudges();
+        }
+        
+        function resetTimer() {
+            pauseTimer();
+            secondsElapsed = 0;
+            updateDisplay();
+            document.getElementById('startBtn').innerHTML = '▶️ Start Session';
+            document.getElementById('timerLabel').textContent = 'Press Start to begin your session';
+        }
+        
+        function updateDisplay() {
+            const mins = Math.floor(secondsElapsed / 60);
+            const secs = secondsElapsed % 60;
+            document.getElementById('timerDisplay').textContent = 
+                String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+            
+            // Update total time
+            const totalHours = Math.floor(totalSecondsToday / 3600);
+            const totalMins = Math.floor((totalSecondsToday % 3600) / 60);
+            document.getElementById('totalTime').textContent = 
+                totalHours > 0 ? totalHours + 'h ' + totalMins + 'm' : totalMins + 'm';
+        }
+        
+        function showBreakReminder() {
+            // Pick random activity from selected
+            let activity;
+            if (selectedActivities.length > 0) {
+                const activityKey = selectedActivities[Math.floor(Math.random() * selectedActivities.length)];
+                activity = activities[activityKey];
+            } else {
+                // Default to water if nothing selected
+                activity = activities.water;
+            }
+            
+            // Pick random joke
+            const joke = activity.jokes[Math.floor(Math.random() * activity.jokes.length)];
+            
+            // Pick random scripture
+            const scripture = scriptures[Math.floor(Math.random() * scriptures.length)];
+            
+            // Pick random icon
+            const icon = breakIcons[Math.floor(Math.random() * breakIcons.length)];
+            
+            // Update popup
+            document.getElementById('breakIcon').textContent = icon;
+            document.getElementById('breakTitle').textContent = "Break Time!";
+            document.getElementById('breakMessage').textContent = 
+                `You've been gaming for ${Math.floor(secondsElapsed / 60)} minutes. Time to recharge!`;
+            document.getElementById('suggestionCategory').textContent = activity.category;
+            document.getElementById('suggestionText').textContent = activity.text;
+            
+            if (document.getElementById('includeHumor').checked) {
+                document.getElementById('suggestionJoke').textContent = '"' + joke + '"';
+                document.getElementById('suggestionJoke').style.display = 'block';
+            } else {
+                document.getElementById('suggestionJoke').style.display = 'none';
+            }
+            
+            if (document.getElementById('includeScripture').checked) {
+                document.getElementById('scriptureText').textContent = '"' + scripture.text + '"';
+                document.getElementById('scriptureRef').textContent = '— ' + scripture.ref;
+                document.getElementById('scriptureBox').style.display = 'block';
+            } else {
+                document.getElementById('scriptureBox').style.display = 'none';
+            }
+            
+            // Show overlay
+            document.getElementById('breakOverlay').classList.add('active');
+            
+            // Play sound
+            if (soundEnabled) {
+                playNotificationSound();
+            }
+            
+            // Pause timer during break
+            pauseTimer();
+        }
+        
+        function takeBreak() {
+            breaksToday++;
+            document.getElementById('breaksCount').textContent = breaksToday;
+            hideBreakOverlay();
+            
+            // Show success toast
+            showToast('🌟 Great job taking a break!');
+            
+            // Reset session timer
+            secondsElapsed = 0;
+            updateDisplay();
+            
+            saveStats();
+        }
+        
+        function snooze(minutes) {
+            hideBreakOverlay();
+            showToast('⏰ Reminder in ' + minutes + ' minutes');
+            
+            // Adjust break point
+            breakInterval = secondsElapsed + (minutes * 60);
+            
+            // Resume timer
+            startTimer();
+        }
+        
+        function skipBreak() {
+            hideBreakOverlay();
+            showToast('👍 Okay, but take care of yourself!');
+            startTimer();
+        }
+        
+        function hideBreakOverlay() {
+            document.getElementById('breakOverlay').classList.remove('active');
+        }
+        
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundToggle').textContent = soundEnabled ? '🔔' : '🔕';
+            saveSettings();
+        }
+        
+        function playNotificationSound() {
+            // Create simple beep using Web Audio API
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (e) {
+                console.log('Audio not supported');
+            }
+        }
+        
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: linear-gradient(145deg, #4ecdc4, #3db8b0);
+                color: #1a1a2e;
+                padding: 15px 30px;
+                border-radius: 30px;
+                font-weight: bold;
+                z-index: 2000;
+                animation: bounceIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Settings persistence
+        function saveSettings() {
+            const settings = {
+                interval: document.getElementById('intervalInput').value,
+                breakDuration: document.getElementById('breakDuration').value,
+                includeScripture: document.getElementById('includeScripture').checked,
+                includeHumor: document.getElementById('includeHumor').checked,
+                soundEnabled: soundEnabled,
+                selectedActivities: selectedActivities
+            };
+            localStorage.setItem('gamerBreakBuddy_settings', JSON.stringify(settings));
+        }
+        
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('gamerBreakBuddy_settings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    document.getElementById('intervalInput').value = settings.interval || 20;
+                    document.getElementById('breakDuration').value = settings.breakDuration || 5;
+                    document.getElementById('includeScripture').checked = settings.includeScripture !== false;
+                    document.getElementById('includeHumor').checked = settings.includeHumor !== false;
+                    soundEnabled = settings.soundEnabled !== false;
+                    document.getElementById('soundToggle').textContent = soundEnabled ? '🔔' : '🔕';
+                    
+                    // Restore activity selections
+                    if (settings.selectedActivities) {
+                        document.querySelectorAll('.chip').forEach(chip => {
+                            chip.classList.remove('active');
+                            if (settings.selectedActivities.includes(chip.dataset.activity)) {
+                                chip.classList.add('active');
+                            }
+                        });
+                    }
+                }
+            } catch (e) {
+                console.log('Could not load settings');
+            }
+        }
+        
+        function saveStats() {
+            const today = new Date().toDateString();
+            const stats = {
+                date: today,
+                breaksToday: breaksToday,
+                totalSecondsToday: totalSecondsToday,
+                streak: streak
+            };
+            localStorage.setItem('gamerBreakBuddy_stats', JSON.stringify(stats));
+        }
+        
+        function loadStats() {
+            try {
+                const saved = localStorage.getItem('gamerBreakBuddy_stats');
+                if (saved) {
+                    const stats = JSON.parse(saved);
+                    const today = new Date().toDateString();
+                    
+                    if (stats.date === today) {
+                        breaksToday = stats.breaksToday || 0;
+                        totalSecondsToday = stats.totalSecondsToday || 0;
+                        streak = stats.streak || 0;
+                    } else {
+                        // New day - check streak
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        if (stats.date === yesterday.toDateString() && stats.breaksToday > 0) {
+                            streak = (stats.streak || 0) + 1;
+                        } else {
+                            streak = 0;
+                        }
+                    }
+                    
+                    document.getElementById('breaksCount').textContent = breaksToday;
+                    document.getElementById('streak').textContent = streak;
+                    updateDisplay();
+                }
+            } catch (e) {
+                console.log('Could not load stats');
+            }
+        }
+        
+        // PWA Install
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installPrompt').classList.remove('hidden');
+        });
+        
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        showToast('🎉 App installed!');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installPrompt').classList.add('hidden');
+                });
+            } else {
+                // Fallback instructions
+                alert('To install:\n\niPhone: Tap Share → Add to Home Screen\n\nAndroid: Tap Menu (⋮) → Add to Home Screen\n\nDesktop: Look for install icon in address bar');
+            }
+        }
+        
+        function checkInstallPrompt() {
+            // Hide install prompt if already installed
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                document.getElementById('installPrompt').classList.add('hidden');
+            }
+        }
+        
+        // Settings change listeners
+        document.getElementById('intervalInput').addEventListener('change', saveSettings);
+        document.getElementById('breakDuration').addEventListener('change', saveSettings);
+        document.getElementById('includeScripture').addEventListener('change', saveSettings);
+        document.getElementById('includeHumor').addEventListener('change', saveSettings);
+    </script>
+</body>
+</html>

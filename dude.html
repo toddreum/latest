@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dude.com - Faith-Based Game Production</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+    
+    .hero {
+      text-align: center;
+      padding: 60px 20px;
+      background: linear-gradient(180deg, rgba(139,92,246,0.2) 0%, transparent 100%);
+    }
+    
+    .logo-container { margin-bottom: 30px; }
+    
+    .logo {
+      font-size: 72px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #facc15 0%, #f59e0b 50%, #facc15 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 30px rgba(250,204,21,0.3);
+      letter-spacing: -2px;
+    }
+    
+    .tagline {
+      font-size: 24px;
+      color: #8b5cf6;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    
+    .subtitle {
+      font-size: 18px;
+      color: #94a3b8;
+      margin-top: 15px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .cross-icon { font-size: 48px; margin: 20px 0; }
+    
+    .section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .mission-box {
+      background: linear-gradient(135deg, rgba(34,197,94,0.15), rgba(22,163,74,0.1));
+      border: 2px solid #22c55e;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 40px;
+    }
+    
+    .mission-title {
+      font-size: 28px;
+      color: #22c55e;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .mission-text {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #d1d5db;
+    }
+    
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      margin: 40px 0;
+    }
+    
+    .value-card {
+      background: rgba(30,41,59,0.8);
+      border: 2px solid #374151;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .value-card:hover {
+      border-color: #8b5cf6;
+      transform: translateY(-5px);
+    }
+    
+    .value-icon { font-size: 48px; margin-bottom: 15px; }
+    
+    .value-title {
+      font-size: 20px;
+      color: #facc15;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .value-desc {
+      color: #9ca3af;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .scripture-box {
+      background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(109,40,217,0.1));
+      border: 2px solid #8b5cf6;
+      border-radius: 16px;
+      padding: 30px;
+      text-align: center;
+      margin: 40px 0;
+    }
+    
+    .scripture {
+      font-size: 20px;
+      font-style: italic;
+      color: #c4b5fd;
+      line-height: 1.6;
+    }
+    
+    .scripture-ref {
+      color: #a78bfa;
+      font-size: 16px;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    
+    .games-section {
+      background: rgba(0,0,0,0.3);
+      border-radius: 20px;
+      padding: 40px;
+      margin: 40px 0;
+    }
+    
+    .games-title {
+      font-size: 28px;
+      color: #facc15;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .game-card {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border: 2px solid #4b5563;
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      margin-bottom: 20px;
+    }
+    
+    .game-logo {
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      object-fit: contain;
+      background: #0f172a;
+      padding: 10px;
+    }
+    
+    .game-info h3 {
+      font-size: 24px;
+      color: #22c55e;
+      margin-bottom: 10px;
+    }
+    
+    .game-info p {
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+    
+    .game-link {
+      display: inline-block;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+      padding: 10px 25px;
+      border-radius: 25px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 15px;
+      transition: all 0.3s;
+    }
+    
+    .game-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 5px 20px rgba(34,197,94,0.4);
+    }
+    
+    .cta-section {
+      text-align: center;
+      padding: 60px 20px;
+      background: linear-gradient(180deg, transparent 0%, rgba(139,92,246,0.1) 100%);
+    }
+    
+    .cta-title {
+      font-size: 32px;
+      color: #facc15;
+      margin-bottom: 20px;
+    }
+    
+    .cta-text {
+      color: #9ca3af;
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      line-height: 1.6;
+    }
+    
+    .footer {
+      text-align: center;
+      padding: 30px;
+      border-top: 1px solid #374151;
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .footer a { color: #facc15; text-decoration: none; }
+    
+    @media (max-width: 600px) {
+      .logo { font-size: 48px; }
+      .tagline { font-size: 18px; }
+      .game-card { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="hero">
+    <div class="logo-container">
+      <div class="logo">DUDE.COM</div>
+      <div class="tagline">✝️ Faith-Based Game Production ✝️</div>
+      <div class="subtitle">Creating entertainment that glorifies God and awakens hearts to biblical truth</div>
+    </div>
+    <div class="cross-icon">✝️</div>
+  </div>
+  
+  <div class="section">
+    <div class="mission-box">
+      <h2 class="mission-title">🎯 OUR MISSION</h2>
+      <p class="mission-text">
+        At <strong>Dude.com</strong>, we believe games can be more than entertainment — they can be vessels for God's truth. 
+        In a world saturated with content that pulls people away from Christ, we're creating games that do the opposite.
+        <br><br>
+        Our mission is to produce <strong>family-safe, faith-building games</strong> that:
+        <br>• ENTERTAIN while pointing to eternal truth
+        <br>• AWAKEN players to the reality of the coming rapture
+        <br>• UNITE families through wholesome, shared experiences
+        <br>• SPREAD the Gospel through gameplay and community
+        <br><br>
+        <strong style="color:#22c55e;">God doesn't want anyone left behind. Neither do we.</strong>
+      </p>
+    </div>
+    
+    <div class="scripture-box">
+      <p class="scripture">"Train up a child in the way he should go: and when he is old, he will not depart from it."</p>
+      <p class="scripture-ref">— Proverbs 22:6</p>
+    </div>
+    
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">✝️</div>
+        <h3 class="value-title">CHRIST-CENTERED</h3>
+        <p class="value-desc">Every game we create points to Jesus. Scripture, biblical themes, and Gospel truth are woven into gameplay.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">👨‍👩‍👧‍👦</div>
+        <h3 class="value-title">FAMILY SAFE</h3>
+        <p class="value-desc">100% COPPA compliant. No personal data collection. Designed for kids and families to enjoy together.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">⏰</div>
+        <h3 class="value-title">SCREEN TIME BALANCE</h3>
+        <p class="value-desc">Built-in 20-minute wellness reminders encourage healthy gaming habits and time for Bible reading.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🇺🇸</div>
+        <h3 class="value-title">PATRIOTIC VALUES</h3>
+        <p class="value-desc">Celebrating American values, freedom, and the Christian heritage that made our nation great.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🙏</div>
+        <h3 class="value-title">RAPTURE READY</h3>
+        <p class="value-desc">Our games remind players that Jesus is coming soon. Time is short. Be ready!</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">📖</div>
+        <h3 class="value-title">SCRIPTURE INFUSED</h3>
+        <p class="value-desc">Bible verses and Christian teachings integrated naturally into gameplay experiences.</p>
+      </div>
+    </div>
+    
+    <div class="games-section">
+      <h2 class="games-title">🎮 OUR GAMES</h2>
+      
+      <div class="game-card">
+        <img src="/logo.png" alt="BirdTurds Logo" class="game-logo">
+        <div class="game-info">
+          <h3>🐦💩 BIRDTURDS</h3>
+          <p>
+            A hilarious action game where you protect America from birds, drain the swamp, wake up phone zombies, 
+            defeat demons, and defend President Trump at the White House! Features 8 unique characters, 
+            8 diverse landscapes, boss battles, and a powerful Gospel message woven throughout.
+          </p>
+          <a href="/" class="game-link">▶️ PLAY NOW</a>
+        </div>
+      </div>
+      
+      <p style="text-align:center;color:#6b7280;margin-top:30px;">
+        <em>More faith-based games coming soon! 🙏</em>
+      </p>
+    </div>
+    
+    <div class="scripture-box">
+      <p class="scripture">"For many are called, but few are chosen."</p>
+      <p class="scripture-ref">— Matthew 22:14</p>
+    </div>
+  </div>
+  
+  <div class="cta-section">
+    <h2 class="cta-title">🌟 JOIN THE MOVEMENT</h2>
+    <p class="cta-text">
+      Help us spread the Gospel through gaming! Share our games with your family, friends, and church community. 
+      Together, we can reach the next generation for Christ before the rapture.
+    </p>
+    <a href="/" class="game-link" style="font-size:18px;padding:15px 40px;">🎮 PLAY BIRDTURDS NOW</a>
+  </div>
+  
+  <div class="footer">
+    <p>© 2025 <a href="/">Dude.com</a> – Faith-Based Game Production</p>
+    <p style="margin-top:10px;">
+      <a href="/privacy.html">Privacy Policy</a> • 
+      <a href="/terms.html">Terms & Conditions</a> • 
+      <a href="/">BirdTurds</a>
+    </p>
+    <p style="margin-top:15px;color:#4b5563;">
+      ✝️ "Awake, O sleeper, arise from the dead, and Christ will shine on you." — Ephesians 5:14 ✝️
+    </p>
+  </div>
+  
+</body>
+</html>

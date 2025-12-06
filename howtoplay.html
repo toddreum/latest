@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How To Play - BIRDTURDS v40.5</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff; min-height: 100vh; padding: 20px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 30px; }
+        h1 { font-size: 3em; color: #ffd700; text-shadow: 3px 3px 0 #8B4513, 5px 5px 10px rgba(0,0,0,0.5); }
+        .version { color: #4ecdc4; font-size: 1.3em; font-weight: bold; }
+        .nav-buttons { display: flex; justify-content: center; gap: 15px; margin: 20px 0; flex-wrap: wrap; }
+        .nav-btn {
+            background: linear-gradient(145deg, #ffd700, #ffaa00); color: #1a1a2e;
+            padding: 12px 25px; border-radius: 25px; text-decoration: none;
+            font-weight: bold; transition: all 0.3s;
+        }
+        .nav-btn:hover { transform: scale(1.05); box-shadow: 0 5px 20px rgba(255,215,0,0.4); }
+        .nav-btn.secondary { background: linear-gradient(145deg, #4ecdc4, #44a3a0); }
+        .section {
+            background: rgba(255,255,255,0.1); border-radius: 15px; padding: 25px;
+            margin-bottom: 20px; border: 2px solid rgba(255,255,255,0.1);
+        }
+        .section:hover { transform: translateY(-3px); border-color: rgba(255,215,0,0.3); }
+        .section.danger { border-color: rgba(255,0,0,0.5); background: rgba(255,0,0,0.1); }
+        .section.special { border-color: rgba(255,215,0,0.5); background: rgba(255,215,0,0.1); }
+        .section.holy {
+            border-color: rgba(255,255,255,0.8);
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(200,200,255,0.1));
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        .section.bible {
+            border-color: rgba(139,69,19,0.8);
+            background: linear-gradient(135deg, rgba(139,69,19,0.2), rgba(255,215,0,0.1));
+        }
+        .section.demon { border-color: rgba(139,0,0,0.8); background: linear-gradient(135deg, rgba(139,0,0,0.2), rgba(50,0,0,0.3)); }
+        .section h2 { color: #ffd700; margin-bottom: 15px; font-size: 1.5em; display: flex; align-items: center; gap: 10px; }
+        .section.danger h2 { color: #ff6b6b; }
+        .section.holy h2 { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .section.bible h2 { color: #DAA520; }
+        .section.demon h2 { color: #ff4444; }
+        .badge { font-size: 0.6em; padding: 3px 10px; border-radius: 10px; background: #ff6b6b; color: white; margin-left: 10px; }
+        .badge.new { background: #4ecdc4; }
+        .badge.holy { background: linear-gradient(90deg, #fff, #ddd); color: #333; }
+        .badge.bible { background: linear-gradient(90deg, #DAA520, #8B4513); color: white; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(255,215,0,0.2); color: #ffd700; }
+        .points-positive { color: #4ecdc4; font-weight: bold; }
+        .points-negative { color: #ff6b6b; font-weight: bold; }
+        .points-special { color: #ffd700; font-weight: bold; }
+        .controls-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin: 15px 0; }
+        .control-item { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; text-align: center; }
+        .control-key {
+            display: inline-block; background: #333; border: 2px solid #555; border-radius: 5px;
+            padding: 8px 15px; font-family: monospace; font-size: 1.2em; margin-bottom: 8px; box-shadow: 0 3px 0 #222;
+        }
+        .tip-box { background: rgba(78,205,196,0.2); border-left: 4px solid #4ecdc4; padding: 15px; margin: 15px 0; border-radius: 0 10px 10px 0; }
+        .warning-box { background: rgba(255,107,107,0.2); border-left: 4px solid #ff6b6b; padding: 15px; margin: 15px 0; border-radius: 0 10px 10px 0; }
+        .holy-box { background: rgba(255,255,255,0.1); border-left: 4px solid #fff; padding: 15px; margin: 15px 0; border-radius: 0 10px 10px 0; }
+        .bible-box { background: rgba(139,69,19,0.2); border-left: 4px solid #DAA520; padding: 15px; margin: 15px 0; border-radius: 0 10px 10px 0; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0; }
+        .feature-card { background: rgba(0,0,0,0.3); border-radius: 15px; padding: 20px; text-align: center; border: 2px solid transparent; transition: all 0.3s; }
+        .feature-card:hover { border-color: #ffd700; transform: translateY(-5px); }
+        .feature-icon { font-size: 3em; margin-bottom: 10px; }
+        .bird-icon { display: inline-block; width: 30px; text-align: center; }
+        .quick-ref { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+        footer { text-align: center; padding: 30px; color: #666; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 BIRDTURDS 🐦<span class="turd-emoji"></span></h1>
+            <div class="version">Version 40.5</div>
+            <p style="color:#888;margin-top:10px;">The Ultimate Redneck Bird Hunting Experience!</p>
+            <div class="nav-buttons">
+                <a href="index.html" class="nav-btn">🏠 Home</a>
+                <a href="play.html" class="nav-btn">🎮 Play Now</a>
+                <a href="#controls" class="nav-btn secondary">🎹 Controls</a>
+                <a href="#points" class="nav-btn secondary">💰 Points</a>
+            </div>
+        </header>
+
+        <!-- QUICK START -->
+        <section class="section special">
+            <h2>⚡ Quick Start</h2>
+            <p><strong>Goal:</strong> Shoot birds, dodge turds, collect Bibles for protection, and survive!</p>
+            <div class="feature-grid">
+                <div class="feature-card"><div class="feature-icon">🔫</div><h3>Shoot Birds</h3><p>Click or SPACE to shoot</p></div>
+                <div class="feature-card"><div class="feature-icon">🦘</div><h3>Bounce</h3><p>Jump on animals for height</p></div>
+                <div class="feature-card"><div class="feature-icon">📖</div><h3>Collect Bibles</h3><p>Health + protection aura!</p></div>
+                <div class="feature-card"><div class="feature-icon">🏆</div><h3>Score Big</h3><p>Chain combos for bonus!</p></div>
+            </div>
+        </section>
+
+        <!-- CONTROLS -->
+        <section class="section" id="controls">
+            <h2>🎹 Controls</h2>
+            <div class="controls-grid">
+                <div class="control-item"><div class="control-key">← →</div><p>Move</p></div>
+                <div class="control-item"><div class="control-key">↑ / W</div><p>Jump</p></div>
+                <div class="control-item"><div class="control-key">SPACE</div><p>Shoot</p></div>
+                <div class="control-item"><div class="control-key">↓ / S</div><p>Duck / Exit</p></div>
+                <div class="control-item"><div class="control-key">E</div><p>Knife</p></div>
+                <div class="control-item"><div class="control-key">Q</div><p>Umbrella</p></div>
+                <div class="control-item"><div class="control-key">A</div><p>👼 Call Angel</p></div>
+                <div class="control-item"><div class="control-key">ESC</div><p>Pause</p></div>
+            </div>
+        </section>
+
+        <!-- BIRDS - With accurate descriptions -->
+        <section class="section">
+            <h2>🐦 Birds - Point Values</h2>
+            <p>Shoot flying birds for points! Each species has different value and speed.</p>
+            <table>
+                <thead>
+                    <tr><th>Bird</th><th>Points</th><th>Speed</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="bird-icon">🕊️</span> <strong>Pigeon</strong></td>
+                        <td class="points-positive">+10</td>
+                        <td>Slow</td>
+                        <td>Gray city bird, common target</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">🐦</span> <strong>Sparrow</strong></td>
+                        <td class="points-positive">+15</td>
+                        <td>Fast</td>
+                        <td>Small brown bird, quick flyer</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">⬛</span> <strong>Crow</strong></td>
+                        <td class="points-positive">+25</td>
+                        <td>Medium</td>
+                        <td>All black, smart and cunning</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">🌊</span> <strong>Seagull</strong></td>
+                        <td class="points-positive">+30</td>
+                        <td>Medium</td>
+                        <td>White beach bird, loud squawk</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">🦆</span> <strong>Goose</strong></td>
+                        <td class="points-positive">+50</td>
+                        <td>Slow</td>
+                        <td>Big, honking, drops lots of turds!</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">🦅</span> <strong>Hawk</strong></td>
+                        <td class="points-positive">+75</td>
+                        <td>Very Fast</td>
+                        <td>Brown raptor, swoops quickly</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">🦅</span> <strong>Eagle</strong></td>
+                        <td class="points-positive">+100</td>
+                        <td>Fast</td>
+                        <td>Majestic! White head, brown body</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="warning-box">
+                <h3>⚠️ PROTECTED BIRDS - DO NOT SHOOT!</h3>
+                <p>These birds are protected! Shooting them costs you points!</p>
+                <table>
+                    <tr>
+                        <td><span class="bird-icon">🦉</span> <strong>Owl</strong></td>
+                        <td class="points-negative">-50 penalty</td>
+                        <td>Wise night bird with big eyes, gentle glow</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">💙</span> <strong>Bluebird</strong></td>
+                        <td class="points-negative">-75 penalty</td>
+                        <td>Small bright BLUE bird, beautiful song</td>
+                    </tr>
+                    <tr>
+                        <td><span class="bird-icon">❤️</span> <strong>Cardinal</strong></td>
+                        <td class="points-negative">-100 penalty</td>
+                        <td>Bright RED bird with crest - DON'T SHOOT!</td>
+                    </tr>
+                </table>
+            </div>
+        </section>
+
+        <!-- BIBLE SYSTEM - NEW! -->
+        <section class="section bible">
+            <h2>📖 Holy Bible Pickups <span class="badge bible">NEW!</span></h2>
+            <p>Bibles appear throughout the game - collect them for powerful benefits!</p>
+            
+            <table>
+                <tr>
+                    <td><strong>Appearance:</strong></td>
+                    <td>Glowing book on the ground with golden light</td>
+                </tr>
+                <tr>
+                    <td><strong>Health Restore:</strong></td>
+                    <td class="points-positive">+25 HP</td>
+                </tr>
+                <tr>
+                    <td><strong>Points:</strong></td>
+                    <td class="points-positive">+50 pts</td>
+                </tr>
+                <tr>
+                    <td><strong>Protection Aura:</strong></td>
+                    <td>Creates holy shield that <strong>REPELS THE DEMON!</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>Scripture:</strong></td>
+                    <td>Displays inspiring verse about strength, light, and truth</td>
+                </tr>
+            </table>
+            
+            <div class="bible-box">
+                <h4>✨ Protection Aura Effect:</h4>
+                <ul>
+                    <li>Glowing white circle appears around your hunter</li>
+                    <li>Demon CANNOT get close to you while aura is active!</li>
+                    <li>Aura slowly fades over time - collect more Bibles to maintain it</li>
+                    <li>The more Bible power you have, the larger your protection radius!</li>
+                </ul>
+            </div>
+            
+            <div class="tip-box">
+                <strong>💡 Strategy:</strong> When you see the red tractor coming with its demon, look for Bibles! The protection aura will keep the demon at bay while you shoot it for +100 points each time!
+            </div>
+        </section>
+
+        <!-- TRACTORS -->
+        <section class="section special">
+            <h2>🚜 Tractors <span class="badge new">NEW!</span></h2>
+            <div class="feature-grid">
+                <div class="feature-card" style="border-color:#4ecdc4;">
+                    <div class="feature-icon">🚜</div>
+                    <h3 style="color:#4ecdc4;">Green - FRIENDLY</h3>
+                    <p>✅ Jump in bucket for FULL PROTECTION</p>
+                    <p>✅ Scoops poop (+5 each)</p>
+                    <p>✅ Can still shoot while riding!</p>
+                </div>
+                <div class="feature-card" style="border-color:#ff6b6b;">
+                    <div class="feature-icon">🚜</div>
+                    <h3 style="color:#ff6b6b;">Red - HOSTILE</h3>
+                    <p>⚠️ AVOID - damages you!</p>
+                    <p>😈 DEMON hovers above!</p>
+                    <p>😠 Angry driver yells</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DEMON -->
+        <section class="section demon">
+            <h2>😈 The Demon <span class="badge">DANGER!</span></h2>
+            <table>
+                <tr><td>Location:</td><td>Hovers above red tractor driver</td></tr>
+                <tr><td>When Shot:</td><td class="points-special">+100 pts! Screeches & flees</td></tr>
+                <tr><td>Returns:</td><td>30 seconds later (never dies permanently!)</td></tr>
+                <tr><td>Weakness:</td><td><strong>📖 Bible Aura repels it! 👼 Angel smites it!</strong></td></tr>
+            </table>
+        </section>
+
+        <!-- ANGEL -->
+        <section class="section holy">
+            <h2>👼 The Angel <span class="badge holy">NEW!</span></h2>
+            <table>
+                <tr><td><strong>Call:</strong></td><td>Press <span class="control-key">A</span> when demon present</td></tr>
+                <tr><td><strong>Cost:</strong></td><td class="points-negative">-200 points</td></tr>
+                <tr><td><strong>Effect:</strong></td><td>Angel descends, smites demon with holy light!</td></tr>
+                <tr><td><strong>Bonus:</strong></td><td class="points-special">+100 demon hit (net: -100)</td></tr>
+                <tr><td><strong>Duration:</strong></td><td>Demon flees for 45 seconds (vs 30 normally)</td></tr>
+                <tr><td><strong>Cooldown:</strong></td><td>60 seconds before next summon</td></tr>
+            </table>
+        </section>
+
+        <!-- ANIMALS -->
+        <section class="section">
+            <h2>🐄 Animals - Bounce & Ride</h2>
+            <table>
+                <tr><th>Animal</th><th>Bounce</th><th>Rideable?</th><th>Ride Bonus</th></tr>
+                <tr><td>🦌 Deer</td><td>2.0x</td><td>✅ YES</td><td class="points-special">+1000 pts!</td></tr>
+                <tr><td>🦌 Elk</td><td>2.3x (Best!)</td><td>❌</td><td>-</td></tr>
+                <tr><td>🐴 Horse</td><td>2.2x</td><td>✅ YES</td><td class="points-positive">+500</td></tr>
+                <tr><td>🐄 Cow</td><td>1.8x</td><td>✅ YES</td><td class="points-positive">+500</td></tr>
+                <tr><td>🐺 Wolf</td><td>1.8x</td><td>❌</td><td>-</td></tr>
+                <tr><td>🐻 Bear</td><td>1.6x</td><td>❌</td><td>-</td></tr>
+                <tr><td>🐱 Cat / 🐕 Dog</td><td>1.5-1.7x</td><td>❌</td><td>-</td></tr>
+                <tr><td>🐐 Goat / 🐑 Sheep</td><td>1.4-1.6x</td><td>❌</td><td>-</td></tr>
+                <tr><td>🐷 Pig</td><td>1.3x</td><td>❌</td><td>-</td></tr>
+                <tr><td>🐔 Chicken / 🐓 Rooster</td><td>1.2x</td><td>❌</td><td>-</td></tr>
+            </table>
+            <div class="tip-box"><strong>💡</strong> Ride Horse + Cow in same round = <span class="points-special">+1000 Combo!</span></div>
+        </section>
+
+        <!-- SNIPERS -->
+        <section class="section danger">
+            <h2>🎯 Snipers <span class="badge">ENEMY!</span></h2>
+            <table>
+                <tr><td>Warning:</td><td>🔴 Red scope glint when peeking</td></tr>
+                <tr><td>Kill:</td><td class="points-special">+500 pts</td></tr>
+                <tr><td>All Dead:</td><td class="points-special">+300 bonus</td></tr>
+            </table>
+            <p><em>Hide in green tractor bucket or get Bible protection! No snipers in Trump scene.</em></p>
+        </section>
+
+        <!-- BOT HUNTERS -->
+        <section class="section">
+            <h2>🤠 Bot Hunters (Competition)</h2>
+            <p>AI hunters compete for kills. Bounce on them for <span class="points-positive">+20 pts</span> + height!</p>
+        </section>
+
+        <!-- ITEMS -->
+        <section class="section">
+            <h2>🎒 Items & Power-Ups</h2>
+            <div class="feature-grid">
+                <div class="feature-card" style="border-color:#DAA520;">
+                    <div class="feature-icon">📖</div>
+                    <h3 style="color:#DAA520;">Bible</h3>
+                    <p>+25 HP, +50 pts</p>
+                    <p><strong>Demon protection aura!</strong></p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">☂️</div>
+                    <h3>Umbrella</h3>
+                    <p>Blocks turds (Q)</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔪</div>
+                    <h3>Knife</h3>
+                    <p>x1.5 damage (E)</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💍</div>
+                    <h3>Golden Ring</h3>
+                    <p>+100, unlock +250</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCENES -->
+        <section class="section">
+            <h2>🗺️ Scenes</h2>
+            <div class="quick-ref">
+                <div class="feature-card"><h3>🏞️ Park</h3><p>Rings, Bibles, Wildlife</p></div>
+                <div class="feature-card"><h3>🚜 Farm</h3><p>All Animals, Tractors, Bibles</p></div>
+                <div class="feature-card"><h3>🌄 Country</h3><p>Wildlife, Tractors, Bibles</p></div>
+                <div class="feature-card"><h3>🏖️ Beach</h3><p>Seagulls++</p></div>
+                <div class="feature-card"><h3>🏙️ City</h3><p>Pigeons++</p></div>
+                <div class="feature-card"><h3>🏛️ Trump</h3><p>Special! No Snipers</p></div>
+            </div>
+        </section>
+
+        <!-- POINTS SUMMARY -->
+        <section class="section special" id="points">
+            <h2>💰 Points Summary</h2>
+            <div class="quick-ref">
+                <div>
+                    <h3>🐦 Birds</h3>
+                    <p>Pigeon +10 | Sparrow +15 | Crow +25</p>
+                    <p>Seagull +30 | Goose +50 | Hawk +75 | Eagle +100</p>
+                    <p style="color:#ff6b6b;">Protected: Owl -50 | Bluebird -75 | Cardinal -100</p>
+                </div>
+                <div>
+                    <h3>🐄 Riding</h3>
+                    <p>Deer +1000 | Horse/Cow +500 | Combo +1000</p>
+                </div>
+                <div>
+                    <h3>⚔️ Combat</h3>
+                    <p>Sniper +500 | All Snipers +300 | Demon +100</p>
+                </div>
+                <div>
+                    <h3>📖 Bible & 👼 Angel</h3>
+                    <p>Bible Pickup: +50 pts, +25 HP</p>
+                    <p>Angel Summon: -200 | Smite: +100</p>
+                </div>
+                <div>
+                    <h3>📝 Scripture Quiz</h3>
+                    <p>Correct: +100 | Streak: +25 each</p>
+                    <p>Perfect Round: +500!</p>
+                </div>
+                <div>
+                    <h3>🤝 Community</h3>
+                    <p>Good Deed: +75 | Testimony: +100</p>
+                    <p>First Post: +200 | 7-Day Streak: +500!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPIRITUAL WARFARE -->
+        <section class="section holy">
+            <h2>⚔️ Spiritual Warfare Strategy</h2>
+            <p>Use the power of faith against the demon!</p>
+            <ol style="margin-left: 20px; line-height: 2;">
+                <li><strong>📖 Collect Bibles</strong> - Build your protection aura</li>
+                <li><strong>🔫 Shoot the Demon</strong> - +100 pts each hit, it flees</li>
+                <li><strong>👼 Call the Angel</strong> - When things get tough (-200 pts)</li>
+                <li><strong>🚜 Ride Green Tractor</strong> - Safe haven in the bucket</li>
+                <li><strong>🙏 Scripture appears</strong> - Remember them for the quiz!</li>
+            </ol>
+            <div class="holy-box">
+                <strong>✨ Remember:</strong> "Greater is He that is in you than he that is in the world!" - 1 John 4:4
+            </div>
+        </section>
+
+        <!-- SCRIPTURE QUIZ - NEW! -->
+        <section class="section special">
+            <h2>📝 Scripture Quiz <span class="badge new">NEW!</span></h2>
+            <p>Pay attention to the scriptures that appear during gameplay!</p>
+            
+            <table>
+                <tr>
+                    <td><strong>When:</strong></td>
+                    <td>Quiz appears at the end of each round</td>
+                </tr>
+                <tr>
+                    <td><strong>Questions:</strong></td>
+                    <td>Up to 3 questions about scriptures you saw</td>
+                </tr>
+                <tr>
+                    <td><strong>Correct Answer:</strong></td>
+                    <td class="points-positive">+100 points</td>
+                </tr>
+                <tr>
+                    <td><strong>Streak Bonus:</strong></td>
+                    <td class="points-positive">+25 per consecutive correct</td>
+                </tr>
+                <tr>
+                    <td><strong>Perfect Round:</strong></td>
+                    <td class="points-special">+500 BONUS!</td>
+                </tr>
+            </table>
+            
+            <div class="tip-box">
+                <strong>💡 Pro Tip:</strong> When a scripture pops up, take a moment to read it! You'll be quizzed on the reference, the words, and the category (strength, light, good news, awakening, or protection).
+            </div>
+        </section>
+
+        <!-- COMMUNITY SHARING - NEW! -->
+        <section class="section" style="border-color: #ff6b6b; background: rgba(255,107,107,0.1);">
+            <h2 style="color: #ff6b6b;">🤝 Community Blog <span class="badge new">NEW!</span></h2>
+            <p>Share good deeds, testimonies, and encouragement to earn points!</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <h3>Good Deeds</h3>
+                    <p class="points-positive">+75 pts</p>
+                    <p>Share something kind you did</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✨</div>
+                    <h3>Testimony</h3>
+                    <p class="points-positive">+100 pts</p>
+                    <p>Share how God worked in your life</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🙏</div>
+                    <h3>Prayer Request</h3>
+                    <p class="points-positive">+50 pts</p>
+                    <p>Ask community to pray with you</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📖</div>
+                    <h3>Favorite Verse</h3>
+                    <p class="points-positive">+50 pts</p>
+                    <p>Share scripture that encouraged you</p>
+                </div>
+            </div>
+            
+            <table style="margin-top: 20px;">
+                <tr>
+                    <td><strong>First Post Bonus:</strong></td>
+                    <td class="points-special">+200 pts</td>
+                </tr>
+                <tr>
+                    <td><strong>Daily Share Bonus:</strong></td>
+                    <td class="points-positive">+50 pts</td>
+                </tr>
+                <tr>
+                    <td><strong>7-Day Streak:</strong></td>
+                    <td class="points-special">+500 pts!</td>
+                </tr>
+                <tr>
+                    <td><strong>Like Someone's Post:</strong></td>
+                    <td class="points-positive">+5 pts</td>
+                </tr>
+            </table>
+            
+            <div class="tip-box">
+                <strong>🌟 Build Your Streak!</strong> Share something positive every day to build your streak and earn massive bonus points!
+            </div>
+        </section>
+
+        <footer>
+            <p>BIRDTURDS v40.5 | Made with 💛 and Faith</p>
+            <a href="index.html" style="color:#ffd700;">Back to Home</a>
+        </footer>
+    </div>
+</body>
+</html>
