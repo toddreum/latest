@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>⏱️ Time Steward - Gaming Self-Regulation App</title>
+  <meta name="description" content="Christian gaming self-regulation app. Manage your screen time with wisdom and balance.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+      min-height: 100vh;
+      color: #e2e8f0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .header h1 {
+      font-size: 2.5rem;
+      color: #22c55e;
+      margin-bottom: 10px;
+    }
+    
+    .header p {
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    
+    .card {
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid #374151;
+    }
+    
+    .card h2 {
+      color: #60a5fa;
+      font-size: 18px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .progress-container {
+      margin-bottom: 15px;
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .progress-bar {
+      height: 16px;
+      background: #374151;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #16a34a);
+      border-radius: 999px;
+      transition: width 0.5s ease;
+    }
+    
+    .progress-fill.warning { background: linear-gradient(90deg, #f59e0b, #d97706); }
+    .progress-fill.danger { background: linear-gradient(90deg, #ef4444, #dc2626); }
+    
+    .setting-row {
+      margin-bottom: 20px;
+    }
+    
+    .setting-row label {
+      display: block;
+      color: #e2e8f0;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .slider-container input[type="range"] {
+      flex: 1;
+      accent-color: #22c55e;
+      height: 8px;
+    }
+    
+    .slider-value {
+      color: #22c55e;
+      font-weight: bold;
+      min-width: 70px;
+      text-align: right;
+    }
+    
+    .toggle-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .toggle-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+    
+    .toggle-btn.active { background: #22c55e; color: #fff; }
+    .toggle-btn.inactive { background: #374151; color: #9ca3af; }
+    
+    .btn-primary {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    .btn-secondary {
+      width: 100%;
+      padding: 14px;
+      background: #374151;
+      color: #9ca3af;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+    }
+    
+    .scripture {
+      text-align: center;
+      padding: 20px;
+      background: rgba(250, 204, 21, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      margin-top: 20px;
+    }
+    
+    .scripture p {
+      color: #fcd34d;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .scripture cite {
+      color: #facc15;
+      font-size: 12px;
+      display: block;
+      margin-top: 10px;
+    }
+    
+    .timer-display {
+      font-size: 4rem;
+      text-align: center;
+      color: #22c55e;
+      font-weight: bold;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 15px 10px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 10px;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #22c55e;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 5px;
+    }
+    
+    .game-selector {
+      margin-bottom: 15px;
+    }
+    
+    .game-selector select {
+      width: 100%;
+      padding: 12px;
+      background: #0f172a;
+      border: 2px solid #374151;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 14px;
+    }
+    
+    .pin-input {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .pin-input input {
+      flex: 1;
+      padding: 12px;
+      background: #0f172a;
+      border: 2px solid #374151;
+      border-radius: 10px;
+      color: #fff;
+      text-align: center;
+      font-size: 18px;
+      letter-spacing: 8px;
+    }
+    
+    .pin-input button {
+      padding: 12px 20px;
+      background: #ef4444;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #374151;
+    }
+    
+    .footer p {
+      color: #64748b;
+      font-size: 12px;
+    }
+    
+    .footer a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+    
+    /* Break overlay */
+    .break-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.98);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .break-overlay.active {
+      display: flex;
+    }
+    
+    .break-content {
+      text-align: center;
+      max-width: 400px;
+      padding: 40px;
+    }
+    
+    .break-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 480px) {
+      .header h1 { font-size: 1.8rem; }
+      .timer-display { font-size: 2.5rem; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    
+    <div class="header">
+      <h1>⏱️ Time Steward</h1>
+      <p>Gaming Self-Regulation • Wisdom in Play</p>
+    </div>
+    
+    <!-- Current Session -->
+    <div class="card">
+      <h2>📊 Today's Session</h2>
+      
+      <div class="timer-display" id="session-timer">0:00:00</div>
+      
+      <div class="progress-container">
+        <div class="progress-header">
+          <span>Daily Progress</span>
+          <span id="progress-text">0 / 60 min</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="stat-today">0</div>
+          <div class="stat-label">Minutes Today</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-week">0</div>
+          <div class="stat-label">This Week</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="stat-breaks">0</div>
+          <div class="stat-label">Breaks Taken</div>
+        </div>
+      </div>
+      
+      <button class="btn-primary" onclick="toggleTimer()">
+        <span id="timer-btn-text">▶️ Start Timer</span>
+      </button>
+      <button class="btn-secondary" onclick="takeBreak()">🧘 Take a Break</button>
+    </div>
+    
+    <!-- Settings -->
+    <div class="card">
+      <h2>⚙️ Settings</h2>
+      
+      <div class="game-selector">
+        <label>🎮 Current Game/App</label>
+        <select id="game-select" onchange="saveGame()">
+          <option value="general">General Gaming</option>
+          <option value="birdturds">BirdTurds</option>
+          <option value="minecraft">Minecraft</option>
+          <option value="fortnite">Fortnite</option>
+          <option value="roblox">Roblox</option>
+          <option value="youtube">YouTube</option>
+          <option value="tiktok">TikTok</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      
+      <div class="setting-row">
+        <label>📅 Daily Limit (minutes)</label>
+        <div class="slider-container">
+          <input type="range" id="daily-limit" min="0" max="180" step="15" value="60" onchange="updateSettings()">
+          <span class="slider-value" id="daily-limit-value">60 min</span>
+        </div>
+      </div>
+      
+      <div class="setting-row">
+        <label>⏰ Break Reminder (every X minutes)</label>
+        <div class="slider-container">
+          <input type="range" id="break-interval" min="10" max="60" step="5" value="20" onchange="updateSettings()">
+          <span class="slider-value" id="break-interval-value">20 min</span>
+        </div>
+      </div>
+      
+      <div class="toggle-row">
+        <button class="toggle-btn inactive" id="strict-toggle" onclick="toggleStrict()">
+          🔒 Strict Mode
+        </button>
+        <button class="toggle-btn active" id="scripture-toggle" onclick="toggleScriptures()">
+          📖 Scriptures
+        </button>
+        <button class="toggle-btn active" id="sound-toggle" onclick="toggleSound()">
+          🔔 Sounds
+        </button>
+      </div>
+    </div>
+    
+    <!-- Parent Controls -->
+    <div class="card">
+      <h2>🔐 Parent Controls</h2>
+      <p style="color:#9ca3af;font-size:12px;margin-bottom:15px;">
+        Set a PIN to prevent children from changing settings
+      </p>
+      <div class="pin-input">
+        <input type="password" id="parent-pin" placeholder="4-digit PIN" maxlength="4">
+        <button onclick="savePin()">Save PIN</button>
+      </div>
+    </div>
+    
+    <!-- Scripture of the Day -->
+    <div class="scripture" id="scripture-container">
+      <p id="scripture-text">"So teach us to number our days, that we may apply our hearts unto wisdom."</p>
+      <cite id="scripture-ref">— Psalm 90:12</cite>
+    </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+      <p>Time Steward v1.0 • Part of <a href="/play.html">BirdTurds</a></p>
+      <p style="margin-top:5px;">Use responsibly. Honor God with your time. ✝️</p>
+    </div>
+    
+  </div>
+  
+  <!-- Break Overlay -->
+  <div class="break-overlay" id="break-overlay">
+    <div class="break-content">
+      <div class="break-icon">🧘</div>
+      <h2 style="color:#60a5fa;font-size:28px;margin-bottom:15px;">Break Time!</h2>
+      <p style="margin-bottom:25px;">
+        Take a few minutes to:<br><br>
+        🤸 Stretch your body<br>
+        👀 Rest your eyes<br>
+        💧 Get some water<br>
+        👨‍👩‍👧 Talk to family<br>
+        🙏 Say a prayer
+      </p>
+      <div class="timer-display" id="break-timer">5:00</div>
+      <p style="color:#fcd34d;font-style:italic;margin-bottom:20px;" id="break-scripture">
+        "Be still, and know that I am God."<br>— Psalm 46:10
+      </p>
+      <button class="btn-primary" onclick="endBreak()">✅ I'm Refreshed!</button>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // TIME STEWARD - STANDALONE APP
+    // Works with any game or activity
+    // ============================================
+    
+    const TimeSteward = {
+      isRunning: false,
+      sessionStart: null,
+      totalToday: 0,
+      totalWeek: 0,
+      breaksTaken: 0,
+      lastBreakReminder: 0,
+      timerInterval: null,
+      breakInterval: null,
+      
+      settings: {
+        dailyLimit: 60,
+        breakInterval: 20,
+        strictMode: false,
+        showScriptures: true,
+        soundAlerts: true,
+        parentPin: '',
+        currentGame: 'general'
+      },
+      
+      scriptures: [
+        { text: "So teach us to number our days, that we may apply our hearts unto wisdom.", ref: "Psalm 90:12" },
+        { text: "There is a time for everything, and a season for every activity under the heavens.", ref: "Ecclesiastes 3:1" },
+        { text: "Be very careful, then, how you live—not as unwise but as wise, making the most of every opportunity.", ref: "Ephesians 5:15-16" },
+        { text: "Whatever you do, work at it with all your heart, as working for the Lord.", ref: "Colossians 3:23" },
+        { text: "Be still, and know that I am God.", ref: "Psalm 46:10" },
+        { text: "But seek first his kingdom and his righteousness.", ref: "Matthew 6:33" },
+        { text: "Come to me, all you who are weary and burdened, and I will give you rest.", ref: "Matthew 11:28" },
+        { text: "For everything there is a season, a time for every purpose under heaven.", ref: "Ecclesiastes 3:1" }
+      ],
+      
+      init: function() {
+        this.loadSettings();
+        this.loadStats();
+        this.updateDisplay();
+        this.showRandomScripture();
+        
+        // Check for new day
+        const today = new Date().toDateString();
+        const lastDate = localStorage.getItem('ts_lastDate');
+        if (lastDate !== today) {
+          this.totalToday = 0;
+          localStorage.setItem('ts_lastDate', today);
+          localStorage.setItem('ts_todayMinutes', '0');
+        }
+        
+        console.log('⏱️ Time Steward initialized');
+      },
+      
+      loadSettings: function() {
+        this.settings.dailyLimit = parseInt(localStorage.getItem('ts_dailyLimit') || '60');
+        this.settings.breakInterval = parseInt(localStorage.getItem('ts_breakInterval') || '20');
+        this.settings.strictMode = localStorage.getItem('ts_strictMode') === 'true';
+        this.settings.showScriptures = localStorage.getItem('ts_showScriptures') !== 'false';
+        this.settings.soundAlerts = localStorage.getItem('ts_soundAlerts') !== 'false';
+        this.settings.parentPin = localStorage.getItem('ts_parentPin') || '';
+        this.settings.currentGame = localStorage.getItem('ts_currentGame') || 'general';
+        
+        // Update UI
+        document.getElementById('daily-limit').value = this.settings.dailyLimit;
+        document.getElementById('daily-limit-value').textContent = this.settings.dailyLimit == 0 ? 'No limit' : this.settings.dailyLimit + ' min';
+        document.getElementById('break-interval').value = this.settings.breakInterval;
+        document.getElementById('break-interval-value').textContent = this.settings.breakInterval + ' min';
+        document.getElementById('game-select').value = this.settings.currentGame;
+        document.getElementById('parent-pin').value = this.settings.parentPin;
+        
+        this.updateToggle('strict-toggle', this.settings.strictMode);
+        this.updateToggle('scripture-toggle', this.settings.showScriptures);
+        this.updateToggle('sound-toggle', this.settings.soundAlerts);
+      },
+      
+      loadStats: function() {
+        this.totalToday = parseInt(localStorage.getItem('ts_todayMinutes') || '0');
+        this.totalWeek = parseInt(localStorage.getItem('ts_weekMinutes') || '0');
+        this.breaksTaken = parseInt(localStorage.getItem('ts_breaksTaken') || '0');
+      },
+      
+      saveStats: function() {
+        localStorage.setItem('ts_todayMinutes', this.totalToday.toString());
+        localStorage.setItem('ts_weekMinutes', this.totalWeek.toString());
+        localStorage.setItem('ts_breaksTaken', this.breaksTaken.toString());
+      },
+      
+      updateToggle: function(id, active) {
+        const btn = document.getElementById(id);
+        if (active) {
+          btn.classList.add('active');
+          btn.classList.remove('inactive');
+        } else {
+          btn.classList.remove('active');
+          btn.classList.add('inactive');
+        }
+      },
+      
+      toggleTimer: function() {
+        if (this.isRunning) {
+          this.stopTimer();
+        } else {
+          this.startTimer();
+        }
+      },
+      
+      startTimer: function() {
+        this.isRunning = true;
+        this.sessionStart = Date.now();
+        this.lastBreakReminder = 0;
+        
+        document.getElementById('timer-btn-text').textContent = '⏸️ Pause Timer';
+        
+        this.timerInterval = setInterval(() => {
+          this.updateDisplay();
+          this.checkLimits();
+        }, 1000);
+      },
+      
+      stopTimer: function() {
+        this.isRunning = false;
+        clearInterval(this.timerInterval);
+        
+        // Save session time
+        if (this.sessionStart) {
+          const sessionMinutes = Math.floor((Date.now() - this.sessionStart) / 60000);
+          this.totalToday += sessionMinutes;
+          this.totalWeek += sessionMinutes;
+          this.saveStats();
+        }
+        
+        document.getElementById('timer-btn-text').textContent = '▶️ Start Timer';
+      },
+      
+      updateDisplay: function() {
+        // Calculate current session
+        let sessionSeconds = 0;
+        if (this.isRunning && this.sessionStart) {
+          sessionSeconds = Math.floor((Date.now() - this.sessionStart) / 1000);
+        }
+        
+        // Format timer
+        const hours = Math.floor(sessionSeconds / 3600);
+        const mins = Math.floor((sessionSeconds % 3600) / 60);
+        const secs = sessionSeconds % 60;
+        document.getElementById('session-timer').textContent = 
+          `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        
+        // Calculate total today
+        const sessionMinutes = Math.floor(sessionSeconds / 60);
+        const totalMinutes = this.totalToday + sessionMinutes;
+        
+        // Update progress
+        const percent = this.settings.dailyLimit > 0 
+          ? Math.min(100, (totalMinutes / this.settings.dailyLimit) * 100) 
+          : 0;
+        
+        document.getElementById('progress-text').textContent = 
+          `${totalMinutes} / ${this.settings.dailyLimit || '∞'} min`;
+        
+        const fill = document.getElementById('progress-fill');
+        fill.style.width = percent + '%';
+        fill.classList.remove('warning', 'danger');
+        if (percent >= 100) fill.classList.add('danger');
+        else if (percent >= 80) fill.classList.add('warning');
+        
+        // Update stats
+        document.getElementById('stat-today').textContent = totalMinutes;
+        document.getElementById('stat-week').textContent = this.totalWeek + sessionMinutes;
+        document.getElementById('stat-breaks').textContent = this.breaksTaken;
+      },
+      
+      checkLimits: function() {
+        if (!this.sessionStart) return;
+        
+        const sessionMinutes = Math.floor((Date.now() - this.sessionStart) / 60000);
+        const totalMinutes = this.totalToday + sessionMinutes;
+        
+        // Check daily limit
+        if (this.settings.dailyLimit > 0 && totalMinutes >= this.settings.dailyLimit) {
+          this.showLimitReached();
+        }
+        
+        // Check break reminder
+        if (sessionMinutes > 0 && sessionMinutes % this.settings.breakInterval === 0 && sessionMinutes !== this.lastBreakReminder) {
+          this.lastBreakReminder = sessionMinutes;
+          this.showBreakReminder();
+        }
+      },
+      
+      showLimitReached: function() {
+        this.stopTimer();
+        alert('⏰ Daily limit reached! Time to take a break and do something else.\n\n"There is a time for everything" — Ecclesiastes 3:1');
+      },
+      
+      showBreakReminder: function() {
+        if (this.settings.soundAlerts) {
+          // Play notification sound
+          try {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleAMAN5DQ0atVAAA9gsDIlT8AADht');
+            audio.volume = 0.3;
+            audio.play().catch(() => {});
+          } catch(e) {}
+        }
+        
+        const take = confirm('⏰ Time for a break!\n\nYou\'ve been playing for ' + this.lastBreakReminder + ' minutes.\n\nWould you like to take a break now?');
+        if (take) this.takeBreak();
+      },
+      
+      takeBreak: function() {
+        this.stopTimer();
+        this.breaksTaken++;
+        this.saveStats();
+        
+        // Show random scripture for break
+        const scripture = this.scriptures[Math.floor(Math.random() * this.scriptures.length)];
+        document.getElementById('break-scripture').innerHTML = `"${scripture.text}"<br>— ${scripture.ref}`;
+        
+        // Start break timer
+        let breakSeconds = 5 * 60; // 5 minutes
+        document.getElementById('break-overlay').classList.add('active');
+        
+        const updateBreakTimer = () => {
+          breakSeconds--;
+          const mins = Math.floor(breakSeconds / 60);
+          const secs = breakSeconds % 60;
+          document.getElementById('break-timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+          
+          if (breakSeconds <= 0) {
+            clearInterval(this.breakInterval);
+            this.endBreak();
+          }
+        };
+        
+        this.breakInterval = setInterval(updateBreakTimer, 1000);
+      },
+      
+      endBreak: function() {
+        clearInterval(this.breakInterval);
+        document.getElementById('break-overlay').classList.remove('active');
+        this.updateDisplay();
+      },
+      
+      showRandomScripture: function() {
+        if (!this.settings.showScriptures) return;
+        
+        const scripture = this.scriptures[Math.floor(Math.random() * this.scriptures.length)];
+        document.getElementById('scripture-text').textContent = `"${scripture.text}"`;
+        document.getElementById('scripture-ref').textContent = `— ${scripture.ref}`;
+      }
+    };
+    
+    // Global functions
+    function toggleTimer() { TimeSteward.toggleTimer(); }
+    function takeBreak() { TimeSteward.takeBreak(); }
+    function endBreak() { TimeSteward.endBreak(); }
+    
+    function updateSettings() {
+      const dailyLimit = document.getElementById('daily-limit').value;
+      const breakInterval = document.getElementById('break-interval').value;
+      
+      TimeSteward.settings.dailyLimit = parseInt(dailyLimit);
+      TimeSteward.settings.breakInterval = parseInt(breakInterval);
+      
+      localStorage.setItem('ts_dailyLimit', dailyLimit);
+      localStorage.setItem('ts_breakInterval', breakInterval);
+      
+      document.getElementById('daily-limit-value').textContent = dailyLimit == 0 ? 'No limit' : dailyLimit + ' min';
+      document.getElementById('break-interval-value').textContent = breakInterval + ' min';
+      
+      TimeSteward.updateDisplay();
+    }
+    
+    function toggleStrict() {
+      TimeSteward.settings.strictMode = !TimeSteward.settings.strictMode;
+      localStorage.setItem('ts_strictMode', TimeSteward.settings.strictMode.toString());
+      TimeSteward.updateToggle('strict-toggle', TimeSteward.settings.strictMode);
+    }
+    
+    function toggleScriptures() {
+      TimeSteward.settings.showScriptures = !TimeSteward.settings.showScriptures;
+      localStorage.setItem('ts_showScriptures', TimeSteward.settings.showScriptures.toString());
+      TimeSteward.updateToggle('scripture-toggle', TimeSteward.settings.showScriptures);
+      document.getElementById('scripture-container').style.display = TimeSteward.settings.showScriptures ? 'block' : 'none';
+    }
+    
+    function toggleSound() {
+      TimeSteward.settings.soundAlerts = !TimeSteward.settings.soundAlerts;
+      localStorage.setItem('ts_soundAlerts', TimeSteward.settings.soundAlerts.toString());
+      TimeSteward.updateToggle('sound-toggle', TimeSteward.settings.soundAlerts);
+    }
+    
+    function saveGame() {
+      const game = document.getElementById('game-select').value;
+      TimeSteward.settings.currentGame = game;
+      localStorage.setItem('ts_currentGame', game);
+    }
+    
+    function savePin() {
+      const pin = document.getElementById('parent-pin').value;
+      if (pin && !/^\d{4}$/.test(pin)) {
+        alert('Please enter a 4-digit PIN');
+        return;
+      }
+      TimeSteward.settings.parentPin = pin;
+      localStorage.setItem('ts_parentPin', pin);
+      alert(pin ? '✅ Parent PIN saved!' : '✅ Parent PIN removed');
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => TimeSteward.init());
+  </script>
+</body>
+</html>

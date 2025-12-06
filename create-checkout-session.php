@@ -1,141 +1,133 @@
 <?php
 /**
- * BirdTurds - Stripe Checkout Session Creator
- * Uses existing config from /home/birdturds/private/config.php
+ * BIRDTURDS v43 - FIX38 Stripe Checkout Session Creator
+ * Server-side checkout - works even when Stripe.js is blocked by adblockers
+ * 
+ * SETUP:
+ * 1. composer require stripe/stripe-php
+ * 2. Set STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY environment variables
+ *    OR edit the config section below
  */
 
-error_reporting(E_ALL);
-ini_set('display_errors', 0);
+// ============================================================
+// CONFIGURATION - Edit these if not using environment variables
+// ============================================================
+$stripeSecretKey = getenv('STRIPE_SECRET_KEY') ?: 'sk_test_YOUR_SECRET_KEY_HERE';
+$stripePublishableKey = getenv('STRIPE_PUBLISHABLE_KEY') ?: 'pk_test_YOUR_PUBLISHABLE_KEY_HERE';
+$publicUrl = getenv('PUBLIC_URL') ?: 'https://birdturds.com';
 
-// Load existing secure config
-$configPath = '/home/birdturds/private/config.php';
-if (file_exists($configPath)) {
-    require_once $configPath;
-} else {
-    // Fallback to local config
-    $localConfig = __DIR__ . '/private_config.php';
-    if (file_exists($localConfig)) {
-        require_once $localConfig;
-    } else {
-        http_response_code(500);
-        echo json_encode(['ok' => false, 'error' => 'Server configuration error']);
-        exit;
+// ============================================================
+// CORS HEADERS
+// ============================================================
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type');
+
+// Handle preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+// Only POST allowed
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
+    exit;
+}
+
+// ============================================================
+// LOAD STRIPE SDK
+// ============================================================
+$autoloadPaths = [
+    __DIR__ . '/vendor/autoload.php',
+    __DIR__ . '/../vendor/autoload.php',
+    dirname(__DIR__) . '/vendor/autoload.php',
+];
+
+$loaded = false;
+foreach ($autoloadPaths as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        $loaded = true;
+        break;
     }
 }
 
-// Handle preflight
-handlePreflight();
-
-// Set CORS headers
-setCorsHeaders();
-header('Content-Type: application/json');
-
-// Only allow POST
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['ok' => false, 'error' => 'Method not allowed']);
-    exit;
-}
-
-// Get request body
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
-
-if (!$data) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'Invalid JSON input']);
-    exit;
-}
-
-// Validate pack parameter
-$packId = isset($data['pack']) ? $data['pack'] : '';
-$userId = isset($data['userId']) ? $data['userId'] : 'guest';
-
-// Use existing $COIN_PACKS from config.php
-global $COIN_PACKS;
-
-if (!isset($COIN_PACKS[$packId])) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'Invalid pack selected', 'available' => array_keys($COIN_PACKS)]);
-    exit;
-}
-
-$pack = $COIN_PACKS[$packId];
-$packName = ucfirst($packId) . ' Pack';
-$coins = $pack['coins'];
-$priceInCents = $pack['price'];
-
-// Try to load Stripe library
-$stripeLoaded = false;
-
-// Try Composer autoload first
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-    $stripeLoaded = true;
-} elseif (file_exists('/home/birdturds/vendor/autoload.php')) {
-    require_once '/home/birdturds/vendor/autoload.php';
-    $stripeLoaded = true;
-} elseif (file_exists(__DIR__ . '/stripe-php/init.php')) {
-    require_once __DIR__ . '/stripe-php/init.php';
-    $stripeLoaded = true;
-}
-
-if (!$stripeLoaded) {
+if (!$loaded || !class_exists('\Stripe\Stripe')) {
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'Stripe library not found']);
+    echo json_encode([
+        'error' => 'Stripe SDK not installed',
+        'message' => 'Run: composer require stripe/stripe-php'
+    ]);
     exit;
 }
 
+// ============================================================
+// PARSE REQUEST
+// ============================================================
+$input = json_decode(file_get_contents('php://input'), true);
+
+if (!$input || !isset($input['priceId'])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'priceId is required']);
+    exit;
+}
+
+$priceId = trim($input['priceId']);
+
+// Validate price ID format (Stripe price IDs start with price_)
+if (!preg_match('/^price_[a-zA-Z0-9]+$/', $priceId)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid priceId format']);
+    exit;
+}
+
+// ============================================================
+// CREATE CHECKOUT SESSION
+// ============================================================
 try {
-    \Stripe\Stripe::setApiKey(STRIPE_SECRET_KEY);
+    \Stripe\Stripe::setApiKey($stripeSecretKey);
     
-    // Build product description
-    $description = $coins > 0 ? "{$coins} TurdCoins for BirdTurds game" : "Special item: " . ($pack['special'] ?? 'unknown');
-    
-    // Create checkout session
     $session = \Stripe\Checkout\Session::create([
-        'payment_method_types' => ['card'],
         'line_items' => [[
-            'price_data' => [
-                'currency' => 'usd',
-                'product_data' => [
-                    'name' => $packName,
-                    'description' => $description,
-                    'images' => ['https://birdturds.com/logo.png']
-                ],
-                'unit_amount' => $priceInCents,
-            ],
+            'price' => $priceId,
             'quantity' => 1,
         ]],
         'mode' => 'payment',
-        'success_url' => SITE_URL . '/purchase-success.html?session_id={CHECKOUT_SESSION_ID}&pack=' . $packId . '&coins=' . $coins,
-        'cancel_url' => SITE_URL . '/play.html?purchase=cancelled',
-        'metadata' => [
-            'pack_id' => $packId,
-            'coins' => $coins,
-            'user_id' => $userId,
-            'special' => $pack['special'] ?? ''
-        ]
+        'success_url' => $publicUrl . '/play.html?purchase=success&session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url' => $publicUrl . '/play.html?purchase=canceled',
+        'automatic_tax' => ['enabled' => false],
     ]);
     
-    // Return session info
+    // Return checkout URL (client redirects directly) + session details (fallback)
     echo json_encode([
-        'ok' => true,
+        'checkoutUrl' => $session->url,
+        'url' => $session->url,
         'sessionId' => $session->id,
-        'url' => $session->url
+        'publishableKey' => $stripePublishableKey,
     ]);
     
-} catch (\Stripe\Exception\ApiErrorException $e) {
-    http_response_code(500);
+} catch (\Stripe\Exception\InvalidRequestException $e) {
+    http_response_code(400);
     echo json_encode([
-        'ok' => false,
-        'error' => 'Stripe error: ' . $e->getMessage()
+        'error' => 'Invalid request',
+        'message' => $e->getMessage()
     ]);
-} catch (Exception $e) {
+    
+} catch (\Stripe\Exception\AuthenticationException $e) {
     http_response_code(500);
     echo json_encode([
-        'ok' => false,
-        'error' => 'Server error: ' . $e->getMessage()
+        'error' => 'Stripe authentication failed',
+        'message' => 'Check your API keys'
+    ]);
+    
+} catch (\Exception $e) {
+    error_log('Stripe checkout error: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'error' => 'Server error',
+        'message' => 'Unable to create checkout session'
     ]);
 }
-?>

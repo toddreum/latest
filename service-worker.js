@@ -1,94 +1,93 @@
-// BirdTurds Service Worker v43.0
-// Updated cache name forces browser to download fresh files
-const CACHE_NAME = 'birdturds-v43.0';
-
-const OFFLINE_CACHE = [
+// BirdTurds Service Worker v37.8.6
+const CACHE_NAME = 'birdturds-v37.8.6';
+const urlsToCache = [
   '/',
-  '/index.html',
   '/play.html',
-  '/game.js',
-  '/js/game.js',
-  '/js/multiplayer.js',
-  '/js/multiplayer-ui.js',
-  '/js/church-directory-v43.js',
-  '/js/church-directory-ui-v43.js',
+  '/index.html',
+  '/game_min.js',
   '/manifest.json',
-  '/sprites/snowflake.png',
-  '/sprites/turd-emoji.svg',
-  '/sprites/godbless_splash.png',
-  '/sprites/characters/buck_idle.png',
-  '/sprites/characters/daisy_idle.png',
-  '/sprites/characters/bubba_idle.png',
-  '/sprites/characters/clyde_idle.png',
-  '/sprites/characters/sierra_idle.png',
-  '/sprites/characters/gunner_idle.png',
-  '/sprites/characters/jolene_idle.png',
-  '/sprites/characters/tammy_idle.png'
+  '/logo.png',
+  '/snowflake.png',
+  '/sprites/landscapes/christmas.png',
+  '/sprites/landscapes/farm.png',
+  '/sprites/landscapes/forest.png',
+  '/sprites/landscapes/lake.png',
+  '/sprites/landscapes/desert.png',
+  '/sprites/landscapes/town.png'
 ];
 
-// Install event - cache essential files
-self.addEventListener('install', (event) => {
-  console.log('[SW v43] Installing...');
-  // Force immediate activation (don't wait for old SW to die)
-  self.skipWaiting();
-  
+// Install event
+self.addEventListener('install', event => {
+  console.log('[SW v37.8.6] Installing...');
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[SW v43] Caching app shell');
-      return cache.addAll(OFFLINE_CACHE).catch(err => {
-        console.warn('[SW v43] Some files failed to cache:', err);
-        // Don't fail completely if some assets missing
-      });
-    })
+    caches.open(CACHE_NAME)
+      .then(cache => {
+        console.log('[SW v37.0] Caching files');
+        return cache.addAll(urlsToCache);
+      })
+      .catch(err => {
+        console.log('[SW v37.0] Cache failed:', err);
+      })
   );
+  self.skipWaiting();
 });
 
-// Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-  console.log('[SW v43] Activating...');
+// Activate event - clean old caches
+self.addEventListener('activate', event => {
+  console.log('[SW v37.0] Activating...');
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then(cacheNames => {
       return Promise.all(
-        cacheNames.map((cacheName) => {
+        cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('[SW v43] Deleting old cache:', cacheName);
+            console.log('[SW v37.0] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
-    }).then(() => {
-      console.log('[SW v43] Claiming clients');
-      return self.clients.claim();
     })
   );
+  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  // Skip non-GET requests
-  if (event.request.method !== 'GET') return;
+// Fetch event - with proper error handling
+self.addEventListener('fetch', event => {
+  const request = event.request;
   
-  // Skip Chrome extensions
-  if (event.request.url.startsWith('chrome-extension://')) return;
+  // Skip non-GET requests (POST, etc.)
+  if (request.method !== 'GET') {
+    return;
+  }
+  
+  // Skip chrome-extension and other non-http(s) URLs
+  if (!request.url.startsWith('http://') && !request.url.startsWith('https://')) {
+    return;
+  }
+  
+  // Skip external analytics/tracking scripts
+  if (request.url.includes('cloudflareinsights.com') || 
+      request.url.includes('google-analytics.com') ||
+      request.url.includes('firebase')) {
+    return;
+  }
   
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached version or fetch from network
-      return response || fetch(event.request).then((fetchResponse) => {
-        // Cache successful responses for offline use
-        if (fetchResponse.status === 200) {
-          const responseClone = fetchResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
+    fetch(request)
+      .then(response => {
+        // Only cache successful responses from our domain
+        if (response && response.status === 200 && response.type === 'basic') {
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(request, responseClone).catch(() => {
+              // Silently ignore cache put errors
+            });
           });
         }
-        return fetchResponse;
-      }).catch(() => {
-        // If offline and not cached, return offline page for navigation
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-      });
-    })
+        return response;
+      })
+      .catch(() => {
+        // Network failed, try cache
+        return caches.match(request);
+      })
   );
 });

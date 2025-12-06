@@ -1,6 +1,5 @@
 /*!
- * BirdTurds Game Engine v19.8 - WAKE UP AMERICA EDITION!
- * v37.8 BUILD - Holy Shield, Mission Nudges & Youth Outreach Update
+ * BirdTurds Game Engine v19.6 - WAKE UP AMERICA EDITION!
  * Entertainment with PURPOSE - Awakening Hearts to Biblical Truth
  * Copyright (c) 2025 Dude.com. All Rights Reserved.
  * 
@@ -19,16 +18,9 @@
  * 
  * "Making the world laugh AND awakening hearts to biblical truth!"
  * 
- * v19.7 - WAKE UP AMERICA EDITION + v37.8 FEATURES!
+ * v19.6 - WAKE UP AMERICA EDITION!
  * PURPOSE: This game is not just for humor - it's meant to IMPACT and AWAKEN
  * players to biblical truth. The rapture is coming. God doesn't want anyone left behind!
- * 
- * NEW IN v37.8:
- * - Bible Pickups: Collectible Bibles that restore health & display scripture
- * - Below-Game Messages: Scripture/jokes display BELOW game (not overlapping)
- * - Top 100 Worship Playlist: YouTube player with Christian worship songs
- * - Quick In-Game Store: Press Q for fast purchases during gameplay
- * - Mobile Optimization: Enhanced touch controls and performance
  * 
  * FEATURES:
  * - 4 Animated Woke Globalist types (Swamp Level 7)
@@ -173,57 +165,6 @@ const BIBLE_PICKUP_CONFIG = {
   glowColor: 0xffd700,     // Golden glow
   pickupRange: 60          // Pixels to pick up
 };
-
-// ========== BIBLE PICKUP SCRIPTURES - v37.8 ==========
-const BIBLE_PICKUP_SCRIPTURES = [
-  // Strength & Courage
-  { verse: "I can do all things through Christ who strengthens me.", ref: "Philippians 4:13", category: "strength" },
-  { verse: "Be strong and courageous. Do not be afraid.", ref: "Joshua 1:9", category: "strength" },
-  { verse: "The LORD is my strength and my shield.", ref: "Psalm 28:7", category: "strength" },
-  { verse: "Those who hope in the LORD will renew their strength.", ref: "Isaiah 40:31", category: "strength" },
-  { verse: "The joy of the LORD is your strength.", ref: "Nehemiah 8:10", category: "strength" },
-  // Healing & Restoration
-  { verse: "He heals the brokenhearted and binds up their wounds.", ref: "Psalm 147:3", category: "healing" },
-  { verse: "By his wounds we are healed.", ref: "Isaiah 53:5", category: "healing" },
-  { verse: "He sent out his word and healed them.", ref: "Psalm 107:20", category: "healing" },
-  { verse: "Heal me, LORD, and I will be healed.", ref: "Jeremiah 17:14", category: "healing" },
-  // Protection & Victory
-  { verse: "The LORD is my rock, my fortress and my deliverer.", ref: "Psalm 18:2", category: "protection" },
-  { verse: "No weapon forged against you will prevail.", ref: "Isaiah 54:17", category: "protection" },
-  { verse: "He gives us the victory through our Lord Jesus Christ.", ref: "1 Corinthians 15:57", category: "victory" },
-  { verse: "In all things we are more than conquerors.", ref: "Romans 8:37", category: "victory" },
-  // Faith & Peace
-  { verse: "Trust in the LORD with all your heart.", ref: "Proverbs 3:5", category: "faith" },
-  { verse: "For we walk by faith, not by sight.", ref: "2 Corinthians 5:7", category: "faith" },
-  { verse: "Peace I leave with you; my peace I give you.", ref: "John 14:27", category: "peace" },
-  { verse: "Cast all your anxiety on him because he cares.", ref: "1 Peter 5:7", category: "peace" },
-  { verse: "Come to me, all who are weary, and I will give you rest.", ref: "Matthew 11:28", category: "peace" }
-];
-
-// Bible pickup types with different bonuses
-const BIBLE_PICKUP_TYPES = {
-  standard: { name: 'Holy Bible', emoji: '📖', healthRestore: 25, glowColor: 0xffd700, scale: 0.10, spawnWeight: 60 },
-  golden: { name: 'Golden Bible', emoji: '📕', healthRestore: 50, strengthBonus: 10, glowColor: 0xffa500, scale: 0.12, spawnWeight: 25 },
-  divine: { name: 'Divine Scripture', emoji: '✨', healthRestore: 100, invincibilityTime: 5000, glowColor: 0xffffff, scale: 0.14, spawnWeight: 10 },
-  ancient: { name: 'Ancient Scroll', emoji: '📜', healthRestore: 35, ammoRestore: 20, glowColor: 0xd2691e, scale: 0.11, spawnWeight: 5 }
-};
-
-// Get random Bible type weighted by spawn weights
-function getRandomBibleType() {
-  const totalWeight = Object.values(BIBLE_PICKUP_TYPES).reduce((sum, t) => sum + t.spawnWeight, 0);
-  let random = Math.random() * totalWeight;
-  for (const [key, type] of Object.entries(BIBLE_PICKUP_TYPES)) {
-    random -= type.spawnWeight;
-    if (random <= 0) return key;
-  }
-  return 'standard';
-}
-
-// Get random scripture
-function getRandomBibleScripture(category = null) {
-  const filtered = category ? BIBLE_PICKUP_SCRIPTURES.filter(s => s.category === category) : BIBLE_PICKUP_SCRIPTURES;
-  return filtered[Math.floor(Math.random() * filtered.length)];
-}
 
 // Phone Zombie configuration  
 const PHONE_ZOMBIE_CONFIG = {
@@ -1664,10 +1605,7 @@ const groundAnimals = {
   cat: { sprite: 'cat', speed: 50, dangerous: false, penalty: -25 },
   rabbit: { sprite: 'rabbit', speed: 120, dangerous: false, penalty: -15 },
   fox: { sprite: 'fox', speed: 85, dangerous: false, penalty: -15 },
-  skunk: { sprite: 'skunk', speed: 40, dangerous: false, penalty: -10 },
-  // RIDEABLE ANIMALS - v37.6
-  horse: { sprite: 'horse', speed: 150, dangerous: false, penalty: -50, rideable: true, rideSpeed: 250, ridePoints: 5 },
-  cow: { sprite: 'cow', speed: 40, dangerous: false, penalty: -30, rideable: true, rideSpeed: 120, ridePoints: 3 }
+  skunk: { sprite: 'skunk', speed: 40, dangerous: false, penalty: -10 }
 };
 
 // NPCs
@@ -1677,9 +1615,7 @@ const npcTypes = {
   jogger: { sprite: 'jogger', speed: 90 },
   cyclist: { sprite: 'cyclist', speed: 120 },
   child: { sprite: 'child', speed: 60 },
-  fisherman: { sprite: 'fisherman', speed: 30 },
-  // SNIPER NPC - v37.6: Shoots but NEVER hits, tackle for points! Uses hiker sprite with red tint
-  sniper_npc: { sprite: 'hiker', speed: 20, isSniper: true, tacklePoints: 100, tackleCoins: 25, shootInterval: 3000, tint: 0xff6666 }
+  fisherman: { sprite: 'fisherman', speed: 30 }
 };
 
 // Scene configurations with NEW landscapes from Ludo.ai
@@ -1768,11 +1704,11 @@ const buildSceneSequence = () => {
   
   scenes.push(
     { key: 'farm', name: `Level ${1 + levelOffset}: Country Farm`, level: 1 + levelOffset, attire: 'casual', 
-      animals: ['deer', 'rabbit', 'dog', 'cat', 'horse', 'cow'], npcs: ['farmer', 'hiker'], 
+      animals: ['deer', 'rabbit', 'dog', 'cat'], npcs: ['farmer', 'hiker'], 
       skyColor: 0x87ceeb, ambientTint: 0xffffff, music: 'country',
       groundColor: 0x4a7c23, groundColorLight: 0x6b9b3a,
       birdsToKill: 15,
-      description: 'Start your journey! Kill 15 birds to advance. 🐎 Ride horses for bonus points!' },
+      description: 'Start your journey! Kill 15 birds to advance.' },
     { key: 'forest', name: `Level ${2 + levelOffset}: Deep Forest`, level: 2 + levelOffset, attire: 'forest', 
       animals: ['deer', 'elk', 'bear', 'fox', 'rabbit'], npcs: ['hiker'], 
       skyColor: 0x6bb3d9, ambientTint: 0xe8f5e9, music: 'forest',
@@ -1792,11 +1728,11 @@ const buildSceneSequence = () => {
       birdsToKill: 0, isProtectedPark: true,
       description: '🚫 NO HUNTING! Walk through without shooting to advance.' },
     { key: 'desert', name: `Level ${5 + levelOffset}: Wild West Desert`, level: 5 + levelOffset, attire: 'desert', 
-      animals: ['rabbit', 'fox', 'horse'], npcs: ['hiker', 'sniper_npc'], 
+      animals: ['rabbit', 'fox'], npcs: ['hiker'], 
       skyColor: 0xfbbf24, ambientTint: 0xfef3c7, music: 'desert',
       groundColor: 0xc9a227, groundColorLight: 0xdbb84a,
       birdsToKill: 30,
-      description: 'Vultures and heat! Kill 30 birds. 🎯 Tackle snipers for big points!' },
+      description: 'Vultures and heat! Kill 30 birds to advance.' },
     { key: 'snowmountain', name: `Level ${6 + levelOffset}: Frozen Peaks`, level: 6 + levelOffset, attire: 'winter', 
       animals: ['rabbit', 'wolf', 'cougar'], npcs: ['hiker'], 
       skyColor: 0xbfdbfe, ambientTint: 0xe0f2fe, music: 'winter',
@@ -1816,11 +1752,11 @@ const buildSceneSequence = () => {
       birdsToKill: 45,
       description: 'Neighborhood crows! Kill 45 birds to advance.' },
     { key: 'town', name: `Level ${9 + levelOffset}: Western Town`, level: 9 + levelOffset, attire: 'urban', 
-      animals: ['dog', 'cat', 'horse'], npcs: ['farmer', 'hiker', 'sniper_npc'], 
+      animals: ['dog', 'cat'], npcs: ['farmer', 'hiker'], 
       skyColor: 0x87ceeb, ambientTint: 0xfff8dc, music: 'country',
       groundColor: 0x8b7355, groundColorLight: 0xa08060,
       birdsToKill: 50,
-      description: 'Urban swarms! Kill 50 birds. Watch for snipers!' },
+      description: 'Urban swarms! Kill 50 birds to advance.' },
     { key: 'churchcamp', name: `Level ${10 + levelOffset}: Church Camp`, level: 10 + levelOffset, attire: 'casual', 
       animals: ['deer', 'rabbit'], npcs: ['hiker'], 
       skyColor: 0xfbbf24, ambientTint: 0xfef3c7, music: 'peaceful',
@@ -2229,12 +2165,6 @@ class BirdTurdsScene extends Phaser.Scene {
     this.planeTimer = 0;
     this.animalTimer = 0;
     this.npcTimer = 0;
-    
-    // ========== RIDING SYSTEM - v37.6 ==========
-    this.isRiding = false;
-    this.ridingAnimal = null;
-    this.ridePointsTimer = 0;
-    this.ridePrompt = null;
     this.bossTimer = 0;
     this.firstBossSpawned = false;
     this.jokeTimer = 0;
@@ -2276,21 +2206,6 @@ class BirdTurdsScene extends Phaser.Scene {
     
     // Angel protection visual (player's personal angel)
     this.playerAngel = null;
-    
-    // v37.8 - Bible Pickup collision
-    this.physics.add.overlap(this.hunter, this.biblePickups, (hunter, bible) => {
-      this.collectBiblePickup(hunter, bible);
-    }, null, this);
-    
-    // v37.8 - Initialize Quick Store hotkeys
-    this.initQuickStore();
-    
-    // v37.8 - Activate below-game message area
-    const msgArea = document.getElementById('below-game-messages');
-    if (msgArea) msgArea.classList.add('active');
-    
-    // v37.8 - Initialize Mission Nudges (About page & Youth outreach messages)
-    this.initMissionNudges();
   }
   
   // ========== ANGEL PROTECTION PURCHASE MENU ==========
@@ -3022,10 +2937,6 @@ class BirdTurdsScene extends Phaser.Scene {
     this.parachuters = this.physics.add.group();  // Friendly parachuting allies!
     this.ammoPickups = this.physics.add.group(); // Ammo box pickups
     
-    // v37.8 - Bible Pickups group
-    this.biblePickups = this.physics.add.group();
-    this.biblePickupTimer = 0;
-    
     // Initialize sound system
     this.initSoundSystem();
     
@@ -3033,310 +2944,7 @@ class BirdTurdsScene extends Phaser.Scene {
     this.initVoiceSystem();
   }
   
-  // ========== v37.8 BIBLE PICKUP SPAWNING ==========
-  spawnBiblePickup() {
-    if (!this.biblePickups) return;
-    
-    const activePickups = this.biblePickups.countActive(true);
-    if (activePickups >= BIBLE_PICKUP_CONFIG.maxOnScreen) return;
-    if (Math.random() > BIBLE_PICKUP_CONFIG.spawnChance) return;
-    
-    const view = this.cameras.main.worldView;
-    const type = getRandomBibleType();
-    const bibleType = BIBLE_PICKUP_TYPES[type];
-    
-    const spawnX = view.x + view.width + Math.random() * 500;
-    const spawnY = this.groundY - 30;
-    
-    // Create simple rectangle as Bible pickup (or use existing sprite if available)
-    const bible = this.add.rectangle(spawnX, spawnY, 40, 50, bibleType.glowColor)
-      .setOrigin(0.5, 1).setDepth(15);
-    this.physics.add.existing(bible, false);
-    this.biblePickups.add(bible);
-    
-    bible.bibleType = type;
-    bible.scripture = getRandomBibleScripture();
-    
-    // Add floating label
-    const label = this.add.text(spawnX, spawnY - 60, bibleType.emoji, { fontSize: '28px' })
-      .setOrigin(0.5).setDepth(16);
-    bible.label = label;
-    
-    // Bobbing animation
-    this.tweens.add({
-      targets: [bible, label],
-      y: '-=10',
-      duration: 1000,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut'
-    });
-    
-    // Glow pulse
-    this.tweens.add({
-      targets: bible,
-      alpha: { from: 0.7, to: 1 },
-      duration: 500,
-      yoyo: true,
-      repeat: -1
-    });
-    
-    console.log(`📖 Bible pickup spawned: ${bibleType.name}`);
-  }
   
-  // ========== v37.8 BIBLE PICKUP COLLECTION ==========
-  collectBiblePickup(hunter, bible) {
-    if (!bible || !bible.active) return;
-    
-    const type = bible.bibleType || 'standard';
-    const bibleType = BIBLE_PICKUP_TYPES[type];
-    const scripture = bible.scripture || getRandomBibleScripture();
-    
-    // Apply health restore
-    if (bibleType.healthRestore) {
-      btState.health = Math.min(btState.health + bibleType.healthRestore, currentDifficulty.playerMaxHealth);
-    }
-    
-    // Apply ammo restore (Ancient Scroll)
-    if (bibleType.ammoRestore) {
-      btState.ammo = Math.min(btState.ammo + bibleType.ammoRestore, btState.maxAmmo);
-    }
-    
-    // ========== HOLY SHIELD SYSTEM - Protects from Demons! ==========
-    // Every Bible builds strength toward a Holy Shield
-    btState.holyStrength = (btState.holyStrength || 0) + 1;
-    
-    // Check if we've built enough strength for Holy Shield (3 Bibles)
-    if (btState.holyStrength >= 3 && !btState.holyShieldActive) {
-      this.activateHolyShield();
-    } else if (!btState.holyShieldActive) {
-      this.showBelowGameMessage(`📖 Holy Strength: ${btState.holyStrength}/3 - Collect ${3 - btState.holyStrength} more Bibles for Holy Shield!`, 'info', 3000);
-    }
-    
-    // Apply strength bonus
-    if (bibleType.strengthBonus) {
-      const originalDamage = btState.damageModifier;
-      btState.damageModifier *= (1 + bibleType.strengthBonus / 100);
-      this.time.delayedCall(30000, () => {
-        btState.damageModifier = originalDamage;
-        this.showBelowGameMessage('💪 Strength bonus expired', 'info');
-      });
-      this.showBelowGameMessage(`💪 +${bibleType.strengthBonus}% damage for 30 seconds!`, 'bonus');
-    }
-    
-    // Apply invincibility (Divine Scripture)
-    if (bibleType.invincibilityTime) {
-      btState.invincible = true;
-      this.hunter.setTint(0xffffff);
-      this.time.delayedCall(bibleType.invincibilityTime, () => {
-        btState.invincible = false;
-        this.hunter.clearTint();
-        this.showBelowGameMessage('🛡️ Divine protection ended', 'info');
-      });
-      this.showBelowGameMessage(`🛡️ DIVINE PROTECTION! ${bibleType.invincibilityTime/1000}s invincibility!`, 'divine');
-    }
-    
-    // Award points
-    btState.score += 100;
-    btState.biblesCollected = (btState.biblesCollected || 0) + 1;
-    
-    // Emit event for milestone tracking
-    this.emitBibleCollected();
-    this.emitScoreUpdate(btState.score);
-    
-    // Show scripture in below-game message area
-    this.showBelowGameMessage(`📖 "${scripture.verse}" — ${scripture.ref}`, 'scripture', 8000);
-    
-    // Visual effects
-    this.showPointIndicator(bible.x, bible.y - 30, `+${bibleType.healthRestore} ❤️`, 0x22c55e);
-    this.cameras.main.flash(200, 255, 215, 0, false);
-    
-    // Clean up
-    if (bible.label) bible.label.destroy();
-    bible.destroy();
-    
-    this.updateHUD();
-    this.showNotification(`${bibleType.emoji} ${bibleType.name} collected! +${bibleType.healthRestore} health`, bibleType.glowColor);
-    
-    console.log(`📖 Collected ${bibleType.name}: +${bibleType.healthRestore} health, Holy Strength: ${btState.holyStrength}`);
-  }
-  
-  // ========== v37.8 HOLY SHIELD - Protects from Demons, Makes Them ANGRY! ==========
-  activateHolyShield() {
-    btState.holyShieldActive = true;
-    btState.holyShieldTimer = 45; // 45 seconds of protection
-    
-    // Create visual shield around player
-    if (!this.holyShieldSprite) {
-      this.holyShieldSprite = this.add.circle(this.hunter.x, this.hunter.y, 80, 0xffd700, 0.3)
-        .setDepth(14).setStrokeStyle(3, 0xffffff);
-    }
-    this.holyShieldSprite.setVisible(true);
-    
-    // Shield glow animation
-    this.tweens.add({
-      targets: this.holyShieldSprite,
-      alpha: { from: 0.2, to: 0.5 },
-      scale: { from: 1, to: 1.1 },
-      duration: 500,
-      yoyo: true,
-      repeat: -1
-    });
-    
-    // Announce Holy Shield
-    this.showNotification('✝️ HOLY SHIELD ACTIVATED! Demons cannot touch you!', 0xffd700);
-    this.showBelowGameMessage('✝️ HOLY SHIELD ACTIVE! 45 seconds of demon protection! Demons are FURIOUS!', 'divine', 5000);
-    
-    // Make all demons on screen ANGRY!
-    this.enrageDemonsNearby();
-    
-    // Shield countdown
-    this.time.addEvent({
-      delay: 1000,
-      callback: () => {
-        if (btState.holyShieldActive) {
-          btState.holyShieldTimer--;
-          
-          // Update shield position
-          if (this.holyShieldSprite && this.hunter) {
-            this.holyShieldSprite.setPosition(this.hunter.x, this.hunter.y);
-          }
-          
-          // Warning at 10 seconds
-          if (btState.holyShieldTimer === 10) {
-            this.showNotification('⚠️ Holy Shield fading in 10 seconds!', 0xffaa00);
-          }
-          
-          // Shield expires
-          if (btState.holyShieldTimer <= 0) {
-            this.deactivateHolyShield();
-          }
-        }
-      },
-      repeat: 45
-    });
-    
-    console.log('✝️ Holy Shield activated - Demons enraged!');
-  }
-  
-  deactivateHolyShield() {
-    btState.holyShieldActive = false;
-    btState.holyStrength = 0; // Reset strength to build again
-    
-    if (this.holyShieldSprite) {
-      this.holyShieldSprite.setVisible(false);
-    }
-    
-    this.showNotification('✝️ Holy Shield has faded. Collect more Bibles!', 0x888888);
-    this.showBelowGameMessage('📖 Holy Shield expired! Collect 3 more Bibles to reactivate.', 'info', 4000);
-    
-    console.log('✝️ Holy Shield deactivated');
-  }
-  
-  // ========== ENRAGE DEMONS - They HATE the Holy Shield! ==========
-  enrageDemonsNearby() {
-    if (!this.demons) return;
-    
-    const demonMessages = [
-      "😈 DEMONS: NOOOO! The Holy Word burns us!",
-      "😈 DEMONS: That shield... it's too powerful!",
-      "👿 DEMONS: The light! It blinds us!",
-      "😈 DEMONS: We cannot penetrate God's protection!",
-      "👿 DEMONS: CURSE that Bible! CURSE IT!"
-    ];
-    
-    this.demons.getChildren().forEach(demon => {
-      if (!demon || !demon.active) return;
-      
-      // Visual rage effect - turn red and shake
-      demon.setTint(0xff0000);
-      
-      // Shake animation
-      this.tweens.add({
-        targets: demon,
-        x: demon.x + 5,
-        duration: 50,
-        yoyo: true,
-        repeat: 10,
-        onComplete: () => {
-          demon.clearTint();
-        }
-      });
-      
-      // Speed up demons (they're angry!)
-      if (demon.body) {
-        demon.body.velocity.x *= 1.5;
-      }
-      
-      // Show rage speech bubble
-      const rageBubble = this.add.text(demon.x, demon.y - 60, '😡💢', {
-        fontSize: '28px'
-      }).setOrigin(0.5).setDepth(25);
-      
-      this.tweens.add({
-        targets: rageBubble,
-        y: rageBubble.y - 30,
-        alpha: 0,
-        duration: 1500,
-        onComplete: () => rageBubble.destroy()
-      });
-    });
-    
-    // Show demon rage message
-    const msg = demonMessages[Math.floor(Math.random() * demonMessages.length)];
-    this.showBelowGameMessage(msg, 'info', 3000);
-  }
-  
-  // Check Holy Shield in collision detection - called from demon damage check
-  isProtectedByHolyShield() {
-    return btState.holyShieldActive === true;
-  }
-  
-  // ========== v37.8 BELOW-GAME MESSAGE SYSTEM ==========
-  showBelowGameMessage(message, type = 'info', duration = 5000) {
-    const queue = document.getElementById('message-queue');
-    if (!queue) return;
-    
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `below-game-${type}`;
-    msgDiv.style.cssText = 'position:relative;animation:fadeIn 0.3s ease-out;';
-    
-    // Build content based on type
-    if (type === 'scripture') {
-      const match = message.match(/^📖\s*"(.+?)"\s*—\s*(.+)$/);
-      if (match) {
-        msgDiv.innerHTML = `<button class="message-close" onclick="this.parentElement.remove()">×</button>
-          <div class="scripture-verse">✝️ "${match[1]}" ✝️</div>
-          <div class="scripture-ref">— ${match[2]}</div>`;
-      } else {
-        msgDiv.innerHTML = `<button class="message-close" onclick="this.parentElement.remove()">×</button>
-          <div class="scripture-verse">${message}</div>`;
-      }
-    } else if (type === 'joke') {
-      msgDiv.innerHTML = `<button class="message-close" onclick="this.parentElement.remove()">×</button>
-        <span class="joke-emoji">😂</span><span class="joke-text">${message}</span>`;
-    } else if (type === 'divine') {
-      msgDiv.innerHTML = `<button class="message-close" onclick="this.parentElement.remove()">×</button>
-        <span class="divine-text">✨ ${message} ✨</span>`;
-    } else if (type === 'bonus') {
-      msgDiv.innerHTML = `<button class="message-close" onclick="this.parentElement.remove()">×</button>
-        <span class="bonus-text">⭐ ${message}</span>`;
-    } else {
-      msgDiv.innerHTML = `<button class="message-close" onclick="this.parentElement.remove()">×</button>
-        <span class="info-text">ℹ️ ${message}</span>`;
-    }
-    
-    queue.insertBefore(msgDiv, queue.firstChild);
-    while (queue.children.length > 3) queue.removeChild(queue.lastChild);
-    
-    setTimeout(() => {
-      if (msgDiv.parentElement) {
-        msgDiv.style.animation = 'fadeOut 0.3s ease-out';
-        setTimeout(() => msgDiv.remove(), 300);
-      }
-    }, duration);
-  }
-
 
   // ========== LIGHTWEIGHT DEBUG OVERLAY ==========
   // Toggle with F3 (desktop only). Shows FPS and basic entity counts for profiling.
@@ -9512,12 +9120,7 @@ class BirdTurdsScene extends Phaser.Scene {
     if (!this.hunter || !this.hunter.active) return;
     if (!this.hunter.body) return;
     
-        const dt = delta / 1000;
-    // Update tranq attachment to follow hunter if present
-    if (this.tranqAttachment && this.tranqAttachment.updateFollow) {
-      this.tranqAttachment.updateFollow();
-    }
-    
+    const dt = delta / 1000;
     
     // Sync coin display with localStorage every 60 frames (~1 second)
     if (!this.coinSyncCounter) this.coinSyncCounter = 0;
@@ -9551,10 +9154,7 @@ class BirdTurdsScene extends Phaser.Scene {
       try { this.updateVehicles(adjustedDt); } catch(e) { console.warn('Vehicles error:', e); }
       try { this.updatePlanes(adjustedDt); } catch(e) { console.warn('Planes error:', e); }
       try { this.updateAnimals(adjustedDt); } catch(e) { console.warn('Animals error:', e); }
-      try { this.updateRiding(adjustedDt); } catch(e) { console.warn('Riding error:', e); }
       try { this.updateNPCs(adjustedDt); } catch(e) { console.warn('NPCs error:', e); }
-      try { this.updateNPCsMovement(adjustedDt); } catch(e) { console.warn('NPCs movement error:', e); }
-      try { this.updateSniperTackle(adjustedDt); } catch(e) { console.warn('Sniper tackle error:', e); }
       try { this.updateTrump(adjustedDt); } catch(e) { console.warn('Trump error:', e); }
       try { this.updateItems(time); } catch(e) { console.warn('Items error:', e); }
       try { this.updateCoins(time); } catch(e) { console.warn('Coins error:', e); }
@@ -9577,23 +9177,6 @@ class BirdTurdsScene extends Phaser.Scene {
       // try { this.updateWeaponSprite(); } catch(e) { console.warn('Weapon update error:', e); }
       // ========== JETPACK SYSTEM ==========
       try { this.updateJetpack(adjustedDt); } catch(e) { /* Jetpack update error */ }
-      
-      // ========== v37.8 BIBLE PICKUP SPAWNING ==========
-      this.biblePickupTimer = (this.biblePickupTimer || 0) + delta;
-      if (this.biblePickupTimer > BIBLE_PICKUP_CONFIG.spawnInterval * 1000) {
-        this.biblePickupTimer = 0;
-        try { this.spawnBiblePickup(); } catch(e) { console.warn('Bible pickup spawn error:', e); }
-      }
-      // Clean up offscreen Bible pickups
-      if (this.biblePickups) {
-        const view = this.cameras.main.worldView;
-        this.biblePickups.getChildren().forEach(b => {
-          if (b && b.active && b.x < view.x - 200) {
-            if (b.label) b.label.destroy();
-            b.destroy();
-          }
-        });
-      }
     } catch(e) {
       console.error('Update error:', e);
     }
@@ -9845,7 +9428,7 @@ class BirdTurdsScene extends Phaser.Scene {
     
     // Entering protected park warning
     if (this.inProtectedPark && !wasInPark) {
-      this.showNotification('🏞️ ENTERING WILDLIFE SANCTUARY - NO HUNTING! TRANQ DARTS ONLY.');
+      this.showNotification('🏞️ ENTERING WILDLIFE SANCTUARY - NO HUNTING!');
       this.showParkOverlay();
     }
     
@@ -10095,46 +9678,10 @@ class BirdTurdsScene extends Phaser.Scene {
     this.parkBanner = this.add.text(
       this.cameras.main.worldView.centerX,
       100,
-      '🏞️ NO HUNTING – TRANQ DARTS ONLY 🚫💉',
+      '🏞️ NO HUNTING ZONE 🚫',
       { fontSize: '24px', fontStyle: 'bold', color: '#ff0000', backgroundColor: '#000000aa', padding: { x: 20, y: 10 } }
     ).setOrigin(0.5).setScrollFactor(0).setDepth(200);
   }
-
-  showTranqAttachment() {
-    // Visually indicate the tranquilizer modification on the hunter's weapon
-    if (!this.hunter) return;
-    if (this.tranqAttachment) this.tranqAttachment.destroy();
-
-    // Small green dart icon that follows the hunter near the weapon hand
-    const offsetX = this.hunter.flipX ? -28 : 28;
-    const offsetY = -26;
-
-    this.tranqAttachment = this.add.text(
-      this.hunter.x + offsetX,
-      this.hunter.y + offsetY,
-      '💉',
-      { fontSize: '20px' }
-    )
-      .setDepth(201)
-      .setScrollFactor(1);
-
-    // Tie it to the hunter's update so it tracks movement
-    this.tranqAttachment.updateFollow = () => {
-      if (!this.hunter || !this.tranqAttachment) return;
-      const ox = this.hunter.flipX ? -28 : 28;
-      const oy = -26;
-      this.tranqAttachment.x = this.hunter.x + ox;
-      this.tranqAttachment.y = this.hunter.y + oy;
-    };
-  }
-
-  hideTranqAttachment() {
-    if (this.tranqAttachment) {
-      this.tranqAttachment.destroy();
-      this.tranqAttachment = null;
-    }
-  }
-
   
   hideParkOverlay() {
     if (this.parkBanner) {
@@ -10755,16 +10302,18 @@ class BirdTurdsScene extends Phaser.Scene {
   handleShoot(targetX, targetY) {
     if (this.gameOver || this.fireRateCooldown > 0) return;
     
-    // 🏞️ STATE PARK: switch to tranquilizer darts instead of lethal rounds
+    // 🚫 NO HUNTING IN STATE PARK! Disable shooting in protected zones
     if (this.inProtectedPark) {
-      // One-time notice when you first fire inside the park
-      if (!this.lastParkTranqNotice || Date.now() - this.lastParkTranqNotice > 4000) {
-        this.showNotification('🏞️ TRANQ DART MODE: Non-lethal only in State Park.', 0x22c55e);
-        this.lastParkTranqNotice = Date.now();
+      // Show reminder notification (but don't spam)
+      if (!this.lastParkWarning || Date.now() - this.lastParkWarning > 3000) {
+        this.showNotification('🚫 NO HUNTING ZONE! Dodge the birds!', 0xff6b6b);
+        this.lastParkWarning = Date.now();
       }
-      // We still allow firing, but treat shots as tranquilizer darts (see bullet setup & bird hit logic)
+      // Play a "denied" sound if available
+      this.playSound('error');
+      return; // Block shooting completely
     }
-
+    
     // Check which weapon to use
     let weaponUsed = 'rifle';
     let bulletColor = 0xFFFF00;
@@ -10976,16 +10525,6 @@ class BirdTurdsScene extends Phaser.Scene {
     const startX = this.hunter.x + (this.hunter.flipX ? -25 : 25);
     const startY = this.hunter.y - (this.isCrouching ? 20 : 35);
     
-    
-    // In protected State Park, always treat bullets as non-lethal tranquilizer darts
-    if (this.inProtectedPark) {
-      weaponUsed = 'tranq';
-      bulletColor = 0x22c55e; // Green dart
-      bulletSize = Math.max(3, bulletSize);
-      bulletEmoji = null; // Use simple dart circle for clarity
-      bulletTrail = false;
-    }
-
     let bullet;
     if (bulletEmoji) {
       bullet = this.add.text(startX, startY, bulletEmoji, { fontSize: '16px' }).setDepth(15);
@@ -11665,27 +11204,6 @@ class BirdTurdsScene extends Phaser.Scene {
   }
   
   onLieHit(lie) {
-    // ========== v37.8 HOLY SHIELD PROTECTION ==========
-    // Holy Shield blocks ALL demon attacks!
-    if (this.isProtectedByHolyShield()) {
-      this.showPointIndicator(lie.x, lie.y, '✝️ HOLY SHIELD!', 0xffd700);
-      this.showNotification('✝️ Holy Shield blocked the demon lie!', 0xffd700);
-      lie.destroy();
-      
-      // Enrage the demon that threw the lie!
-      if (this.demons) {
-        const nearestDemon = this.demons.getChildren()[0];
-        if (nearestDemon && nearestDemon.active) {
-          nearestDemon.setTint(0xff0000);
-          this.showPointIndicator(nearestDemon.x, nearestDemon.y - 30, '😡 CURSE THAT SHIELD!', 0xff4444);
-          this.time.delayedCall(500, () => { 
-            if (nearestDemon && nearestDemon.active) nearestDemon.clearTint(); 
-          });
-        }
-      }
-      return;
-    }
-    
     // Angel protection can block lies
     if (btState.angelProtectionActive) {
       const protection = ANGEL_PROTECTION[btState.angelProtectionLevel];
@@ -13226,9 +12744,6 @@ class BirdTurdsScene extends Phaser.Scene {
     zombie.isAwake = true;
     btState.zombiesAwakened = (btState.zombiesAwakened || 0) + 1;
     
-    // Emit event for mission nudge milestone tracking
-    this.emitZombieAwakened();
-    
     // ========== DRAMATIC VISUAL TRANSFORMATION - SWAP TO AWAKENED SPRITE ==========
     const awakenedSpriteKey = `person_${zombie.zombieType.type}`;
     
@@ -13800,12 +13315,7 @@ class BirdTurdsScene extends Phaser.Scene {
   spawnNPC() {
     if (!this.currentScene || !this.currentScene.npcs || this.currentScene.npcs.length === 0) return;
     const key = this.currentScene.npcs[Math.floor(Math.random() * this.currentScene.npcs.length)];
-    const npcData = npcTypes[key];
-    if (!npcData) return;
-    
-    // Use the sprite defined in npcTypes (allows sniper_npc to use hiker sprite)
-    const spriteKey = npcData.sprite || key;
-    if (!this.textures.exists(spriteKey)) return;
+    if (!npcTypes[key] || !this.textures.exists(key)) return;
     
     const view = this.cameras.main.worldView;
     const fromLeft = Math.random() < 0.5;
@@ -13815,25 +13325,15 @@ class BirdTurdsScene extends Phaser.Scene {
     const shadow = this.add.ellipse(startX, this.groundY + 3, 30, 12, 0x000000, 0.25)
       .setOrigin(0.5).setDepth(5);
     
-    const npc = this.npcs.create(startX, this.groundY, spriteKey)
+    const npc = this.npcs.create(startX, this.groundY, key)
       .setOrigin(0.5, 1).setScale(0.10).setFlipX(fromLeft).setDepth(7);
     
     npc.shadow = shadow; // Link shadow to NPC
     npc.body.setAllowGravity(false);
-    npc.speed = npcData.speed + Math.random() * 10;
+    npc.speed = npcTypes[key].speed + Math.random() * 10;
     npc.direction = fromLeft ? 1 : -1;
     npc.walkPhase = Math.random() * Math.PI * 2;
     npc.npcType = key;
-    
-    // Apply tint for special NPCs (like sniper_npc)
-    if (npcData.tint) {
-      npc.setTint(npcData.tint);
-    }
-    
-    // Show warning for sniper NPCs
-    if (npcData.isSniper) {
-      this.showNotification('🎯 SNIPER SPOTTED! Run into him to TACKLE for +100 points!', 0xef4444);
-    }
   }
   
   // ========== TRUMP SYSTEM - Commander in Chief Protection ==========
@@ -16210,14 +15710,6 @@ class BirdTurdsScene extends Phaser.Scene {
       this.toggleQuickShop();
     });
     
-    // v37.8 - Q key also opens quick shop
-    this.input.keyboard.on('keydown-Q', () => {
-      // Don't capture if typing in input
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) return;
-      this.toggleQuickShop();
-    });
-    
     // ESC also closes
     this.input.keyboard.on('keydown-ESC', () => {
       if (this.quickShopOpen) this.closeQuickShop();
@@ -16267,197 +15759,6 @@ class BirdTurdsScene extends Phaser.Scene {
         this.quickBuyItem(item.id, item.cost, item.name);
       }
     });
-  }
-  
-  // v37.8 - Initialize Quick Store (alias for existing system)
-  initQuickStore() {
-    console.log('⚡ Quick Store initialized - Press Q or TAB to open');
-  }
-  
-  // ========== v37.8 MISSION NUDGES - About Page & Youth Outreach ==========
-  // Shows periodic messages about the game's purpose and mission to reach youth
-  initMissionNudges() {
-    console.log('✝️ Mission Nudges initialized - Sharing purpose with players');
-    
-    // Mission nudge messages - About page and youth outreach inspiration
-    const missionNudges = [
-      // About the game's purpose
-      { msg: "🎯 This game was made with PURPOSE — to reach today's youth with God's Word!", type: 'divine' },
-      { msg: "💡 Did you know? BirdTurds was created to share biblical truth through gaming!", type: 'scripture' },
-      { msg: "✝️ Every Scripture in this game is a seed planted. Share it with young people!", type: 'divine' },
-      { msg: "📖 Want to know WHY this game exists? Check out the About page!", type: 'info', hasLink: true },
-      
-      // Youth focus
-      { msg: "🎓 'Let no one despise your youth' — 1 Timothy 4:12 | YOU matter to God!", type: 'scripture' },
-      { msg: "👥 Share this game with your youth group — entertainment with PURPOSE!", type: 'info' },
-      { msg: "📱 This game was made to reach phone-addicted youth with biblical truth!", type: 'divine' },
-      { msg: "🙏 Our prayer: That through this game, young hearts would encounter Jesus!", type: 'divine' },
-      
-      // Family & sharing
-      { msg: "👨‍👩‍👧‍👦 Play with your family! Great conversations start with shared experiences.", type: 'info' },
-      { msg: "🌟 'Train up a child in the way he should go' — Proverbs 22:6", type: 'scripture' },
-      { msg: "💝 Share BirdTurds with a young person who needs to hear God's Word!", type: 'bonus' },
-      
-      // End times awareness
-      { msg: "⏰ We believe we're in the last days. This game shares the urgency!", type: 'divine' },
-      { msg: "✝️ God doesn't want ANYONE left behind — that's why this game exists!", type: 'divine' },
-      { msg: "📖 Every phone zombie you wake represents a soul hearing the Gospel!", type: 'scripture' },
-      
-      // Call to action
-      { msg: "⛪ Found a church through this game? That's the REAL victory!", type: 'bonus' },
-      { msg: "🔗 Learn our story at the ABOUT page — see why we made this!", type: 'info', hasLink: true },
-      { msg: "💬 Got a testimony? Share how this game impacted you!", type: 'info' }
-    ];
-    
-    // Track which nudges have been shown
-    btState.missionNudgeIndex = 0;
-    btState.missionNudgesShown = 0;
-    
-    // Show first nudge after 2 minutes of gameplay
-    this.time.delayedCall(120000, () => {
-      this.showMissionNudge(missionNudges);
-    });
-    
-    // Then show nudges every 5-7 minutes
-    this.time.addEvent({
-      delay: 300000 + Math.random() * 120000, // 5-7 minutes
-      callback: () => this.showMissionNudge(missionNudges),
-      loop: true
-    });
-    
-    // Special milestone nudges
-    this.setupMilestoneNudges();
-  }
-  
-  showMissionNudge(nudges) {
-    // Don't show if paused or in menu
-    if (this.isPaused || btState.gameOver) return;
-    
-    // Get next nudge (cycle through)
-    const nudge = nudges[btState.missionNudgeIndex % nudges.length];
-    btState.missionNudgeIndex++;
-    btState.missionNudgesShown++;
-    
-    // Show the nudge message
-    this.showBelowGameMessage(nudge.msg, nudge.type, 8000);
-    
-    // If it has a link, also show notification with About link
-    if (nudge.hasLink) {
-      this.time.delayedCall(2000, () => {
-        this.showAboutNudge();
-      });
-    }
-    
-    console.log(`✝️ Mission nudge #${btState.missionNudgesShown}: ${nudge.msg}`);
-  }
-  
-  showAboutNudge() {
-    // Create a clickable About nudge on screen
-    if (this.aboutNudgeUI) return;
-    
-    this.aboutNudgeUI = this.add.container(GAME_WIDTH / 2, 80);
-    this.aboutNudgeUI.setDepth(2000);
-    this.aboutNudgeUI.setScrollFactor(0);
-    
-    const bg = this.add.rectangle(0, 0, 320, 45, 0x8b5cf6, 0.95);
-    bg.setStrokeStyle(2, 0xffd700);
-    
-    const text = this.add.text(0, 0, '📖 Click HERE to see WHY this game exists!', {
-      fontSize: '13px',
-      fontFamily: 'Arial',
-      color: '#ffd700',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
-    
-    this.aboutNudgeUI.add([bg, text]);
-    
-    // Make it interactive
-    bg.setInteractive({ useHandCursor: true });
-    bg.on('pointerdown', () => {
-      window.open('/about.html', '_blank');
-      this.aboutNudgeUI.destroy();
-      this.aboutNudgeUI = null;
-    });
-    
-    // Pulse animation
-    this.tweens.add({
-      targets: this.aboutNudgeUI,
-      scaleX: { from: 1, to: 1.05 },
-      scaleY: { from: 1, to: 1.05 },
-      yoyo: true,
-      repeat: 5,
-      duration: 300
-    });
-    
-    // Auto-hide after 10 seconds
-    this.time.delayedCall(10000, () => {
-      if (this.aboutNudgeUI) {
-        this.tweens.add({
-          targets: this.aboutNudgeUI,
-          alpha: 0,
-          y: 40,
-          duration: 500,
-          onComplete: () => {
-            if (this.aboutNudgeUI) {
-              this.aboutNudgeUI.destroy();
-              this.aboutNudgeUI = null;
-            }
-          }
-        });
-      }
-    });
-  }
-  
-  setupMilestoneNudges() {
-    // Show special nudges at game milestones
-    
-    // First phone zombie awakened
-    if (!localStorage.getItem('bt_nudge_firstZombie')) {
-      this.events.once('zombieAwakened', () => {
-        localStorage.setItem('bt_nudge_firstZombie', 'true');
-        this.time.delayedCall(1000, () => {
-          this.showBelowGameMessage("🙏 You just 'woke someone up' to God's Word! That's the heart of this game!", 'divine', 6000);
-        });
-      });
-    }
-    
-    // First Bible collected
-    if (!localStorage.getItem('bt_nudge_firstBible')) {
-      this.events.once('bibleCollected', () => {
-        localStorage.setItem('bt_nudge_firstBible', 'true');
-        this.time.delayedCall(1000, () => {
-          this.showBelowGameMessage("📖 Bibles restore your health AND build Holy Shields! God's Word is powerful!", 'scripture', 6000);
-        });
-      });
-    }
-    
-    // Score milestones
-    const scoreThresholds = [5000, 25000, 100000];
-    scoreThresholds.forEach(threshold => {
-      const key = `bt_nudge_score${threshold}`;
-      if (!localStorage.getItem(key)) {
-        // Check in update loop or score change
-        this.events.on('scoreUpdate', (score) => {
-          if (score >= threshold && !localStorage.getItem(key)) {
-            localStorage.setItem(key, 'true');
-            this.showBelowGameMessage(`🏆 ${threshold.toLocaleString()} points! Share this game to help reach more youth!`, 'bonus', 5000);
-          }
-        });
-      }
-    });
-  }
-  
-  // Emit events for milestone tracking
-  emitZombieAwakened() {
-    this.events.emit('zombieAwakened');
-  }
-  
-  emitBibleCollected() {
-    this.events.emit('bibleCollected');
-  }
-  
-  emitScoreUpdate(score) {
-    this.events.emit('scoreUpdate', score);
   }
   
   showQuickBuyHint() {
@@ -16636,234 +15937,6 @@ class BirdTurdsScene extends Phaser.Scene {
   }
 
   updateNPCs(dt) {
-    const view = this.cameras.main.worldView;
-    
-    // ========== SNIPER NPC BEHAVIOR ==========
-    this.npcs.getChildren().forEach(npc => {
-      if (!npc || !npc.active || npc.npcType !== 'sniper_npc') return;
-      
-      const npcData = npcTypes.sniper_npc;
-      if (!npc.lastShot) npc.lastShot = 0;
-      
-      // Sniper shoots but NEVER hits (bullets go wide)
-      const now = Date.now();
-      if (now - npc.lastShot > npcData.shootInterval && this.hunter && this.hunter.active) {
-        npc.lastShot = now;
-        
-        // Create visual-only bullet that goes wide
-        const bulletY = npc.y - 40;
-        const targetY = this.hunter.y + (Math.random() * 200 - 100); // Always misses!
-        const direction = npc.x < this.hunter.x ? 1 : -1;
-        
-        const fakeBullet = this.add.circle(npc.x + direction * 30, bulletY, 4, 0xff0000)
-          .setDepth(20);
-        
-        this.tweens.add({
-          targets: fakeBullet,
-          x: npc.x + direction * 500,
-          y: targetY + (Math.random() > 0.5 ? 100 : -100), // Always goes wide
-          duration: 800,
-          onComplete: () => fakeBullet.destroy()
-        });
-        
-        // Muzzle flash
-        const flash = this.add.circle(npc.x + direction * 20, bulletY, 10, 0xffff00)
-          .setDepth(21);
-        this.time.delayedCall(100, () => flash.destroy());
-        
-        // Sound
-        this.playSound('sniper');
-        
-        // Show "missed!" notification sometimes
-        if (Math.random() < 0.3) {
-          this.showNotification('🎯 Sniper missed! TACKLE him for points!', 0xfbbf24);
-        }
-      }
-    });
-    
-    // Continue with regular NPC update logic below...
-  }
-
-  // ========== v37.6 RIDING SYSTEM ==========
-  updateRiding(dt) {
-    if (!this.hunter || !this.hunter.active) return;
-    
-    // If currently riding, handle riding logic
-    if (this.isRiding && this.ridingAnimal && this.ridingAnimal.active) {
-      const animal = this.ridingAnimal;
-      const animalData = groundAnimals[animal.animalType];
-      
-      // Player moves with animal
-      this.hunter.x = animal.x;
-      this.hunter.y = animal.y - 40;
-      
-      // Boost animal speed
-      const rideSpeed = animalData?.rideSpeed || 200;
-      animal.x += rideSpeed * animal.direction * dt;
-      
-      // Award points while riding
-      this.ridePointsTimer += dt;
-      if (this.ridePointsTimer >= 1) {
-        this.ridePointsTimer = 0;
-        const ridePoints = animalData?.ridePoints || 5;
-        btState.score += ridePoints;
-        btState.coins += 1;
-        this.showPointIndicator(this.hunter.x, this.hunter.y - 60, `+${ridePoints} YEEHAW!`, 0xfbbf24);
-      }
-      
-      // Can still shoot while riding!
-      
-      // Press E or SPACE to dismount
-      if (Phaser.Input.Keyboard.JustDown(this.keys.E) || Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
-        this.dismountAnimal();
-      }
-      
-      // Auto-dismount if animal destroyed or goes offscreen
-      const view = this.cameras.main.worldView;
-      if (animal.x < view.x - 100 || animal.x > view.right + 100) {
-        this.dismountAnimal();
-      }
-      
-      return;
-    }
-    
-    // Not riding - check for nearby rideable animals
-    let nearestRideable = null;
-    let nearestDist = 80;
-    
-    this.animals.getChildren().forEach(a => {
-      if (!a || !a.active) return;
-      const animalData = groundAnimals[a.animalType];
-      if (!animalData?.rideable) return;
-      
-      const dist = Math.abs(a.x - this.hunter.x);
-      if (dist < nearestDist) {
-        nearestDist = dist;
-        nearestRideable = a;
-      }
-    });
-    
-    // Show/hide ride prompt
-    if (nearestRideable) {
-      if (!this.ridePrompt) {
-        this.ridePrompt = this.add.text(0, 0, '🐎 Press E to RIDE!', {
-          fontSize: '14px',
-          color: '#fbbf24',
-          fontFamily: 'Comic Sans MS',
-          stroke: '#000',
-          strokeThickness: 3
-        }).setOrigin(0.5).setDepth(100);
-      }
-      this.ridePrompt.setPosition(nearestRideable.x, nearestRideable.y - 60);
-      this.ridePrompt.setVisible(true);
-      
-      // Press E to mount
-      if (Phaser.Input.Keyboard.JustDown(this.keys.E)) {
-        this.mountAnimal(nearestRideable);
-      }
-    } else if (this.ridePrompt) {
-      this.ridePrompt.setVisible(false);
-    }
-  }
-  
-  mountAnimal(animal) {
-    if (!animal || !animal.active || this.isRiding) return;
-    
-    this.isRiding = true;
-    this.ridingAnimal = animal;
-    this.ridePointsTimer = 0;
-    
-    const animalName = animal.animalType === 'horse' ? 'HORSE' : 'COW';
-    this.showNotification(`🤠 RIDING THE ${animalName}! +Points every second!`, 0x22c55e);
-    
-    // Play horse/cow sound
-    if (animal.animalType === 'horse') {
-      this.playSound('horse');
-    } else {
-      this.playSound('cow');
-    }
-    
-    // Visual feedback
-    animal.setTint(0x88ff88);
-  }
-  
-  dismountAnimal() {
-    if (!this.isRiding) return;
-    
-    if (this.ridingAnimal) {
-      this.ridingAnimal.clearTint();
-    }
-    
-    this.isRiding = false;
-    this.ridingAnimal = null;
-    
-    // Land hunter safely
-    if (this.hunter && this.hunter.active) {
-      this.hunter.y = this.groundY;
-    }
-    
-    this.showNotification('🛑 Dismounted! Nice ride!', 0x60a5fa);
-  }
-  
-  // ========== v37.6 SNIPER TACKLE SYSTEM ==========
-  updateSniperTackle(dt) {
-    if (!this.hunter || !this.hunter.active || this.isRiding) return;
-    
-    this.npcs.getChildren().forEach(npc => {
-      if (!npc || !npc.active || npc.npcType !== 'sniper_npc') return;
-      if (npc.isTackled) return;
-      
-      const dist = Math.abs(npc.x - this.hunter.x);
-      const vertDist = Math.abs(npc.y - this.hunter.y);
-      
-      // Tackle when close and hunter is running (has velocity)
-      if (dist < 50 && vertDist < 40 && this.hunter.body && Math.abs(this.hunter.body.velocity.x) > 50) {
-        this.tackleSniperNPC(npc);
-      }
-    });
-  }
-  
-  tackleSniperNPC(npc) {
-    if (!npc || !npc.active || npc.isTackled) return;
-    
-    npc.isTackled = true;
-    
-    const npcData = npcTypes.sniper_npc;
-    const tacklePoints = npcData?.tacklePoints || 100;
-    const tackleCoins = npcData?.tackleCoins || 25;
-    
-    // Award points
-    btState.score += tacklePoints;
-    btState.coins += tackleCoins;
-    
-    // Visual feedback
-    this.showPointIndicator(npc.x, npc.y - 50, `+${tacklePoints} TACKLE!`, 0x22c55e);
-    this.showPointIndicator(npc.x + 30, npc.y - 30, `+${tackleCoins} 🪙`, 0xfbbf24);
-    this.showNotification('💥 SNIPER TACKLED! Great job hunter!', 0x22c55e);
-    
-    // Tackle animation
-    this.tweens.add({
-      targets: npc,
-      x: npc.x + (npc.direction * 100),
-      y: npc.y + 20,
-      angle: 360,
-      scale: 0,
-      duration: 500,
-      onComplete: () => {
-        if (npc.shadow) npc.shadow.destroy();
-        npc.destroy();
-      }
-    });
-    
-    // Screen shake
-    this.cameras.main.shake(200, 0.01);
-    
-    // Play sound
-    this.playSound('explosion');
-  }
-  
-  // ========== ORIGINAL NPC UPDATE LOGIC (movement, collision avoidance, cleanup) ==========
-  updateNPCsMovement(dt) {
     const view = this.cameras.main.worldView;
     const allAnimals = this.animals.getChildren().filter(a => a && a.active);
     const allNPCs = this.npcs.getChildren().filter(n => n && n.active);
@@ -17142,17 +16215,8 @@ class BirdTurdsScene extends Phaser.Scene {
     const cfg = bird.config;
     if (!cfg) return;
     
-    // Check if in protected park
+    // Check if in protected park - BIG PENALTY!
     if (this.inProtectedPark) {
-      // Legal behavior: tranquilizer darts only
-      if (bullet.weaponType === 'tranq') {
-        bullet.destroy();
-        this.showPointIndicator(bird.x, bird.y, '💤 TRANQ HIT', 0x22c55e);
-        // Do NOT harm the bird or count a kill in the sanctuary
-        return;
-      }
-
-      // Illegal behavior: any non-tranq projectile in the park = big penalty
       bullet.destroy();
       btState.score -= 100;
       const msg = protectedParkMessages[Math.floor(Math.random() * protectedParkMessages.length)];
