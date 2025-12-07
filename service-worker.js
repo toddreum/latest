@@ -1,10 +1,14 @@
-// BirdTurds Service Worker v37.8.6
-const CACHE_NAME = 'birdturds-v37.8.6';
+// BirdTurds Service Worker v38.0.0 - FIX38 Network-First for game.js
+const CACHE_NAME = 'birdturds-v38.0.0';
+const NETWORK_FIRST_URLS = [
+  '/game.js',
+  '/game_min.js',
+  '/js/game.js'
+];
 const urlsToCache = [
   '/',
   '/play.html',
   '/index.html',
-  '/game_min.js',
   '/manifest.json',
   '/logo.png',
   '/snowflake.png',
@@ -50,9 +54,10 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch event - with proper error handling
+// Fetch event - with network-first for game.js and cache-first for others
 self.addEventListener('fetch', event => {
   const request = event.request;
+  const url = new URL(request.url);
   
   // Skip non-GET requests (POST, etc.)
   if (request.method !== 'GET') {
@@ -64,30 +69,68 @@ self.addEventListener('fetch', event => {
     return;
   }
   
-  // Skip external analytics/tracking scripts
+  // Skip external analytics/tracking scripts and Firebase
   if (request.url.includes('cloudflareinsights.com') || 
       request.url.includes('google-analytics.com') ||
-      request.url.includes('firebase')) {
+      request.url.includes('gstatic.com/firebasejs') ||
+      request.url.includes('googleapis.com')) {
     return;
   }
   
-  event.respondWith(
-    fetch(request)
-      .then(response => {
-        // Only cache successful responses from our domain
-        if (response && response.status === 200 && response.type === 'basic') {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then(cache => {
-            cache.put(request, responseClone).catch(() => {
-              // Silently ignore cache put errors
+  // Check if this is a network-first URL (game.js)
+  const isNetworkFirst = NETWORK_FIRST_URLS.some(path => url.pathname.endsWith(path) || url.pathname === path);
+  
+  if (isNetworkFirst) {
+    // NETWORK-FIRST strategy for game.js to avoid serving stale/corrupt bundles
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // Clone and cache successful responses
+          if (response && response.status === 200 && response.type === 'basic') {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(request, responseClone).catch(() => {
+                console.log('[SW] Cache put failed for', request.url);
+              });
             });
-          });
-        }
-        return response;
-      })
-      .catch(() => {
-        // Network failed, try cache
-        return caches.match(request);
-      })
-  );
+          }
+          return response;
+        })
+        .catch(() => {
+          // Network failed, try cache as fallback
+          console.log('[SW] Network failed for', request.url, '- trying cache');
+          return caches.match(request);
+        })
+    );
+  } else {
+    // CACHE-FIRST strategy for other resources
+    event.respondWith(
+      caches.match(request)
+        .then(cachedResponse => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          
+          // Not in cache, fetch from network
+          return fetch(request)
+            .then(response => {
+              // Only cache successful responses from our domain
+              if (response && response.status === 200 && response.type === 'basic') {
+                const responseClone = response.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                  cache.put(request, responseClone).catch(() => {
+                    // Silently ignore cache put errors
+                  });
+                });
+              }
+              return response;
+            });
+        })
+        .catch(() => {
+          // Both cache and network failed
+          console.log('[SW] Both cache and network failed for', request.url);
+          return new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+        })
+    );
+  }
 });
